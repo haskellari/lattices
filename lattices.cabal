@@ -1,0 +1,21 @@
+Name:               lattices
+Version:            1.0
+Cabal-Version:      >= 1.2
+Category:           Network
+Synopsis:           A very simple package providing a cross-platform means of determining the hostname
+License:            BSD3
+License-File:       LICENSE
+Author:             Max Bolingbroke <batterseapower@hotmail.com>
+Maintainer:         Max Bolingbroke <batterseapower@hotmail.com>
+Build-Type:         Simple
+
+Library
+        Exposed-Modules: Algebra.Enumerable,
+                         Algebra.Lattice,
+                         Algebra.Lattice.Dropped,
+                         Algebra.Lattice.Levitated,
+                         Algebra.Lattice.Lifted,
+                         Algebra.PartialOrd
+                         
+        Build-Depends:   base >= 3 && < 5,
+                         containers >= 0.3 && < 0.4
