@@ -1,8 +1,8 @@
 Name:               lattices
 Version:            1.0
 Cabal-Version:      >= 1.2
-Category:           Network
-Synopsis:           A very simple package providing a cross-platform means of determining the hostname
+Category:           Math
+Synopsis:           Fine-grained library for constructing and manipulating lattices
 License:            BSD3
 License-File:       LICENSE
 Author:             Max Bolingbroke <batterseapower@hotmail.com>
