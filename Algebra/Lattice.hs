@@ -17,7 +17,9 @@ import Algebra.Enumerable
 import Algebra.PartialOrd
 
 import qualified Data.Set as S
+import qualified Data.IntSet as IS
 import qualified Data.Map as M
+import qualified Data.IntMap as IM
 
 
 -- | A algebraic structure with element joins: <http://en.wikipedia.org/wiki/Semilattice>
@@ -104,6 +106,16 @@ instance (Ord a, Enumerable a) => BoundedMeetSemiLattice (S.Set (Enumerated a)) 
 instance (Ord a, Enumerable a) => BoundedLattice (S.Set (Enumerated a)) where
 
 --
+-- IntSets
+--
+
+instance JoinSemiLattice IS.IntSet where
+    join = IS.union
+
+instance BoundedJoinSemiLattice IS.IntSet where
+    bottom = IS.empty
+
+--
 -- Maps
 --
 
@@ -122,6 +134,16 @@ instance (Ord k, Enumerable k, BoundedMeetSemiLattice v) => BoundedMeetSemiLatti
     top = M.fromList (universe `zip` repeat top)
 
 instance (Ord k, Enumerable k, BoundedLattice v) => BoundedLattice (M.Map (Enumerated k) v) where
+
+--
+-- IntMaps
+--
+
+instance JoinSemiLattice v => JoinSemiLattice (IM.IntMap v) where
+    join = IM.unionWith join
+
+instance JoinSemiLattice v => BoundedJoinSemiLattice (IM.IntMap v) where
+    bottom = IM.empty
 
 --
 -- Functions
