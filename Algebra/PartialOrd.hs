@@ -11,7 +11,9 @@ module Algebra.PartialOrd (
 import Algebra.Enumerable
 
 import qualified Data.Set as S
+import qualified Data.IntSet as IS
 import qualified Data.Map as M
+import qualified Data.IntMap as IM
 
 
 -- | A partial ordering on sets: <http://en.wikipedia.org/wiki/Partially_ordered_set>
@@ -38,8 +40,14 @@ partialOrdEq x y = leq x y && leq y x
 instance Ord a => PartialOrd (S.Set a) where
     leq = S.isSubsetOf
 
+instance PartialOrd IS.IntSet where
+    leq = IS.isSubsetOf
+
 instance (Ord k, PartialOrd v) => PartialOrd (M.Map k v) where
-    leq = M.isSubmapOf
+    m1 `leq` m2 = m1 `M.isSubmapOf` m2 && M.fold (\(x1, x2) b -> b && x1 `leq` x2) True (M.intersectionWith (,) m1 m2)
+
+instance PartialOrd v => PartialOrd (IM.IntMap v) where
+    im1 `leq` im2 = im1 `IM.isSubmapOf` im2 && IM.fold (\(x1, x2) b -> b && x1 `leq` x2) True (IM.intersectionWith (,) im1 im2)
 
 instance (Eq v, Enumerable k) => Eq (k -> v) where
     f == g = all (\k -> f k == g k) universe

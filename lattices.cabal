@@ -1,5 +1,5 @@
 Name:               lattices
-Version:            1.1
+Version:            1.2
 Cabal-Version:      >= 1.2
 Category:           Math
 Synopsis:           Fine-grained library for constructing and manipulating lattices

@@ -9,12 +9,12 @@ module Algebra.Lattice (
     joins, meets,
     
     -- * Fixed points of chains in lattices
-    lfp, unsafeLfp,
-    gfp, unsafeGfp,
+    lfp, lfpFrom, unsafeLfp,
+    gfp, gfpFrom, unsafeGfp,
   ) where
 
 import Algebra.Enumerable
-import Algebra.PartialOrd
+import qualified Algebra.PartialOrd as PO
 
 import qualified Data.Set as S
 import qualified Data.IntSet as IS
@@ -210,23 +210,35 @@ instance BoundedLattice Bool where
 -- Assumes that the function is monotone and does not check if that is correct.
 {-# INLINE unsafeLfp #-}
 unsafeLfp :: (Eq a, BoundedJoinSemiLattice a) => (a -> a) -> a
-unsafeLfp = unsafeLfpFrom bottom
+unsafeLfp = PO.unsafeLfpFrom bottom
 
 -- | Implementation of Kleene fixed-point theorem <http://en.wikipedia.org/wiki/Kleene_fixed-point_theorem>.
 -- Forces the function to be monotone.
 {-# INLINE lfp #-}
 lfp :: (Eq a, BoundedJoinSemiLattice a) => (a -> a) -> a
-lfp f = unsafeLfpFrom bottom (\x -> f x `join` x)
+lfp = lfpFrom bottom
+
+-- | Implementation of Kleene fixed-point theorem <http://en.wikipedia.org/wiki/Kleene_fixed-point_theorem>.
+-- Forces the function to be monotone.
+{-# INLINE lfpFrom #-}
+lfpFrom :: (Eq a, BoundedJoinSemiLattice a) => a -> (a -> a) -> a
+lfpFrom init_x f = PO.unsafeLfpFrom init_x (\x -> f x `join` x)
 
 
 -- | Implementation of Kleene fixed-point theorem <http://en.wikipedia.org/wiki/Kleene_fixed-point_theorem>.
 -- Assumes that the function is antinone and does not check if that is correct.
 {-# INLINE unsafeGfp #-}
 unsafeGfp :: (Eq a, BoundedMeetSemiLattice a) => (a -> a) -> a
-unsafeGfp = unsafeGfpFrom top
+unsafeGfp = PO.unsafeGfpFrom top
 
 -- | Implementation of Kleene fixed-point theorem <http://en.wikipedia.org/wiki/Kleene_fixed-point_theorem>.
 -- Forces the function to be antinone.
 {-# INLINE gfp #-}
 gfp :: (Eq a, BoundedMeetSemiLattice a) => (a -> a) -> a
-gfp f = unsafeGfpFrom top (\x -> f x `meet` x)
+gfp = gfpFrom top
+
+-- | Implementation of Kleene fixed-point theorem <http://en.wikipedia.org/wiki/Kleene_fixed-point_theorem>.
+-- Forces the function to be antinone.
+{-# INLINE gfpFrom #-}
+gfpFrom :: (Eq a, BoundedMeetSemiLattice a) => a -> (a -> a) -> a
+gfpFrom init_x f = PO.unsafeGfpFrom init_x (\x -> f x `meet` x)
