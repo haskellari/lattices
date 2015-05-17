@@ -1,8 +1,24 @@
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 module Algebra.Lattice.Dropped (
     Dropped(..)
   ) where
 
 import Algebra.Lattice
+
+#if MIN_VERSION_base(4,8,0)
+#else
+import Data.Monoid (Monoid(..))
+import Data.Foldable
+import Data.Traversable
+#endif
+
+import Control.Applicative
+import Data.Data
+import GHC.Generics
 
 --
 -- Dropped
@@ -12,6 +28,23 @@ import Algebra.Lattice
 -- As a bonus, the top will be an absorbing element for the join.
 data Dropped a = Top
                | Drop a
+  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic
+#if __GLASGOW_HASKELL__ >= 706
+           , Generic1
+#endif
+           )
+
+instance Functor Dropped where
+  fmap _ Top      = Top
+  fmap f (Drop a) = Drop (f a)
+
+instance Foldable Dropped where
+  foldMap _ Top      = mempty
+  foldMap f (Drop a) = f a
+
+instance Traversable Dropped where
+  traverse _ Top      = pure Top
+  traverse f (Drop a) = Drop <$> f a
 
 instance JoinSemiLattice a => JoinSemiLattice (Dropped a) where
     Top    `join` _      = Top

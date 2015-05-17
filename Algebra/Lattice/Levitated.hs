@@ -1,8 +1,24 @@
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 module Algebra.Lattice.Levitated (
     Levitated(..)
   ) where
 
 import Algebra.Lattice
+
+#if MIN_VERSION_base(4,8,0)
+#else
+import Data.Monoid (Monoid(..))
+import Data.Foldable
+import Data.Traversable
+#endif
+
+import Control.Applicative
+import Data.Data
+import GHC.Generics
 
 --
 -- Levitated
@@ -14,6 +30,25 @@ import Algebra.Lattice
 data Levitated a = Top
                  | Levitate a
                  | Bottom
+  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic
+#if __GLASGOW_HASKELL__ >= 706
+           , Generic1
+#endif
+           )
+instance Functor Levitated where
+  fmap _ Bottom       = Bottom
+  fmap _ Top          = Top
+  fmap f (Levitate a) = Levitate (f a)
+
+instance Foldable Levitated where
+  foldMap _ Bottom       = mempty
+  foldMap _ Top          = mempty
+  foldMap f (Levitate a) = f a
+
+instance Traversable Levitated where
+  traverse _ Bottom       = pure Bottom
+  traverse _ Top          = pure Top
+  traverse f (Levitate a) = Levitate <$> f a
 
 instance JoinSemiLattice a => JoinSemiLattice (Levitated a) where
     Top        `join` _          = Top
