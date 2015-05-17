@@ -17,6 +17,7 @@ import Data.Traversable
 #endif
 
 import Control.Applicative
+import Control.DeepSeq
 import Data.Data
 import GHC.Generics
 
@@ -45,6 +46,10 @@ instance Foldable Dropped where
 instance Traversable Dropped where
   traverse _ Top      = pure Top
   traverse f (Drop a) = Drop <$> f a
+
+instance NFData a => NFData (Dropped a) where
+  rnf Top      = ()
+  rnf (Drop a) = rnf a
 
 instance JoinSemiLattice a => JoinSemiLattice (Dropped a) where
     Top    `join` _      = Top

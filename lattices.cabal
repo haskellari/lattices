@@ -18,8 +18,9 @@ library
                    Algebra.PartialOrd
 
   build-depends:   base >= 3 && < 5,
-                   containers >= 0.3 && < 0.6
-  ghc-options:    -Wall
+                   containers >= 0.3 && < 0.6,
+                   deepseq >= 1.1 && < 1.5
+  ghc-options:     -Wall
 
   if impl(ghc >= 7.4 && < 7.5)
     build-depends: ghc-prim
