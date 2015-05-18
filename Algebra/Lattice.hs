@@ -3,11 +3,11 @@ module Algebra.Lattice (
     -- * Unbounded lattices
     JoinSemiLattice(..), MeetSemiLattice(..), Lattice,
     joinLeq, joins1, meetLeq, meets1,
-    
+
     -- * Bounded lattices
     BoundedJoinSemiLattice(..), BoundedMeetSemiLattice(..), BoundedLattice,
     joins, meets,
-    
+
     -- * Fixed points of chains in lattices
     lfp, lfpFrom, unsafeLfp,
     gfp, gfpFrom, unsafeGfp,
@@ -21,6 +21,9 @@ import qualified Data.IntSet as IS
 import qualified Data.Map as M
 import qualified Data.IntMap as IM
 
+import Data.Hashable
+import qualified Data.HashSet as HS
+import qualified Data.HashMap.Lazy as HM
 
 -- | A algebraic structure with element joins: <http://en.wikipedia.org/wiki/Semilattice>
 --
@@ -116,6 +119,19 @@ instance BoundedJoinSemiLattice IS.IntSet where
     bottom = IS.empty
 
 --
+-- HashSet
+--
+
+instance (Eq a, Hashable a) => JoinSemiLattice (HS.HashSet a) where
+    join = HS.union
+
+instance (Eq a, Hashable a) => MeetSemiLattice (HS.HashSet a) where
+    meet = HS.intersection
+
+instance (Eq a, Hashable a) => BoundedJoinSemiLattice (HS.HashSet a) where
+    bottom = HS.empty
+
+--
 -- Maps
 --
 
@@ -144,6 +160,19 @@ instance JoinSemiLattice v => JoinSemiLattice (IM.IntMap v) where
 
 instance JoinSemiLattice v => BoundedJoinSemiLattice (IM.IntMap v) where
     bottom = IM.empty
+
+--
+-- HashMaps
+--
+
+instance (Eq k, Hashable k) => JoinSemiLattice (HM.HashMap k v) where
+    join = HM.union
+
+instance (Eq k, Hashable k) => MeetSemiLattice (HM.HashMap k v) where
+    meet = HM.intersection
+
+instance (Eq k, Hashable k) => BoundedJoinSemiLattice (HM.HashMap k v) where
+    bottom = HM.empty
 
 --
 -- Functions
