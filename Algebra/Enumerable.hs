@@ -1,3 +1,13 @@
+{-# LANGUAGE Safe #-}
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Algebra.Enumerable
+-- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke
+-- License     :  BSD-3-Clause (see the file LICENSE)
+--
+-- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
+--
+----------------------------------------------------------------------------
 module Algebra.Enumerable (
     Enumerable(..), universeBounded,
     Enumerated(..)

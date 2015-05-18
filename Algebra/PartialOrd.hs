@@ -1,8 +1,18 @@
+{-# LANGUAGE Safe #-}
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Algebra.PartialOrd
+-- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke
+-- License     :  BSD-3-Clause (see the file LICENSE)
+--
+-- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
+--
+----------------------------------------------------------------------------
 module Algebra.PartialOrd (
     -- * Partial orderings
     PartialOrd(..),
     partialOrdEq,
-    
+
     -- * Fixed points of chains in partial orders
     lfpFrom, unsafeLfpFrom,
     gfpFrom, unsafeGfpFrom
@@ -21,14 +31,18 @@ import qualified Data.IntMap as IM
 -- This can be defined using either |joinLeq| or |meetLeq|, or a more efficient definition
 -- can be derived directly.
 --
+-- @
 -- Reflexive:     a `leq` a
 -- Antisymmetric: a `leq` b && b `leq` a ==> a == b
 -- Transitive:    a `leq` b && b `leq` c ==> a `leq` c
+-- @
 --
 -- The superclass equality (which can be defined using |partialOrdEq|) must obey these laws:
 --
+-- @
 -- Reflexive:  a == a
 -- Transitive: a == b && b == c ==> a == b
+-- @
 class Eq a => PartialOrd a where
     leq :: a -> a -> Bool
 

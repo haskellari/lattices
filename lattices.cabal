@@ -1,28 +1,29 @@
-Name:               lattices
-Version:            1.2.1
-Cabal-Version:      >= 1.2
-Category:           Math
-Synopsis:           Fine-grained library for constructing and manipulating lattices
-License:            BSD3
-License-File:       LICENSE
-Author:             Max Bolingbroke <batterseapower@hotmail.com>
-Maintainer:         Max Bolingbroke <batterseapower@hotmail.com>
-Build-Type:         Simple
+name:               lattices
+version:            1.2.1
+cabal-version:      >= 1.10
+category:           Math
+synopsis:           Fine-grained library for constructing and manipulating lattices
+license:            BSD3
+license-File:       LICENSE
+author:             Maximilian Bolingbroke <batterseapower@hotmail.com>
+maintainer:         Oleg Grenrus <oleg.grenrus@iki.fi>
+build-type:         Simple
 
 library
-  exposed-modules: Algebra.Enumerable,
-                   Algebra.Lattice,
-                   Algebra.Lattice.Dropped,
-                   Algebra.Lattice.Levitated,
-                   Algebra.Lattice.Lifted,
-                   Algebra.PartialOrd
+  exposed-modules:  Algebra.Enumerable,
+                    Algebra.Lattice,
+                    Algebra.Lattice.Dropped,
+                    Algebra.Lattice.Levitated,
+                    Algebra.Lattice.Lifted,
+                    Algebra.PartialOrd
 
-  build-depends:   base >= 3 && < 5,
-                   containers >= 0.3 && < 0.6,
-                   deepseq >= 1.1 && < 1.5,
-                   hashable >= 1.2 && < 1.3,
-                   unordered-containers >= 0.2  && < 0.3
-  ghc-options:     -Wall
+  build-depends:    base >= 3 && < 5,
+                    containers >= 0.3 && < 0.6,
+                    deepseq >= 1.1 && < 1.5,
+                    hashable >= 1.2 && < 1.3,
+                    unordered-containers >= 0.2  && < 0.3
+  ghc-options:      -Wall
+  default-language: Haskell2010
 
   if impl(ghc >= 7.4 && < 7.5)
-    build-depends: ghc-prim
+    build-depends:  ghc-prim

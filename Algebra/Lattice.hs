@@ -1,4 +1,22 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE Trustworthy #-}
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Algebra.Lattice
+-- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke
+-- License     :  BSD-3-Clause (see the file LICENSE)
+--
+-- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
+--
+-- In mathematics, a lattice is a partially ordered set in which every
+-- two elements have a unique supremum (also called a least upper bound
+-- or @join@) and a unique infimum (also called a greatest lower bound or
+-- @meet@).
+--
+-- In this module lattices are defined using `meet` and `join` operators,
+-- as it's constructive one.
+--
+----------------------------------------------------------------------------
 module Algebra.Lattice (
     -- * Unbounded lattices
     JoinSemiLattice(..), MeetSemiLattice(..), Lattice,
@@ -27,9 +45,11 @@ import qualified Data.HashMap.Lazy as HM
 
 -- | A algebraic structure with element joins: <http://en.wikipedia.org/wiki/Semilattice>
 --
+-- @
 -- Associativity: x `join` (y `join` z) == (x `join` y) `join` z
 -- Commutativity: x `join` y == y `join` x
 -- Idempotency:   x `join` x == x
+-- @
 class JoinSemiLattice a where
     join :: a -> a -> a
 
@@ -43,9 +63,11 @@ joins1 = foldr1 join
 
 -- | A algebraic structure with element meets: <http://en.wikipedia.org/wiki/Semilattice>
 --
+-- @
 -- Associativity: x `meet` (y `meet` z) == (x `meet` y) `meet` z
 -- Commutativity: x `meet` y == y `meet` x
 -- Idempotency:   x `meet` x == x
+-- @
 class MeetSemiLattice a where
     meet :: a -> a -> a
 
@@ -60,12 +82,16 @@ meets1 = foldr1 meet
 -- | The combination of two semi lattices makes a lattice if the absorption law holds:
 -- see <http://en.wikipedia.org/wiki/Absorption_law> and <http://en.wikipedia.org/wiki/Lattice_(order)>
 --
+-- @
 -- Absorption: a `join` (a `meet` b) == a `meet` (a `join` b) == a
+-- @
 class (JoinSemiLattice a, MeetSemiLattice a) => Lattice a where
 
 -- | A join-semilattice with some element |bottom| that `join` approaches.
 --
+-- @
 -- Identity: x `join` bottom == x
+-- @
 class JoinSemiLattice a => BoundedJoinSemiLattice a where
     bottom :: a
 
@@ -75,7 +101,9 @@ joins = foldr join bottom
 
 -- | A meet-semilattice with some element |top| that `meet` approaches.
 --
+-- @
 -- Identity: x `meet` top == x
+-- @
 class MeetSemiLattice a => BoundedMeetSemiLattice a where
     top :: a
 

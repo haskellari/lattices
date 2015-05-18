@@ -2,8 +2,18 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE Trustworthy #-}
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Algebra.Lattice.Levitated
+-- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015 Oleg Grenrus
+-- License     :  BSD-3-Clause (see the file LICENSE)
+--
+-- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
+--
+----------------------------------------------------------------------------
 module Algebra.Lattice.Levitated (
     Levitated(..)
   ) where
