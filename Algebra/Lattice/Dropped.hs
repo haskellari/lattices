@@ -1,11 +1,16 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE TypeOperators #-}
 module Algebra.Lattice.Dropped (
     Dropped(..)
   ) where
+
+#ifndef MIN_VERSION_base
+#define MIN_VERSION_base(x,y,z) 1
+#endif
 
 import Algebra.Lattice
 
@@ -19,6 +24,7 @@ import Data.Traversable
 import Control.Applicative
 import Control.DeepSeq
 import Data.Data
+import Data.Hashable
 import GHC.Generics
 
 --
@@ -50,6 +56,8 @@ instance Traversable Dropped where
 instance NFData a => NFData (Dropped a) where
   rnf Top      = ()
   rnf (Drop a) = rnf a
+
+instance Hashable a => Hashable (Dropped a)
 
 instance JoinSemiLattice a => JoinSemiLattice (Dropped a) where
     Top    `join` _      = Top

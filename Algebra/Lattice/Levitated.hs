@@ -1,11 +1,16 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE TypeOperators #-}
 module Algebra.Lattice.Levitated (
     Levitated(..)
   ) where
+
+#ifndef MIN_VERSION_base
+#define MIN_VERSION_base(x,y,z) 1
+#endif
 
 import Algebra.Lattice
 
@@ -19,6 +24,7 @@ import Data.Traversable
 import Control.Applicative
 import Control.DeepSeq
 import Data.Data
+import Data.Hashable
 import GHC.Generics
 
 --
@@ -55,6 +61,8 @@ instance NFData a => NFData (Levitated a) where
   rnf Top          = ()
   rnf Bottom       = ()
   rnf (Levitate a) = rnf a
+
+instance Hashable a => Hashable (Levitated a)
 
 instance JoinSemiLattice a => JoinSemiLattice (Levitated a) where
     Top        `join` _          = Top
