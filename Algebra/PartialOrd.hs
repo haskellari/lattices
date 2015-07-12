@@ -28,7 +28,7 @@ import qualified Data.IntMap as IM
 
 -- | A partial ordering on sets: <http://en.wikipedia.org/wiki/Partially_ordered_set>
 --
--- This can be defined using either |joinLeq| or |meetLeq|, or a more efficient definition
+-- This can be defined using either 'joinLeq' or 'meetLeq', or a more efficient definition
 -- can be derived directly.
 --
 -- @
@@ -37,7 +37,7 @@ import qualified Data.IntMap as IM
 -- Transitive:    a `leq` b && b `leq` c ==> a `leq` c
 -- @
 --
--- The superclass equality (which can be defined using |partialOrdEq|) must obey these laws:
+-- The superclass equality (which can be defined using 'partialOrdEq') must obey these laws:
 --
 -- @
 -- Reflexive:  a == a
