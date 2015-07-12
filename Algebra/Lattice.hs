@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice
@@ -26,22 +27,29 @@ module Algebra.Lattice (
     BoundedJoinSemiLattice(..), BoundedMeetSemiLattice(..), BoundedLattice,
     joins, meets,
 
+    -- * Monoid wrappers
+    Meet(..), Join(..),
+
     -- * Fixed points of chains in lattices
     lfp, lfpFrom, unsafeLfp,
     gfp, gfpFrom, unsafeGfp,
   ) where
 
-import Algebra.Enumerable
+import           Algebra.Enumerable
 import qualified Algebra.PartialOrd as PO
 
-import qualified Data.Set as S
+import           Data.Monoid
+
+import qualified Data.IntMap as IM
 import qualified Data.IntSet as IS
 import qualified Data.Map as M
-import qualified Data.IntMap as IM
+import qualified Data.Set as S
 
-import Data.Hashable
+import           Data.Hashable
 import qualified Data.HashSet as HS
 import qualified Data.HashMap.Lazy as HM
+
+import           Data.Data
 
 infixr 6 /\
 infixr 5 \/
@@ -265,6 +273,71 @@ instance BoundedMeetSemiLattice Bool where
 
 instance BoundedLattice Bool where
 
+--- Monoids
+
+-- | Monoid wrapper for JoinSemiLattice
+newtype Join a = Join { getJoin :: a }
+  deriving (Eq, Ord, Read, Show, Bounded, Typeable, Data)
+
+instance BoundedJoinSemiLattice a => Monoid (Join a) where
+  mempty = Join bottom
+  Join a `mappend` Join b = Join (a \/ b)
+
+-- | Monoid wrapper for MeetSemiLattice
+newtype Meet a = Meet { getMeet :: a }
+  deriving (Eq, Ord, Read, Show, Bounded, Typeable, Data)
+
+instance BoundedMeetSemiLattice a => Monoid (Meet a) where
+  mempty = Meet top
+  Meet a `mappend` Meet b = Meet (a /\ b)
+
+-- All
+instance JoinSemiLattice All where
+  All a \/ All b = All $ a \/ b
+
+instance BoundedJoinSemiLattice All where
+  bottom = All False
+
+instance MeetSemiLattice All where
+  All a /\ All b = All $ a /\ b
+
+instance BoundedMeetSemiLattice All where
+  top = All True
+
+instance Lattice All where
+instance BoundedLattice All where
+
+-- Any
+instance JoinSemiLattice Any where
+  Any a \/ Any b = Any $ a \/ b
+
+instance BoundedJoinSemiLattice Any where
+  bottom = Any False
+
+instance MeetSemiLattice Any where
+  Any a /\ Any b = Any $ a /\ b
+
+instance BoundedMeetSemiLattice Any where
+  top = Any True
+
+instance Lattice Any where
+instance BoundedLattice Any where
+
+-- Endo
+instance JoinSemiLattice a => JoinSemiLattice (Endo a) where
+  Endo a \/ Endo b = Endo $ a \/ b
+
+instance BoundedJoinSemiLattice a => BoundedJoinSemiLattice (Endo a) where
+  bottom = Endo bottom
+
+instance MeetSemiLattice a => MeetSemiLattice (Endo a) where
+  Endo a /\ Endo b = Endo $ a /\ b
+
+instance BoundedMeetSemiLattice a => BoundedMeetSemiLattice (Endo a) where
+  top = Endo top
+
+instance Lattice a => Lattice (Endo a) where
+instance BoundedLattice a => BoundedLattice (Endo a) where
 
 -- | Implementation of Kleene fixed-point theorem <http://en.wikipedia.org/wiki/Kleene_fixed-point_theorem>.
 -- Assumes that the function is monotone and does not check if that is correct.
