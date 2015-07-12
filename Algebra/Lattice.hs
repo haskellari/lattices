@@ -43,6 +43,9 @@ import Data.Hashable
 import qualified Data.HashSet as HS
 import qualified Data.HashMap.Lazy as HM
 
+infixr 6 /\
+infixr 5 \/
+
 -- | A algebraic structure with element joins: <http://en.wikipedia.org/wiki/Semilattice>
 --
 -- @
@@ -51,15 +54,15 @@ import qualified Data.HashMap.Lazy as HM
 -- Idempotency:   x `join` x == x
 -- @
 class JoinSemiLattice a where
-    join :: a -> a -> a
+    (\/) :: a -> a -> a
 
 -- | The partial ordering induced by the join-semilattice structure
 joinLeq :: (Eq a, JoinSemiLattice a) => a -> a -> Bool
-joinLeq x y = x `join` y == y
+joinLeq x y = (x \/ y) == y
 
 -- | The join of at a list of join-semilattice elements (of length at least one)
 joins1 :: JoinSemiLattice a => [a] -> a
-joins1 = foldr1 join
+joins1 = foldr1 (\/)
 
 -- | A algebraic structure with element meets: <http://en.wikipedia.org/wiki/Semilattice>
 --
@@ -69,15 +72,15 @@ joins1 = foldr1 join
 -- Idempotency:   x `meet` x == x
 -- @
 class MeetSemiLattice a where
-    meet :: a -> a -> a
+    (/\) :: a -> a -> a
 
 -- | The partial ordering induced by the meet-semilattice structure
 meetLeq :: (Eq a, MeetSemiLattice a) => a -> a -> Bool
-meetLeq x y = x `meet` y == x
+meetLeq x y = (x /\ y) == x
 
 -- | The meet of at a list of meet-semilattice elements (of length at least one)
 meets1 :: MeetSemiLattice a => [a] -> a
-meets1 = foldr1 meet
+meets1 = foldr1 (/\)
 
 -- | The combination of two semi lattices makes a lattice if the absorption law holds:
 -- see <http://en.wikipedia.org/wiki/Absorption_law> and <http://en.wikipedia.org/wiki/Lattice_(order)>
@@ -97,7 +100,7 @@ class JoinSemiLattice a => BoundedJoinSemiLattice a where
 
 -- | The join of a list of join-semilattice elements
 joins :: BoundedJoinSemiLattice a => [a] -> a
-joins = foldr join bottom
+joins = foldr (\/) bottom
 
 -- | A meet-semilattice with some element |top| that `meet` approaches.
 --
@@ -109,7 +112,7 @@ class MeetSemiLattice a => BoundedMeetSemiLattice a where
 
 -- | The meet of a list of meet-semilattice elements
 meets :: BoundedMeetSemiLattice a => [a] -> a
-meets = foldr meet top
+meets = foldr (/\) top
 
 
 -- | Lattices with both bounds
@@ -121,10 +124,10 @@ class (Lattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => Bounded
 --
 
 instance Ord a => JoinSemiLattice (S.Set a) where
-    join = S.union
+    (\/) = S.union
 
 instance (Ord a, Enumerable a) => MeetSemiLattice (S.Set (Enumerated a)) where
-    meet = S.intersection
+    (/\) = S.intersection
 
 instance (Ord a, Enumerable a) => Lattice (S.Set (Enumerated a)) where
 
@@ -141,7 +144,7 @@ instance (Ord a, Enumerable a) => BoundedLattice (S.Set (Enumerated a)) where
 --
 
 instance JoinSemiLattice IS.IntSet where
-    join = IS.union
+    (\/) = IS.union
 
 instance BoundedJoinSemiLattice IS.IntSet where
     bottom = IS.empty
@@ -151,10 +154,10 @@ instance BoundedJoinSemiLattice IS.IntSet where
 --
 
 instance (Eq a, Hashable a) => JoinSemiLattice (HS.HashSet a) where
-    join = HS.union
+    (\/) = HS.union
 
 instance (Eq a, Hashable a) => MeetSemiLattice (HS.HashSet a) where
-    meet = HS.intersection
+    (/\) = HS.intersection
 
 instance (Eq a, Hashable a) => BoundedJoinSemiLattice (HS.HashSet a) where
     bottom = HS.empty
@@ -164,10 +167,10 @@ instance (Eq a, Hashable a) => BoundedJoinSemiLattice (HS.HashSet a) where
 --
 
 instance (Ord k, JoinSemiLattice v) => JoinSemiLattice (M.Map k v) where
-    join = M.unionWith join
+    (\/) = M.unionWith (\/)
 
 instance (Ord k, Enumerable k, MeetSemiLattice v) => MeetSemiLattice (M.Map (Enumerated k) v) where
-    meet = M.intersectionWith meet
+    (/\) = M.intersectionWith (/\)
 
 instance (Ord k, Enumerable k, Lattice v) => Lattice (M.Map (Enumerated k) v) where
 
@@ -184,7 +187,7 @@ instance (Ord k, Enumerable k, BoundedLattice v) => BoundedLattice (M.Map (Enume
 --
 
 instance JoinSemiLattice v => JoinSemiLattice (IM.IntMap v) where
-    join = IM.unionWith join
+    (\/) = IM.unionWith (\/)
 
 instance JoinSemiLattice v => BoundedJoinSemiLattice (IM.IntMap v) where
     bottom = IM.empty
@@ -194,10 +197,10 @@ instance JoinSemiLattice v => BoundedJoinSemiLattice (IM.IntMap v) where
 --
 
 instance (Eq k, Hashable k) => JoinSemiLattice (HM.HashMap k v) where
-    join = HM.union
+    (\/) = HM.union
 
 instance (Eq k, Hashable k) => MeetSemiLattice (HM.HashMap k v) where
-    meet = HM.intersection
+    (/\) = HM.intersection
 
 instance (Eq k, Hashable k) => BoundedJoinSemiLattice (HM.HashMap k v) where
     bottom = HM.empty
@@ -207,10 +210,10 @@ instance (Eq k, Hashable k) => BoundedJoinSemiLattice (HM.HashMap k v) where
 --
 
 instance JoinSemiLattice v => JoinSemiLattice (k -> v) where
-    f `join` g = \x -> f x `join` g x
+    f \/ g = \x -> f x \/ g x
 
 instance MeetSemiLattice v => MeetSemiLattice (k -> v) where
-    f `meet` g = \x -> f x `meet` g x
+    f /\ g = \x -> f x /\ g x
 
 instance Lattice v => Lattice (k -> v) where
 
@@ -227,10 +230,10 @@ instance BoundedLattice v => BoundedLattice (k -> v) where
 --
 
 instance (JoinSemiLattice a, JoinSemiLattice b) => JoinSemiLattice (a, b) where
-    (x1, y1) `join` (x2, y2) = (x1 `join` x2, y1 `join` y2)
+    (x1, y1) \/ (x2, y2) = (x1 \/ x2, y1 \/ y2)
 
 instance (MeetSemiLattice a, MeetSemiLattice b) => MeetSemiLattice (a, b) where
-    (x1, y1) `meet` (x2, y2) = (x1 `meet` x2, y1 `meet` y2)
+    (x1, y1) /\ (x2, y2) = (x1 /\ x2, y1 /\ y2)
 
 instance (Lattice a, Lattice b) => Lattice (a, b) where
 
@@ -247,10 +250,10 @@ instance (BoundedLattice a, BoundedLattice b) => BoundedLattice (a, b) where
 --
 
 instance JoinSemiLattice Bool where
-    join = (||)
+    (\/) = (||)
 
 instance MeetSemiLattice Bool where
-    meet = (&&)
+    (/\) = (&&)
 
 instance Lattice Bool where
 
@@ -279,7 +282,7 @@ lfp = lfpFrom bottom
 -- Forces the function to be monotone.
 {-# INLINE lfpFrom #-}
 lfpFrom :: (Eq a, BoundedJoinSemiLattice a) => a -> (a -> a) -> a
-lfpFrom init_x f = PO.unsafeLfpFrom init_x (\x -> f x `join` x)
+lfpFrom init_x f = PO.unsafeLfpFrom init_x (\x -> f x \/ x)
 
 
 -- | Implementation of Kleene fixed-point theorem <http://en.wikipedia.org/wiki/Kleene_fixed-point_theorem>.
@@ -298,4 +301,4 @@ gfp = gfpFrom top
 -- Forces the function to be antinone.
 {-# INLINE gfpFrom #-}
 gfpFrom :: (Eq a, BoundedMeetSemiLattice a) => a -> (a -> a) -> a
-gfpFrom init_x f = PO.unsafeGfpFrom init_x (\x -> f x `meet` x)
+gfpFrom init_x f = PO.unsafeGfpFrom init_x (\x -> f x /\ x)
