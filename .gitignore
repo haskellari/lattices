@@ -1,7 +1,4 @@
-# OS junk
-.DS_Store
-Thumbs.db
-
-# Cabal junk
 dist/
-
+.cabal-sandbox/
+cabal.sandbox.config
+.stack-work
