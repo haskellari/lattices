@@ -14,7 +14,7 @@
 -- or @join@) and a unique infimum (also called a greatest lower bound or
 -- @meet@).
 --
--- In this module lattices are defined using `meet` and `join` operators,
+-- In this module lattices are defined using 'meet' and 'join' operators,
 -- as it's constructive one.
 --
 ----------------------------------------------------------------------------
@@ -56,11 +56,9 @@ infixr 5 \/
 
 -- | A algebraic structure with element joins: <http://en.wikipedia.org/wiki/Semilattice>
 --
--- @
--- Associativity: x `join` (y `join` z) == (x `join` y) `join` z
--- Commutativity: x `join` y == y `join` x
--- Idempotency:   x `join` x == x
--- @
+-- > Associativity: x \/ (y \/ z) == (x \/ y) \/ z
+-- > Commutativity: x \/ y == y \/ x
+-- > Idempotency:   x \/ x == x
 class JoinSemiLattice a where
     (\/) :: a -> a -> a
     (\/) = join
@@ -80,11 +78,9 @@ joins1 = foldr1 (\/)
 
 -- | A algebraic structure with element meets: <http://en.wikipedia.org/wiki/Semilattice>
 --
--- @
--- Associativity: x `meet` (y `meet` z) == (x `meet` y) `meet` z
--- Commutativity: x `meet` y == y `meet` x
--- Idempotency:   x `meet` x == x
--- @
+-- > Associativity: x /\ (y /\ z) == (x /\ y) /\ z
+-- > Commutativity: x /\ y == y /\ x
+-- > Idempotency:   x /\ x == x
 class MeetSemiLattice a where
     (/\) :: a -> a -> a
     (/\) = meet
@@ -105,16 +101,12 @@ meets1 = foldr1 (/\)
 -- | The combination of two semi lattices makes a lattice if the absorption law holds:
 -- see <http://en.wikipedia.org/wiki/Absorption_law> and <http://en.wikipedia.org/wiki/Lattice_(order)>
 --
--- @
--- Absorption: a `join` (a `meet` b) == a `meet` (a `join` b) == a
--- @
+-- > Absorption: a \/ (a /\ b) == a /\ (a \/ b) == a
 class (JoinSemiLattice a, MeetSemiLattice a) => Lattice a where
 
--- | A join-semilattice with some element |bottom| that `join` approaches.
+-- | A join-semilattice with some element |bottom| that \/ approaches.
 --
--- @
--- Identity: x `join` bottom == x
--- @
+-- > Identity: x \/ bottom == x
 class JoinSemiLattice a => BoundedJoinSemiLattice a where
     bottom :: a
 
@@ -122,11 +114,9 @@ class JoinSemiLattice a => BoundedJoinSemiLattice a where
 joins :: BoundedJoinSemiLattice a => [a] -> a
 joins = foldr (\/) bottom
 
--- | A meet-semilattice with some element |top| that `meet` approaches.
+-- | A meet-semilattice with some element |top| that /\ approaches.
 --
--- @
--- Identity: x `meet` top == x
--- @
+-- > Identity: x /\ top == x
 class MeetSemiLattice a => BoundedMeetSemiLattice a where
     top :: a
 
