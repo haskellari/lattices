@@ -63,6 +63,12 @@ infixr 5 \/
 -- @
 class JoinSemiLattice a where
     (\/) :: a -> a -> a
+    (\/) = join
+
+    join :: a -> a -> a
+    join = (\/)
+
+    {-# MINIMAL (\/) | join #-}
 
 -- | The partial ordering induced by the join-semilattice structure
 joinLeq :: (Eq a, JoinSemiLattice a) => a -> a -> Bool
@@ -81,6 +87,12 @@ joins1 = foldr1 (\/)
 -- @
 class MeetSemiLattice a where
     (/\) :: a -> a -> a
+    (/\) = meet
+
+    meet :: a -> a -> a
+    meet = (/\)
+
+    {-# MINIMAL (/\) | meet #-}
 
 -- | The partial ordering induced by the meet-semilattice structure
 meetLeq :: (Eq a, MeetSemiLattice a) => a -> a -> Bool
