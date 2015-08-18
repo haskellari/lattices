@@ -18,7 +18,8 @@ module Algebra.PartialOrd (
     gfpFrom, unsafeGfpFrom
   ) where
 
-import Algebra.Enumerable
+import           Data.Universe.Class (Finite(..))
+import           Data.Universe.Instances.Eq ()
 
 import qualified Data.Set as S
 import qualified Data.IntSet as IS
@@ -63,11 +64,8 @@ instance (Ord k, PartialOrd v) => PartialOrd (M.Map k v) where
 instance PartialOrd v => PartialOrd (IM.IntMap v) where
     im1 `leq` im2 = im1 `IM.isSubmapOf` im2 && IM.fold (\(x1, x2) b -> b && x1 `leq` x2) True (IM.intersectionWith (,) im1 im2)
 
-instance (Eq v, Enumerable k) => Eq (k -> v) where
-    f == g = all (\k -> f k == g k) universe
-
-instance (PartialOrd v, Enumerable k) => PartialOrd (k -> v) where
-    f `leq` g = all (\k -> f k `leq` g k) universe
+instance (PartialOrd v, Finite k) => PartialOrd (k -> v) where
+    f `leq` g = all (\k -> f k `leq` g k) universeF
 
 instance (PartialOrd a, PartialOrd b) => PartialOrd (a, b) where
     -- NB: *not* a lexical ordering. This is because for some component partial orders, lexical

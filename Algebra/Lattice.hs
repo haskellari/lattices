@@ -35,8 +35,9 @@ module Algebra.Lattice (
     gfp, gfpFrom, unsafeGfp,
   ) where
 
-import           Algebra.Enumerable
 import qualified Algebra.PartialOrd as PO
+
+import           Data.Universe.Class
 
 import           Data.Monoid
 
@@ -136,18 +137,18 @@ class (Lattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => Bounded
 instance Ord a => JoinSemiLattice (S.Set a) where
     (\/) = S.union
 
-instance (Ord a, Enumerable a) => MeetSemiLattice (S.Set (Enumerated a)) where
+instance Ord a => MeetSemiLattice (S.Set a) where
     (/\) = S.intersection
 
-instance (Ord a, Enumerable a) => Lattice (S.Set (Enumerated a)) where
+instance Ord a => Lattice (S.Set a) where
 
 instance Ord a => BoundedJoinSemiLattice (S.Set a) where
     bottom = S.empty
 
-instance (Ord a, Enumerable a) => BoundedMeetSemiLattice (S.Set (Enumerated a)) where
-    top = S.fromList universe
+instance (Ord a, Finite a) => BoundedMeetSemiLattice (S.Set a) where
+    top = S.fromList universeF
 
-instance (Ord a, Enumerable a) => BoundedLattice (S.Set (Enumerated a)) where
+instance (Ord a, Finite a) => BoundedLattice (S.Set a) where
 
 --
 -- IntSets
@@ -179,18 +180,18 @@ instance (Eq a, Hashable a) => BoundedJoinSemiLattice (HS.HashSet a) where
 instance (Ord k, JoinSemiLattice v) => JoinSemiLattice (M.Map k v) where
     (\/) = M.unionWith (\/)
 
-instance (Ord k, Enumerable k, MeetSemiLattice v) => MeetSemiLattice (M.Map (Enumerated k) v) where
+instance (Ord k, MeetSemiLattice v) => MeetSemiLattice (M.Map k v) where
     (/\) = M.intersectionWith (/\)
 
-instance (Ord k, Enumerable k, Lattice v) => Lattice (M.Map (Enumerated k) v) where
+instance (Ord k, Lattice v) => Lattice (M.Map k v) where
 
 instance (Ord k, JoinSemiLattice v) => BoundedJoinSemiLattice (M.Map k v) where
     bottom = M.empty
 
-instance (Ord k, Enumerable k, BoundedMeetSemiLattice v) => BoundedMeetSemiLattice (M.Map (Enumerated k) v) where
-    top = M.fromList (universe `zip` repeat top)
+instance (Ord k, Finite k, BoundedMeetSemiLattice v) => BoundedMeetSemiLattice (M.Map k v) where
+    top = M.fromList (universeF `zip` repeat top)
 
-instance (Ord k, Enumerable k, BoundedLattice v) => BoundedLattice (M.Map (Enumerated k) v) where
+instance (Ord k, Finite k, BoundedLattice v) => BoundedLattice (M.Map k v) where
 
 --
 -- IntMaps
