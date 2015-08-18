@@ -8,7 +8,7 @@
 -- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
 --
 ----------------------------------------------------------------------------
-module Algebra.Enumerable (
+module Algebra.Enumerable {-# DEPRECATED "Use Data.Universe.Class" #-} (
     Enumerable(..), universeBounded,
     Enumerated(..)
   ) where
