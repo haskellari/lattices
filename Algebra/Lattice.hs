@@ -39,6 +39,7 @@ import qualified Algebra.PartialOrd as PO
 
 import           Data.Universe.Class
 
+import           Data.Foldable (Foldable, foldMap)
 import           Data.Monoid
 
 import qualified Data.IntMap as IM
@@ -112,8 +113,8 @@ class JoinSemiLattice a => BoundedJoinSemiLattice a where
     bottom :: a
 
 -- | The join of a list of join-semilattice elements
-joins :: BoundedJoinSemiLattice a => [a] -> a
-joins = foldr (\/) bottom
+joins :: (BoundedJoinSemiLattice a, Foldable f) => f a -> a
+joins = getJoin . foldMap Join
 
 -- | A meet-semilattice with some element |top| that /\ approaches.
 --
@@ -122,8 +123,8 @@ class MeetSemiLattice a => BoundedMeetSemiLattice a where
     top :: a
 
 -- | The meet of a list of meet-semilattice elements
-meets :: BoundedMeetSemiLattice a => [a] -> a
-meets = foldr (/\) top
+meets :: (BoundedMeetSemiLattice a, Foldable f) => f a -> a
+meets = getMeet . foldMap Meet
 
 
 -- | Lattices with both bounds
