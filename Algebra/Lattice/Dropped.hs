@@ -70,14 +70,14 @@ instance NFData a => NFData (Dropped a) where
 instance Hashable a => Hashable (Dropped a)
 
 instance JoinSemiLattice a => JoinSemiLattice (Dropped a) where
-    Top    `join` _      = Top
-    _      `join` Top    = Top
-    Drop x `join` Drop y = Drop (x `join` y)
+    Top    \/ _      = Top
+    _      \/ Top    = Top
+    Drop x \/ Drop y = Drop (x \/ y)
 
 instance MeetSemiLattice a => MeetSemiLattice (Dropped a) where
-    Top    `meet` drop_y = drop_y
-    drop_x `meet` Top    = drop_x
-    Drop x `meet` Drop y = Drop (x `meet` y)
+    Top    /\ drop_y = drop_y
+    drop_x /\ Top    = drop_x
+    Drop x /\ Drop y = Drop (x /\ y)
 
 instance Lattice a => Lattice (Dropped a) where
 

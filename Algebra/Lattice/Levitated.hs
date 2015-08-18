@@ -75,18 +75,18 @@ instance NFData a => NFData (Levitated a) where
 instance Hashable a => Hashable (Levitated a)
 
 instance JoinSemiLattice a => JoinSemiLattice (Levitated a) where
-    Top        `join` _          = Top
-    _          `join` Top        = Top
-    Levitate x `join` Levitate y = Levitate (x `join` y)
-    Bottom     `join` lev_y      = lev_y
-    lev_x      `join` Bottom     = lev_x
+    Top        \/ _          = Top
+    _          \/ Top        = Top
+    Levitate x \/ Levitate y = Levitate (x \/ y)
+    Bottom     \/ lev_y      = lev_y
+    lev_x      \/ Bottom     = lev_x
 
 instance MeetSemiLattice a => MeetSemiLattice (Levitated a) where
-    Top        `meet` lev_y      = lev_y
-    lev_x      `meet` Top        = lev_x
-    Levitate x `meet` Levitate y = Levitate (x `meet` y)
-    Bottom     `meet` _          = Bottom
-    _          `meet` Bottom     = Bottom
+    Top        /\ lev_y      = lev_y
+    lev_x      /\ Top        = lev_x
+    Levitate x /\ Levitate y = Levitate (x /\ y)
+    Bottom     /\ _          = Bottom
+    _          /\ Bottom     = Bottom
 
 instance Lattice a => Lattice (Levitated a) where
 
