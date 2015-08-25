@@ -1,6 +1,10 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+#if __GLASGOW_HASKELL__ >= 707 && __GLASGOW_HASKELL__ < 709
+{-# OPTIONS_GHC -fno-warn-amp #-}
+#endif
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice
@@ -39,7 +43,10 @@ import qualified Algebra.PartialOrd as PO
 
 import           Data.Universe.Class
 
+#if MIN_VERSION_base(4,8,0)
+#else
 import           Data.Foldable (Foldable, foldMap)
+#endif
 import           Data.Monoid
 
 import qualified Data.IntMap as IM
@@ -53,7 +60,7 @@ import qualified Data.HashMap.Lazy as HM
 
 import           Data.Data
 
-infixr 6 /\
+infixr 6 /\ -- This comment needed because of CPP
 infixr 5 \/
 
 -- | A algebraic structure with element joins: <http://en.wikipedia.org/wiki/Semilattice>
