@@ -24,7 +24,7 @@ install:
 script:
 - if [ -f configure.ac ]; then autoreconf -i; fi
 - cabal configure --enable-tests --enable-benchmarks -v2
-- cabal build
+- cabal build --ghc-options=-Werror
 - cabal test
 - if [ "$CABALVER" = "1.22" ]; then cabal check; fi
 - cabal sdist

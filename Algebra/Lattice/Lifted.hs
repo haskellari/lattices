@@ -3,7 +3,11 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
+#if __GLASGOW_HASKELL__ < 709
 {-# LANGUAGE Trustworthy #-}
+#else
+{-# LANGUAGE Safe #-}
+#endif
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Lifted
@@ -15,6 +19,7 @@
 ----------------------------------------------------------------------------
 module Algebra.Lattice.Lifted (
     Lifted(..)
+  , retractLifted
   ) where
 
 #ifndef MIN_VERSION_base
@@ -25,13 +30,14 @@ import Algebra.Lattice
 
 #if MIN_VERSION_base(4,8,0)
 #else
+import Control.Applicative
 import Data.Monoid (Monoid(..))
 import Data.Foldable
 import Data.Traversable
 #endif
 
-import Control.Applicative
 import Control.DeepSeq
+import Control.Monad
 import Data.Data
 import Data.Hashable
 import GHC.Generics
@@ -62,6 +68,15 @@ instance Traversable Lifted where
   traverse _ Bottom   = pure Bottom
   traverse f (Lift a) = Lift <$> f a
 
+instance Applicative Lifted where
+  pure = return
+  (<*>) = ap
+
+instance Monad Lifted where
+  return        = Lift
+  Bottom >>= _  = Bottom
+  Lift x >>= f  = f x
+
 instance NFData a => NFData (Lifted a) where
   rnf Bottom   = ()
   rnf (Lift a) = rnf a
@@ -87,3 +102,8 @@ instance BoundedMeetSemiLattice a => BoundedMeetSemiLattice (Lifted a) where
     top = Lift top
 
 instance BoundedLattice a => BoundedLattice (Lifted a) where
+
+-- | Interpret @'Lifted' a@ using the 'BoundedJoinSemiLattice' of @a@.
+retractLifted :: BoundedJoinSemiLattice a => Lifted a -> a
+retractLifted Bottom    = bottom
+retractLifted (Lift x)  = x

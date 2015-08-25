@@ -4,7 +4,11 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+#if __GLASGOW_HASKELL__ < 709
 {-# LANGUAGE Trustworthy #-}
+#else
+{-# LANGUAGE Safe #-}
+#endif
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Dropped
@@ -16,6 +20,7 @@
 ----------------------------------------------------------------------------
 module Algebra.Lattice.Dropped (
     Dropped(..)
+  , retractDropped
   ) where
 
 #ifndef MIN_VERSION_base
@@ -26,13 +31,14 @@ import Algebra.Lattice
 
 #if MIN_VERSION_base(4,8,0)
 #else
+import Control.Applicative
 import Data.Monoid (Monoid(..))
 import Data.Foldable
 import Data.Traversable
 #endif
 
-import Control.Applicative
 import Control.DeepSeq
+import Control.Monad
 import Data.Data
 import Data.Hashable
 import GHC.Generics
@@ -63,6 +69,15 @@ instance Traversable Dropped where
   traverse _ Top      = pure Top
   traverse f (Drop a) = Drop <$> f a
 
+instance Applicative Dropped where
+  pure = return
+  (<*>) = ap
+
+instance Monad Dropped where
+  return        = Drop
+  Top >>= _     = Top
+  Drop x >>= f  = f x
+
 instance NFData a => NFData (Dropped a) where
   rnf Top      = ()
   rnf (Drop a) = rnf a
@@ -88,3 +103,8 @@ instance MeetSemiLattice a => BoundedMeetSemiLattice (Dropped a) where
     top = Top
 
 instance BoundedLattice a => BoundedLattice (Dropped a) where
+
+-- | Interpret @'Dropped' a@ using the 'BoundedMeetSemiLattice' of @a@.
+retractDropped :: BoundedMeetSemiLattice a => Dropped a -> a
+retractDropped Top       = top
+retractDropped (Drop x)  = x

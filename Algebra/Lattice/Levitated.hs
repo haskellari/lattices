@@ -4,7 +4,11 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+#if __GLASGOW_HASKELL__ < 709
 {-# LANGUAGE Trustworthy #-}
+#else
+{-# LANGUAGE Safe #-}
+#endif
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Levitated
@@ -16,6 +20,7 @@
 ----------------------------------------------------------------------------
 module Algebra.Lattice.Levitated (
     Levitated(..)
+  , retractLevitated
   ) where
 
 #ifndef MIN_VERSION_base
@@ -26,13 +31,14 @@ import Algebra.Lattice
 
 #if MIN_VERSION_base(4,8,0)
 #else
+import Control.Applicative
 import Data.Monoid (Monoid(..))
 import Data.Foldable
 import Data.Traversable
 #endif
 
-import Control.Applicative
 import Control.DeepSeq
+import Control.Monad
 import Data.Data
 import Data.Hashable
 import GHC.Generics
@@ -67,6 +73,16 @@ instance Traversable Levitated where
   traverse _ Top          = pure Top
   traverse f (Levitate a) = Levitate <$> f a
 
+instance Applicative Levitated where
+  pure = return
+  (<*>) = ap
+
+instance Monad Levitated where
+  return            = Levitate
+  Top >>= _         = Top
+  Bottom >>= _      = Bottom
+  Levitate x >>= f  = f x
+
 instance NFData a => NFData (Levitated a) where
   rnf Top          = ()
   rnf Bottom       = ()
@@ -97,3 +113,9 @@ instance MeetSemiLattice a => BoundedMeetSemiLattice (Levitated a) where
     top = Top
 
 instance Lattice a => BoundedLattice (Levitated a) where
+
+-- | Interpret @'Levitated' a@ using the 'BoundedLattice' of @a@.
+retractLevitated :: BoundedLattice a => Levitated a -> a
+retractLevitated Top           = top
+retractLevitated Bottom        = bottom
+retractLevitated (Levitate x)  = x
