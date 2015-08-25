@@ -1,5 +1,8 @@
 flags: {}
 packages:
 - '.'
-extra-deps: []
-resolver: lts-3.0
+extra-deps:
+- universe-base-1.0
+- universe-instances-base-1.0
+- universe-reverse-instances-1.0
+resolver: lts-3.2
