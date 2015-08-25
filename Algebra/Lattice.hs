@@ -75,7 +75,9 @@ class JoinSemiLattice a where
     join :: a -> a -> a
     join = (\/)
 
+#if __GLASGOW_HASKELL__ >= 709
     {-# MINIMAL (\/) | join #-}
+#endif
 
 -- | The partial ordering induced by the join-semilattice structure
 joinLeq :: (Eq a, JoinSemiLattice a) => a -> a -> Bool
@@ -97,7 +99,9 @@ class MeetSemiLattice a where
     meet :: a -> a -> a
     meet = (/\)
 
+#if __GLASGOW_HASKELL__ >= 709
     {-# MINIMAL (/\) | meet #-}
+#endif
 
 -- | The partial ordering induced by the meet-semilattice structure
 meetLeq :: (Eq a, MeetSemiLattice a) => a -> a -> Bool
