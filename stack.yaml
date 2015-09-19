@@ -5,4 +5,4 @@ extra-deps:
 - universe-base-1.0
 - universe-instances-base-1.0
 - universe-reverse-instances-1.0
-resolver: lts-3.2
+resolver: lts-2.22
