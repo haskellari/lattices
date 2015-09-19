@@ -47,7 +47,11 @@ import           Data.Universe.Class
 #else
 import           Data.Foldable (Foldable, foldMap)
 #endif
-import           Data.Monoid
+
+import           Data.Proxy
+import           Data.Semigroup
+import           Data.Tagged
+import           Data.Void
 
 import qualified Data.IntMap as IM
 import qualified Data.IntSet as IS
@@ -248,6 +252,22 @@ instance BoundedMeetSemiLattice v => BoundedMeetSemiLattice (k -> v) where
 
 instance BoundedLattice v => BoundedLattice (k -> v) where
 
+-- Unit
+instance JoinSemiLattice () where
+  _ \/ _ = ()
+
+instance BoundedJoinSemiLattice () where
+  bottom = ()
+
+instance MeetSemiLattice () where
+  _ /\ _ = ()
+
+instance BoundedMeetSemiLattice () where
+  top = ()
+
+instance Lattice () where
+instance BoundedLattice () where
+
 --
 -- Tuples
 --
@@ -294,6 +314,9 @@ instance BoundedLattice Bool where
 newtype Join a = Join { getJoin :: a }
   deriving (Eq, Ord, Read, Show, Bounded, Typeable, Data)
 
+instance JoinSemiLattice a => Semigroup (Join a) where
+  Join a <> Join b = Join (a \/ b)
+
 instance BoundedJoinSemiLattice a => Monoid (Join a) where
   mempty = Join bottom
   Join a `mappend` Join b = Join (a \/ b)
@@ -301,6 +324,9 @@ instance BoundedJoinSemiLattice a => Monoid (Join a) where
 -- | Monoid wrapper for MeetSemiLattice
 newtype Meet a = Meet { getMeet :: a }
   deriving (Eq, Ord, Read, Show, Bounded, Typeable, Data)
+
+instance MeetSemiLattice a => Semigroup (Meet a) where
+  Meet a <> Meet b = Meet (a /\ b)
 
 instance BoundedMeetSemiLattice a => Monoid (Meet a) where
   mempty = Meet top
@@ -353,6 +379,47 @@ instance BoundedMeetSemiLattice a => BoundedMeetSemiLattice (Endo a) where
 
 instance Lattice a => Lattice (Endo a) where
 instance BoundedLattice a => BoundedLattice (Endo a) where
+
+-- Tagged
+instance JoinSemiLattice a => JoinSemiLattice (Tagged t a) where
+  Tagged a \/ Tagged b = Tagged $ a \/ b
+
+instance BoundedJoinSemiLattice a => BoundedJoinSemiLattice (Tagged t a) where
+  bottom = Tagged bottom
+
+instance MeetSemiLattice a => MeetSemiLattice (Tagged t a) where
+  Tagged a /\ Tagged b = Tagged $ a /\ b
+
+instance BoundedMeetSemiLattice a => BoundedMeetSemiLattice (Tagged t a) where
+  top = Tagged top
+
+instance Lattice a => Lattice (Tagged t a) where
+instance BoundedLattice a => BoundedLattice (Tagged t a) where
+
+-- Proxy
+instance JoinSemiLattice (Proxy a) where
+  _ \/ _ = Proxy
+
+instance BoundedJoinSemiLattice (Proxy a) where
+  bottom = Proxy
+
+instance MeetSemiLattice (Proxy a) where
+  _ /\ _ = Proxy
+
+instance BoundedMeetSemiLattice (Proxy a) where
+  top = Proxy
+
+instance Lattice (Proxy a) where
+instance BoundedLattice (Proxy a) where
+
+-- Void
+instance JoinSemiLattice Void where
+  a \/ _ = a
+
+instance MeetSemiLattice Void where
+  a /\ _ = a
+
+instance Lattice Void where
 
 -- | Implementation of Kleene fixed-point theorem <http://en.wikipedia.org/wiki/Kleene_fixed-point_theorem>.
 -- Assumes that the function is monotone and does not check if that is correct.
