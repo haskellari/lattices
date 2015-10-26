@@ -82,6 +82,7 @@ class JoinSemiLattice a where
 #if __GLASGOW_HASKELL__ >= 707
     {-# MINIMAL (\/) | join #-}
 #endif
+{-# DEPRECATED join "Use '\\/' infix operator" #-}
 
 -- | The partial ordering induced by the join-semilattice structure
 joinLeq :: (Eq a, JoinSemiLattice a) => a -> a -> Bool
@@ -106,6 +107,7 @@ class MeetSemiLattice a where
 #if __GLASGOW_HASKELL__ >= 707
     {-# MINIMAL (/\) | meet #-}
 #endif
+{-# DEPRECATED meet "Use '/\\' infix operator" #-}
 
 -- | The partial ordering induced by the meet-semilattice structure
 meetLeq :: (Eq a, MeetSemiLattice a) => a -> a -> Bool
