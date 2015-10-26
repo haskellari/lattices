@@ -79,7 +79,7 @@ class JoinSemiLattice a where
     join :: a -> a -> a
     join = (\/)
 
-#if __GLASGOW_HASKELL__ >= 709
+#if __GLASGOW_HASKELL__ >= 707
     {-# MINIMAL (\/) | join #-}
 #endif
 
@@ -103,7 +103,7 @@ class MeetSemiLattice a where
     meet :: a -> a -> a
     meet = (/\)
 
-#if __GLASGOW_HASKELL__ >= 709
+#if __GLASGOW_HASKELL__ >= 707
     {-# MINIMAL (/\) | meet #-}
 #endif
 
