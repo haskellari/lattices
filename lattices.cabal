@@ -26,6 +26,7 @@ library
                     Algebra.Lattice.Dropped,
                     Algebra.Lattice.Levitated,
                     Algebra.Lattice.Lifted,
+                    Algebra.Lattice.Op,
                     Algebra.Lattice.Ordered,
                     Algebra.PartialOrd
 
