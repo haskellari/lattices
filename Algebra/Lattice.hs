@@ -30,6 +30,7 @@ module Algebra.Lattice (
     -- * Bounded lattices
     BoundedJoinSemiLattice(..), BoundedMeetSemiLattice(..), BoundedLattice,
     joins, meets,
+    fromBool,
 
     -- * Monoid wrappers
     Meet(..), Join(..),
@@ -147,6 +148,10 @@ meets = getMeet . foldMap Meet
 -- | Lattices with both bounds
 class (Lattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a where
 
+-- | 'True' to 'top' and 'False' to 'bottom'
+fromBool :: BoundedLattice a => Bool -> a
+fromBool True  = top
+fromBool False = bottom
 
 --
 -- Sets
