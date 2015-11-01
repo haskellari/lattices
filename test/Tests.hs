@@ -23,6 +23,7 @@ import Test.Tasty.QuickCheck as QC
 import qualified Algebra.Lattice.Dropped as D
 import qualified Algebra.Lattice.Lifted as U
 import qualified Algebra.Lattice.Levitated as L
+import qualified Algebra.Lattice.Op as Op
 
 -- For old GHC to work
 data Proxy1 (a :: * -> *) = Proxy1
@@ -38,12 +39,15 @@ theseProps = testGroup "These"
   [ functorLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
   , functorLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
   , functorLaws "Leviated" (Proxy1 :: Proxy1 L.Levitated)
+  , functorLaws "Op" (Proxy1 :: Proxy1 Op.Op)
   , traversableLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
   , traversableLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
   , traversableLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
+  , traversableLaws "Op" (Proxy1 :: Proxy1 Op.Op)
   , monadLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
   , monadLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
   , monadLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
+  , monadLaws "Op" (Proxy1 :: Proxy1 Op.Op)
   ]
 
 functorLaws :: forall (f :: * -> *). ( Functor f
@@ -144,3 +148,5 @@ instance Arbitrary a => Arbitrary (L.Levitated a) where
                         , (1, pure L.Bottom)
                         , (9, L.Levitate <$> arbitrary)
                         ]
+instance Arbitrary a => Arbitrary (Op.Op a) where
+  arbitrary = Op.Op <$> arbitrary
