@@ -48,7 +48,7 @@ import GHC.Generics
 
 -- | A total order gives rise to a lattice. Join is
 -- max, meet is min.
-data Ordered a = Ordered { getOrdered :: a }
+newtype Ordered a = Ordered { getOrdered :: a }
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1
