@@ -26,6 +26,7 @@ library
                     Algebra.Lattice.Dropped,
                     Algebra.Lattice.Levitated,
                     Algebra.Lattice.Lifted,
+                    Algebra.Lattice.Lexicographic,
                     Algebra.PartialOrd
 
   build-depends:    base                       >= 4.5  && < 4.9,
