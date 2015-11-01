@@ -22,6 +22,7 @@ import Test.Tasty.QuickCheck as QC
 
 import qualified Algebra.Lattice.Dropped as D
 import qualified Algebra.Lattice.Levitated as L
+import qualified Algebra.Lattice.Lexicographic as LO
 import qualified Algebra.Lattice.Lifted as U
 import qualified Algebra.Lattice.Op as Op
 import qualified Algebra.Lattice.Ordered as O
@@ -38,17 +39,20 @@ tests = testGroup "Tests" [theseProps]
 theseProps :: TestTree
 theseProps = testGroup "These"
   [ functorLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
-  , functorLaws "Leviated" (Proxy1 :: Proxy1 L.Levitated)
+  , functorLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
+  , functorLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
   , functorLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
   , functorLaws "Op" (Proxy1 :: Proxy1 Op.Op)
   , functorLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
   , monadLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
   , monadLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
+  , monadLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
   , monadLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
   , monadLaws "Op" (Proxy1 :: Proxy1 Op.Op)
   , monadLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
   , traversableLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
   , traversableLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
+  , traversableLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
   , traversableLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
   , traversableLaws "Op" (Proxy1 :: Proxy1 Op.Op)
   , traversableLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
@@ -158,3 +162,6 @@ instance Arbitrary a => Arbitrary (O.Ordered a) where
 
 instance Arbitrary a => Arbitrary (Op.Op a) where
   arbitrary = Op.Op <$> arbitrary
+
+instance (Arbitrary k, Arbitrary v) => Arbitrary (LO.Lexicographic k v) where
+  arbitrary = LO.Lexicographic <$> arbitrary <*> arbitrary
