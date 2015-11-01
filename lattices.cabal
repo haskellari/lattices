@@ -25,6 +25,7 @@ library
                     Algebra.Lattice,
                     Algebra.Lattice.Dropped,
                     Algebra.Lattice.Levitated,
+                    Algebra.Lattice.Lexicographic,
                     Algebra.Lattice.Lifted,
                     Algebra.Lattice.Op,
                     Algebra.Lattice.Ordered,
