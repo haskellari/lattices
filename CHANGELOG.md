@@ -1,3 +1,10 @@
+# 1.5.0 (2015-12-18)
+
+- Move `PartialOrd (k -> v)` instance into own module
+- `Const` and `Identity` instances
+- added `fromBool`
+- Add `Lexicographic`, `Ordered` and `Op` newtypes
+
 # 1.4.1 (2015-10-26)
 
 - `MINIMAL` pragma in with GHC 7.8
