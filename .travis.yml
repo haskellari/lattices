@@ -9,30 +9,33 @@ before_install:
   '?')]"
 - cabal --version
 - ghc --version
+- if [ "$NOTESTS" = "YES" ]; then export CABALCONFOPTS=""; export CABALTEST="true";
+  else export CABALCONFOPTS="--enable-tests --enable-benchmarks"; export CABALTEST="cabal
+  test"; fi
+- if [ "$PEDANTIC" = "YES" ]; then export CABALBUILDOPTS="--ghc-options=-Werror --ghc-options=-Wall";
+  fi
 install:
 - if [ -f $HOME/.cabal/packages/hackage.haskell.org/00-index.tar.gz ]; then zcat $HOME/.cabal/packages/hackage.haskell.org/00-index.tar.gz
   > $HOME/.cabal/packages/hackage.haskell.org/00-index.tar; ls -l $HOME/.cabal/packages/hackage.haskell.org/;
-  fi; cabal update; sed -i 's/^jobs:/-- jobs:/' ${HOME}/.cabal/config; if [ -n "$STACKAGESNAPSHOT"
-  ]; then curl --silent https://www.stackage.org/$STACKAGESNAPSHOT/cabal.config |
-  grep -v "$(cabal info . -v0 | head -n 1 | awk '{ print $2 }' | sed -E 's/-[0-9]+(\.[0-9]+)+//')
-  ==" > cabal.config; fi; if [ "$NOTESTS" = "YES" ]; then cabal install --only-dependencies
-  --dry -v > installplan.txt; else cabal install --only-dependencies --enable-tests
-  --enable-benchmarks --dry -v > installplan.txt; fi; sed -i -e '1,/^Resolving /d'
-  installplan.txt; cat installplan.txt; if diff -u $HOME/.cabsnap/installplan.txt
-  installplan.txt; then echo "cabal build-cache HIT"; rm -rfv .ghc; cp -av $HOME/.cabsnap/ghc
-  $HOME/.ghc; cp -av $HOME/.cabsnap/lib $HOME/.cabsnap/share $HOME/.cabsnap/bin $HOME/.cabal/;
-  else echo "cabal build-cache MISS"; rm -rf $HOME/.cabsnap; mkdir -p $HOME/.ghc $HOME/.cabal/lib
-  $HOME/.cabal/share $HOME/.cabal/bin; if [ "$NOTESTS" = "YES" ]; then cabal install
-  --only-dependencies; else cabal install --only-dependencies --enable-tests --enable-benchmarks;
-  fi; fi; if [ ! -d $HOME/.cabsnap ]; then echo "snapshotting package-db to build-cache";
-  mkdir $HOME/.cabsnap; cp -av $HOME/.ghc $HOME/.cabsnap/ghc; cp -av $HOME/.cabal/lib
-  $HOME/.cabal/share $HOME/.cabal/bin installplan.txt $HOME/.cabsnap/; fi;
+  fi; cabal update; sed -i 's/^jobs:/-- jobs:/' ${HOME}/.cabal/config; if [ -n "$CABALCONFIG"
+  ]; then cp $CABALCONFIG cabal.config; fi; if [ -n "$STACKAGESNAPSHOT" ]; then curl
+  --silent https://www.stackage.org/$STACKAGESNAPSHOT/cabal.config | grep -v "$(cabal
+  info . -v0 | head -n 1 | awk '{ print $2 }' | sed -E 's/-[0-9]+(\.[0-9]+)+//') =="
+  > cabal.config; fi; cabal install --only-dependencies $CABALCONFOPTS --dry -v >
+  installplan.txt; sed -i -e '1,/^Resolving /d' installplan.txt; cat installplan.txt;
+  if diff -u $HOME/.cabsnap/installplan.txt installplan.txt; then echo "cabal build-cache
+  HIT"; rm -rfv .ghc; cp -av $HOME/.cabsnap/ghc $HOME/.ghc; cp -av $HOME/.cabsnap/lib
+  $HOME/.cabsnap/share $HOME/.cabsnap/bin $HOME/.cabal/; else echo "cabal build-cache
+  MISS"; rm -rf $HOME/.cabsnap; mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share
+  $HOME/.cabal/bin; cabal install --only-dependencies $CABALCONFOPTS; fi; if [ ! -d
+  $HOME/.cabsnap ]; then echo "snapshotting package-db to build-cache"; mkdir $HOME/.cabsnap;
+  cp -av $HOME/.ghc $HOME/.cabsnap/ghc; cp -av $HOME/.cabal/lib $HOME/.cabal/share
+  $HOME/.cabal/bin installplan.txt $HOME/.cabsnap/; fi;
 script:
 - if [ -f configure.ac ]; then autoreconf -i; fi
-- if [ ! "$NOTESTS" = "YES" ]; then cabal configure --enable-tests --enable-benchmarks
-  -v2; else cabal configure -v2; fi
-- cabal build
-- if [ ! "$NOTESTS" = "YES" ]; then cabal test; fi
+- cabal configure $CABALCONFOPTS -v2
+- cabal build $CABALBUILDOPTS
+- $CABALTEST
 - if [ "$CABALVER" = "1.22" ]; then cabal check; fi
 - cabal sdist
 - SRC_TGZ=$(cabal info . | awk '{print $2;exit}').tar.gz && (cd dist && cabal install
@@ -60,7 +63,7 @@ matrix:
         - ghc-7.6.3
         - libgmp-dev
     compiler: ! ': # ghc-7.6.3 cabal-1.16'
-  - env: GHCVER=7.8.4 CABALVER=1.18
+  - env: GHCVER=7.8.4 CABALVER=1.18 PEDANTIC=YES
     addons:
       apt:
         sources:
@@ -80,7 +83,7 @@ matrix:
         - ghc-7.10.2
         - libgmp-dev
     compiler: ! ': # ghc-7.10.2 cabal-1.22'
-  - env: GHCVER=7.10.3 CABALVER=1.22
+  - env: GHCVER=7.10.3 CABALVER=1.22 PEDANTIC=YES
     addons:
       apt:
         sources:
