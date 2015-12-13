@@ -43,31 +43,36 @@ module Algebra.Lattice (
 
 import qualified Algebra.PartialOrd as PO
 
-import           Data.Universe.Class
+import           Data.Universe.Class (Universe(..), Finite(..))
 
 #if MIN_VERSION_base(4,8,0)
 #else
 import           Control.Applicative (Applicative(..))
-import           Data.Foldable (Foldable, foldMap)
+import           Data.Foldable       (Foldable, foldMap)
+import           Data.Monoid         (Monoid(..))
 #endif
 
-import           GHC.Generics (Generic)
-import           Data.Proxy
-import           Data.Semigroup
-import           Data.Tagged
-import           Data.Void
 import           Control.Monad.Zip (MonadZip(..))
+import           Data.Data         (Data, Typeable)
+import           Data.Hashable     (Hashable(..))
+import           Data.Proxy        (Proxy(..))
+import           Data.Semigroup    (Semigroup(..), Endo(..), Any(..), All(..))
+import           Data.Tagged       (Tagged(..))
+import           Data.Void         (Void)
+import           GHC.Generics      (Generic)
 
 import qualified Data.IntMap as IM
 import qualified Data.IntSet as IS
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-import           Data.Hashable
 import qualified Data.HashSet as HS
 import qualified Data.HashMap.Lazy as HM
 
-import           Data.Data
+import Control.Applicative (Const(..))
+#if MIN_VERSION_base(4,8,0)
+import Data.Functor.Identity (Identity(..))
+#endif
 
 infixr 6 /\ -- This comment needed because of CPP
 infixr 5 \/
@@ -466,6 +471,40 @@ instance BoundedMeetSemiLattice (Proxy a) where
 
 instance Lattice (Proxy a) where
 instance BoundedLattice (Proxy a) where
+
+#if MIN_VERSION_base(4,8,0)
+-- Identity
+instance JoinSemiLattice a => JoinSemiLattice (Identity a) where
+  Identity a \/ Identity b = Identity (a \/ b)
+
+instance BoundedJoinSemiLattice a => BoundedJoinSemiLattice (Identity a) where
+  bottom = Identity bottom
+
+instance MeetSemiLattice a => MeetSemiLattice (Identity a) where
+  Identity a /\ Identity b = Identity (a /\ b)
+
+instance BoundedMeetSemiLattice a => BoundedMeetSemiLattice (Identity a) where
+  top = Identity top
+
+instance Lattice a => Lattice (Identity a) where
+instance BoundedLattice a => BoundedLattice (Identity a) where
+#endif
+
+-- Const
+instance JoinSemiLattice a => JoinSemiLattice (Const a b) where
+  Const a \/ Const b = Const (a \/ b)
+
+instance BoundedJoinSemiLattice a => BoundedJoinSemiLattice (Const a b) where
+  bottom = Const bottom
+
+instance MeetSemiLattice a => MeetSemiLattice (Const a b) where
+  Const a /\ Const b = Const (a /\ b)
+
+instance BoundedMeetSemiLattice a => BoundedMeetSemiLattice (Const a b) where
+  top = Const top
+
+instance Lattice a => Lattice (Const a b) where
+instance BoundedLattice a => BoundedLattice (Const a b) where
 
 -- Void
 instance JoinSemiLattice Void where
