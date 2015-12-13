@@ -29,7 +29,8 @@ library
                     Algebra.Lattice.Lifted,
                     Algebra.Lattice.Op,
                     Algebra.Lattice.Ordered,
-                    Algebra.PartialOrd
+                    Algebra.PartialOrd,
+                    Algebra.PartialOrd.Instances
 
   build-depends:    base                       >= 4.5  && < 4.9,
                     containers                 >= 0.3  && < 0.6,
