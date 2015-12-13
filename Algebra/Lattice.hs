@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 #if __GLASGOW_HASKELL__ >= 707 && __GLASGOW_HASKELL__ < 709
 {-# OPTIONS_GHC -fno-warn-amp #-}
 #endif
@@ -46,13 +47,16 @@ import           Data.Universe.Class
 
 #if MIN_VERSION_base(4,8,0)
 #else
+import           Control.Applicative (Applicative(..))
 import           Data.Foldable (Foldable, foldMap)
 #endif
 
+import           GHC.Generics (Generic)
 import           Data.Proxy
 import           Data.Semigroup
 import           Data.Tagged
 import           Data.Void
+import           Control.Monad.Zip (MonadZip(..))
 
 import qualified Data.IntMap as IM
 import qualified Data.IntSet as IS
@@ -319,7 +323,7 @@ instance BoundedLattice Bool where
 
 -- | Monoid wrapper for JoinSemiLattice
 newtype Join a = Join { getJoin :: a }
-  deriving (Eq, Ord, Read, Show, Bounded, Typeable, Data)
+  deriving (Eq, Ord, Read, Show, Bounded, Typeable, Data, Generic)
 
 instance JoinSemiLattice a => Semigroup (Join a) where
   Join a <> Join b = Join (a \/ b)
@@ -328,9 +332,31 @@ instance BoundedJoinSemiLattice a => Monoid (Join a) where
   mempty = Join bottom
   Join a `mappend` Join b = Join (a \/ b)
 
+instance Functor Join where
+  fmap f (Join x) = Join (f x)
+
+instance Applicative Join where
+  pure = Join
+  Join f <*> Join x = Join (f x)
+  _ *> x = x
+
+instance Monad Join where
+  return = pure
+  Join m >>= f = f m
+  (>>) = (*>)
+
+instance MonadZip Join where
+  mzip (Join x) (Join y) = Join (x, y)
+
+instance Universe a => Universe (Join a) where
+  universe = fmap Join universe
+
+instance Finite a => Finite (Join a) where
+  universeF = fmap Join universeF
+
 -- | Monoid wrapper for MeetSemiLattice
 newtype Meet a = Meet { getMeet :: a }
-  deriving (Eq, Ord, Read, Show, Bounded, Typeable, Data)
+  deriving (Eq, Ord, Read, Show, Bounded, Typeable, Data, Generic)
 
 instance MeetSemiLattice a => Semigroup (Meet a) where
   Meet a <> Meet b = Meet (a /\ b)
@@ -338,6 +364,28 @@ instance MeetSemiLattice a => Semigroup (Meet a) where
 instance BoundedMeetSemiLattice a => Monoid (Meet a) where
   mempty = Meet top
   Meet a `mappend` Meet b = Meet (a /\ b)
+
+instance Functor Meet where
+  fmap f (Meet x) = Meet (f x)
+
+instance Applicative Meet where
+  pure = Meet
+  Meet f <*> Meet x = Meet (f x)
+  _ *> x = x
+
+instance Monad Meet where
+  return = pure
+  Meet m >>= f = f m
+  (>>) = (*>)
+
+instance MonadZip Meet where
+  mzip (Meet x) (Meet y) = Meet (x, y)
+
+instance Universe a => Universe (Meet a) where
+  universe = fmap Meet universe
+
+instance Finite a => Finite (Meet a) where
+  universeF = fmap Meet universeF
 
 -- All
 instance JoinSemiLattice All where
