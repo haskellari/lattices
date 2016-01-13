@@ -83,7 +83,7 @@ instance Ord a => JoinSemiLattice (Ordered a) where
 instance Ord a => MeetSemiLattice (Ordered a) where
   Ordered x /\ Ordered y = Ordered (min x y)
 
-instance (Lattice a, Ord a) => Lattice (Ordered a) where
+instance Ord a => Lattice (Ordered a) where
 
 instance (Ord a, Bounded a) => BoundedJoinSemiLattice (Ordered a) where
   bottom = Ordered minBound
@@ -91,7 +91,7 @@ instance (Ord a, Bounded a) => BoundedJoinSemiLattice (Ordered a) where
 instance (Ord a, Bounded a) => BoundedMeetSemiLattice (Ordered a) where
   top = Ordered maxBound
 
-instance (BoundedLattice a, Ord a, Bounded a) => BoundedLattice (Ordered a) where
+instance (Ord a, Bounded a) => BoundedLattice (Ordered a) where
 
 instance Ord a => PartialOrd (Ordered a) where
     leq = (<=)
