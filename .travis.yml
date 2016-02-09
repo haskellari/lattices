@@ -73,7 +73,7 @@ matrix:
         - ghc-7.8.4
         - libgmp-dev
     compiler: ! ': # ghc-7.8.4 cabal-1.18'
-  - env: GHCVER=7.10.2 CABALVER=1.22
+  - env: GHCVER=7.10.2 CABALVER=1.22 PEDANTIC=YES
     addons:
       apt:
         sources:
@@ -93,6 +93,46 @@ matrix:
         - ghc-7.10.3
         - libgmp-dev
     compiler: ! ': # ghc-7.10.3 cabal-1.22'
+  - env: GHCVER=7.8.4 CABALVER=1.18 STACKAGESNAPSHOT=lts-2.22
+    addons:
+      apt:
+        sources:
+        - hvr-ghc
+        packages:
+        - cabal-install-1.18
+        - ghc-7.8.4
+        - libgmp-dev
+    compiler: ! ': # ghc-7.8.4 cabal-1.18 lts-2.22'
+  - env: GHCVER=7.10.2 CABALVER=1.22 STACKAGESNAPSHOT=lts-3.22
+    addons:
+      apt:
+        sources:
+        - hvr-ghc
+        packages:
+        - cabal-install-1.22
+        - ghc-7.10.2
+        - libgmp-dev
+    compiler: ! ': # ghc-7.10.2 cabal-1.22 lts-3.22'
+  - env: GHCVER=7.10.3 CABALVER=1.22 STACKAGESNAPSHOT=lts-4.2
+    addons:
+      apt:
+        sources:
+        - hvr-ghc
+        packages:
+        - cabal-install-1.22
+        - ghc-7.10.3
+        - libgmp-dev
+    compiler: ! ': # ghc-7.10.3 cabal-1.22 lts-4.2'
+  - env: GHCVER=7.10.3 CABALVER=1.22 STACKAGESNAPSHOT=lts-5.2
+    addons:
+      apt:
+        sources:
+        - hvr-ghc
+        packages:
+        - cabal-install-1.22
+        - ghc-7.10.3
+        - libgmp-dev
+    compiler: ! ': # ghc-7.10.3 cabal-1.22 lts-5.2'
   - env: GHCVER=8.0.1 CABALVER=1.24 PEDANTIC=YES
     addons:
       apt:
