@@ -39,10 +39,13 @@ import qualified Data.IntMap as IM
 --
 -- @
 -- Reflexive:  a == a
--- Transitive: a == b && b == c ==> a == b
+-- Transitive: a == b && b == c ==> a == c
 -- @
 class Eq a => PartialOrd a where
     leq :: a -> a -> Bool
+
+    comparable :: a -> a -> Bool
+    comparable x y = leq x y || leq y x
 
 -- | The equality relation induced by the partial-order structure
 partialOrdEq :: PartialOrd a => a -> a -> Bool
