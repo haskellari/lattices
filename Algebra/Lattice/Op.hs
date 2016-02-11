@@ -95,3 +95,4 @@ instance BoundedLattice a => BoundedLattice (Op a) where
 
 instance PartialOrd a => PartialOrd (Op a) where
     Op a `leq` Op b = b `leq` a -- Note swap.
+    comparable (Op a) (Op b) = comparable a b
