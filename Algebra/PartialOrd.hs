@@ -24,30 +24,76 @@ import qualified Data.Map as M
 import qualified Data.IntMap as IM
 
 
--- | A partial ordering on sets: <http://en.wikipedia.org/wiki/Partially_ordered_set>
---
--- This can be defined using either 'joinLeq' or 'meetLeq', or a more efficient definition
--- can be derived directly.
---
--- @
--- Reflexive:     a `leq` a
--- Antisymmetric: a `leq` b && b `leq` a ==> a == b
--- Transitive:    a `leq` b && b `leq` c ==> a `leq` c
--- @
---
--- The superclass equality (which can be defined using 'partialOrdEq') must obey these laws:
+-- | A partial ordering on sets
+-- (<http://en.wikipedia.org/wiki/Partially_ordered_set>) is a set equipped
+-- with a binary relation, `leq`, that obeys the following laws
 --
 -- @
--- Reflexive:  a == a
--- Transitive: a == b && b == c ==> a == b
+-- Reflexive:     a ``leq`` a
+-- Antisymmetric: a ``leq`` b && b ``leq`` a ==> a == b
+-- Transitive:    a ``leq`` b && b ``leq`` c ==> a ``leq`` c
+-- @
+--
+-- Two elements of the set are said to be `comparable` when they are are
+-- ordered with respect to the `leq` relation. So
+--
+-- @
+-- `comparable` a b ==> a ``leq`` b || b ``leq`` a
+-- @
+--
+-- If `comparable` always returns true then the relation `leq` defines a
+-- total ordering (and an `Ord` instance may be defined). Any `Ord` instance is
+-- trivially an instance of `PartialOrd`. 'Algebra.Lattice.Ordered' provides a
+-- convenient wrapper to satisfy 'PartialOrd' given 'Ord'.
+--
+-- As an example consider the partial ordering on sets induced by set
+-- inclusion.  Then for sets `a` and `b`,
+--
+-- @
+-- a ``leq`` b
+-- @
+--
+-- is true when `a` is a subset of `b`.  Two sets are `comparable` if one is a
+-- subset of the other. Concretely
+--
+-- @
+-- a = {1, 2, 3}
+-- b = {1, 3, 4}
+-- c = {1, 2}
+--
+-- a ``leq`` a = `True`
+-- a ``leq`` b = `False`
+-- a ``leq`` c = `False`
+-- b ``leq`` a = `False`
+-- b ``leq`` b = `True`
+-- b ``leq`` c = `False`
+-- c ``leq`` a = `True`
+-- c ``leq`` b = `False`
+-- c ``leq`` c = `True`
+--
+-- `comparable` a b = `False`
+-- `comparable` a c = `True`
+-- `comparable` b c = `False`
 -- @
 class Eq a => PartialOrd a where
+    -- | The relation that induces the partial ordering
     leq :: a -> a -> Bool
 
--- | The equality relation induced by the partial-order structure
+    -- | Whether two elements are ordered with respect to the relation. A
+    -- default implementation is given by
+    --
+    -- > comparable x y = leq x y || leq y x
+    comparable :: a -> a -> Bool
+    comparable x y = leq x y || leq y x
+
+-- | The equality relation induced by the partial-order structure. It must obey
+-- the laws
+-- @
+-- Reflexive:  a == a
+-- Transitive: a == b && b == c ==> a == c
+-- @
 partialOrdEq :: PartialOrd a => a -> a -> Bool
 partialOrdEq x y = leq x y && leq y x
-
 
 instance Ord a => PartialOrd (S.Set a) where
     leq = S.isSubsetOf
@@ -65,7 +111,6 @@ instance (PartialOrd a, PartialOrd b) => PartialOrd (a, b) where
     -- NB: *not* a lexical ordering. This is because for some component partial orders, lexical
     -- ordering is incompatible with the transitivity axiom we require for the derived partial order
     (x1, y1) `leq` (x2, y2) = x1 `leq` x2 && y1 `leq` y2
-
 
 -- | Least point of a partially ordered monotone function. Checks that the function is monotone.
 lfpFrom :: PartialOrd a => a -> (a -> a) -> a

@@ -118,3 +118,6 @@ instance (PartialOrd k, PartialOrd v) => PartialOrd (Lexicographic k v) where
     | k1 `leq` k2 = True
     | k1   ==  k1 = v1 `leq` v2
     | otherwise   = False -- Incomparable or k2 `leq` k1
+  comparable (Lexicographic k1 v1) (Lexicographic k2 v2)
+    | k1 == k2 = comparable v1 v2
+    | otherwise = comparable k1 k2

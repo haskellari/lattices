@@ -95,3 +95,4 @@ instance (Ord a, Bounded a) => BoundedLattice (Ordered a) where
 
 instance Ord a => PartialOrd (Ordered a) where
     leq = (<=)
+    comparable _ _ = True
