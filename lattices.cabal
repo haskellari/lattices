@@ -1,5 +1,6 @@
 name:               lattices
 version:            1.5.0
+x-revision:         2
 cabal-version:      >= 1.10
 category:           Math
 license:            BSD3
@@ -11,7 +12,7 @@ bug-reports:        http://github.com/phadej/lattices.git/issues
 copyright:          (C) 2010-2015 Maximilian Bolingbroke
 build-type:         Simple
 extra-source-files: README.md CHANGELOG.md
-tested-with:        GHC==7.4.2, GHC==7.6.3, GHC==7.8.4, GHC==7.10.3, GHC==8.0.2
+tested-with:        GHC==7.4.2, GHC==7.6.3, GHC==7.8.4, GHC==7.10.3, GHC==8.0.2, GHC==8.2.1
 synopsis:           Fine-grained library for constructing and manipulating lattices
 description:
   In mathematics, a lattice is a partially ordered set in which every two elements have a unique supremum (also called a least upper bound or @join@) and a unique infimum (also called a greatest lower bound or @meet@).
@@ -32,7 +33,7 @@ library
                     Algebra.PartialOrd,
                     Algebra.PartialOrd.Instances
 
-  build-depends:    base                       >= 4.5  && < 4.10,
+  build-depends:    base                       >= 4.5  && < 4.11,
                     containers                 >= 0.3  && < 0.6,
                     deepseq                    >= 1.1  && < 1.5,
                     hashable                   >= 1.2  && < 1.3,
@@ -58,7 +59,7 @@ test-suite test
   hs-source-dirs:      test
   ghc-options:         -Wall
   default-language:    Haskell2010
-  build-depends:       base              >= 4.5  && < 4.10,
+  build-depends:       base              >= 4.5  && < 4.11,
                        tasty             >= 0.10 && < 0.12,
                        tasty-quickcheck  >= 0.8  && < 0.9,
                        lattices,
