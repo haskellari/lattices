@@ -1,4 +1,5 @@
 {-# LANGUAGE RankNTypes #-}
+
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Free
@@ -30,6 +31,8 @@ module Algebra.Lattice.Free
 
 import Algebra.Lattice
 import Data.Universe.Class
+import Data.Functor (Functor(fmap, (<$)))
+import Prelude hiding (Functor(..))
 
 --
 -- Free join-semilattices
