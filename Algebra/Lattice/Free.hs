@@ -1,4 +1,6 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE RankNTypes #-}
+
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Free
@@ -30,6 +32,8 @@ module Algebra.Lattice.Free
 
 import Algebra.Lattice
 import Data.Universe.Class
+import Data.Functor (Functor(fmap, (<$)))
+import Prelude hiding (Functor(..))
 
 --
 -- Free join-semilattices
@@ -48,7 +52,9 @@ retractFreeJoinSemiLattice a = lowerFreeJoinSemiLattice a id
 
 instance Functor FreeJoinSemiLattice where
   fmap f (FreeJoinSemiLattice g) = FreeJoinSemiLattice (\inj -> g (inj . f))
+#if MIN_VERSION_base(4,2,0)
   a <$ FreeJoinSemiLattice f = FreeJoinSemiLattice (\inj -> f (const (inj a)))
+#endif
 
 instance JoinSemiLattice (FreeJoinSemiLattice a) where
   FreeJoinSemiLattice f \/ FreeJoinSemiLattice g =
@@ -76,7 +82,9 @@ newtype FreeMeetSemiLattice a = FreeMeetSemiLattice
 
 instance Functor FreeMeetSemiLattice where
   fmap f (FreeMeetSemiLattice g) = FreeMeetSemiLattice (\inj -> g (inj . f))
+#if MIN_VERSION_base(4,2,0)
   a <$ FreeMeetSemiLattice f = FreeMeetSemiLattice (\inj -> f (const (inj a)))
+#endif
 
 liftFreeMeetSemiLattice :: a -> FreeMeetSemiLattice a
 liftFreeMeetSemiLattice a = FreeMeetSemiLattice (\inj -> inj a)
@@ -110,7 +118,9 @@ newtype FreeLattice a = FreeLattice
 
 instance Functor FreeLattice where
   fmap f (FreeLattice g) = FreeLattice (\inj -> g (inj . f))
+#if MIN_VERSION_base(4,2,0)
   a <$ FreeLattice f = FreeLattice (\inj -> f (const (inj a)))
+#endif
 
 liftFreeLattice :: a -> FreeLattice a
 liftFreeLattice a = FreeLattice (\inj -> inj a)
