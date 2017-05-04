@@ -8,7 +8,7 @@ license-File:       LICENSE
 author:             Maximilian Bolingbroke <batterseapower@hotmail.com>
 maintainer:         Oleg Grenrus <oleg.grenrus@iki.fi>
 homepage:           http://github.com/phadej/lattices/
-bug-reports:        http://github.com/phadej/lattices.git/issues
+bug-reports:        http://github.com/phadej/lattices/issues
 copyright:          (C) 2010-2015 Maximilian Bolingbroke
 build-type:         Simple
 extra-source-files: README.md CHANGELOG.md
