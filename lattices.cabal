@@ -25,6 +25,7 @@ library
   exposed-modules:  Algebra.Enumerable,
                     Algebra.Lattice,
                     Algebra.Lattice.Dropped,
+                    Algebra.Lattice.Free,
                     Algebra.Lattice.Levitated,
                     Algebra.Lattice.Lexicographic,
                     Algebra.Lattice.Lifted,
