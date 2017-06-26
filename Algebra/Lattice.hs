@@ -45,16 +45,12 @@ module Algebra.Lattice (
     gfp, gfpFrom, unsafeGfp,
   ) where
 
+import Prelude ()
+import Prelude.Compat
+
 import qualified Algebra.PartialOrd as PO
 
 import           Data.Universe.Class (Universe(..), Finite(..))
-
-#if MIN_VERSION_base(4,8,0)
-#else
-import           Control.Applicative (Applicative(..))
-import           Data.Foldable       (Foldable, foldMap)
-import           Data.Monoid         (Monoid(..))
-#endif
 
 import           Control.Monad.Zip (MonadZip(..))
 import           Data.Data         (Data, Typeable)
@@ -74,9 +70,7 @@ import qualified Data.HashSet as HS
 import qualified Data.HashMap.Lazy as HM
 
 import Control.Applicative (Const(..))
-#if MIN_VERSION_base(4,8,0)
 import Data.Functor.Identity (Identity(..))
-#endif
 
 infixr 6 /\ -- This comment needed because of CPP
 infixr 5 \/
