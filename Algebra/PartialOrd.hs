@@ -102,10 +102,10 @@ instance PartialOrd IS.IntSet where
     leq = IS.isSubsetOf
 
 instance (Ord k, PartialOrd v) => PartialOrd (M.Map k v) where
-    m1 `leq` m2 = m1 `M.isSubmapOf` m2 && M.fold (\(x1, x2) b -> b && x1 `leq` x2) True (M.intersectionWith (,) m1 m2)
+    leq = M.isSubmapOfBy leq
 
 instance PartialOrd v => PartialOrd (IM.IntMap v) where
-    im1 `leq` im2 = im1 `IM.isSubmapOf` im2 && IM.fold (\(x1, x2) b -> b && x1 `leq` x2) True (IM.intersectionWith (,) im1 im2)
+    leq = IM.isSubmapOfBy leq
 
 instance (PartialOrd a, PartialOrd b) => PartialOrd (a, b) where
     -- NB: *not* a lexical ordering. This is because for some component partial orders, lexical

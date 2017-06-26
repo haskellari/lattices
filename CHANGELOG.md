@@ -1,3 +1,8 @@
+# 1.6.0 (2017-06-xx)
+
+- Add Lattice (IM.IntMap v) instance
+- Correct PartialOrd Map and IntMap instances
+
 # 1.5.0 (2015-12-18)
 
 - Move `PartialOrd (k -> v)` instance into own module

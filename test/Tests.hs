@@ -5,20 +5,20 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Main (main) where
 
-#if MIN_VERSION_base(4,8,0)
-#else
-import Control.Applicative
-import Data.Foldable
-#endif
+import Prelude ()
+import Prelude.Compat
 
-import Data.Functor.Compose
-import Data.Functor.Identity
-import Data.Monoid
+import Data.Functor.Compose (Compose (..))
+import Data.Functor.Identity (Identity (..))
+import Data.Monoid ((<>))
 import Data.Traversable
 import Control.Monad (ap)
 import Test.QuickCheck.Function
 import Test.Tasty
 import Test.Tasty.QuickCheck as QC
+
+import Algebra.Lattice
+import Algebra.PartialOrd
 
 import qualified Algebra.Lattice.Dropped as D
 import qualified Algebra.Lattice.Levitated as L
@@ -27,7 +27,11 @@ import qualified Algebra.Lattice.Lifted as U
 import qualified Algebra.Lattice.Op as Op
 import qualified Algebra.Lattice.Ordered as O
 
+import Data.Map (Map)
+import Data.IntMap (IntMap)
+
 -- For old GHC to work
+data Proxy (a :: *) = Proxy
 data Proxy1 (a :: * -> *) = Proxy1
 
 main :: IO ()
@@ -56,6 +60,8 @@ theseProps = testGroup "These"
   , traversableLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
   , traversableLaws "Op" (Proxy1 :: Proxy1 Op.Op)
   , traversableLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
+  , joinLeqProp "Map" (Proxy :: Proxy (Map Int (O.Ordered Int)))
+  , joinLeqProp "IntMap" (Proxy :: Proxy (IntMap (O.Ordered Int)))
   ]
 
 functorLaws :: forall (f :: * -> *). ( Functor f
@@ -138,8 +144,19 @@ monadLaws name _ = testGroup ("Monad laws: " <> name)
     apProp f x = (f' <*> x) === ap f' x
        where f' = apply <$> f
 
+joinLeqProp
+    :: forall a. (Eq a, Show a, Arbitrary a, Lattice a, PartialOrd a)
+    => String
+    -> Proxy a
+    -> TestTree
+joinLeqProp name _ = QC.testProperty (name ++": leq = joinLeq") prop
+  where
+    prop :: a -> a -> Property
+    prop x y = leq x y === joinLeq x y
 
--- Orphan instances
+-------------------------------------------------------------------------------
+-- Orphans
+-------------------------------------------------------------------------------
 
 instance Arbitrary a => Arbitrary (D.Dropped a) where
   arbitrary = frequency [ (1, pure D.Top)
@@ -159,6 +176,7 @@ instance Arbitrary a => Arbitrary (L.Levitated a) where
 
 instance Arbitrary a => Arbitrary (O.Ordered a) where
   arbitrary = O.Ordered <$> arbitrary
+  shrink = map O.Ordered . shrink . O.getOrdered
 
 instance Arbitrary a => Arbitrary (Op.Op a) where
   arbitrary = Op.Op <$> arbitrary

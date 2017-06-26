@@ -239,6 +239,12 @@ instance JoinSemiLattice v => JoinSemiLattice (IM.IntMap v) where
 instance JoinSemiLattice v => BoundedJoinSemiLattice (IM.IntMap v) where
     bottom = IM.empty
 
+instance MeetSemiLattice v => MeetSemiLattice (IM.IntMap v) where
+    (/\) = IM.intersectionWith (/\)
+
+instance Lattice v => Lattice (IM.IntMap v)
+
+
 --
 -- HashMaps
 --
