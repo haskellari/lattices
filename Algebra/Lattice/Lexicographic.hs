@@ -1,6 +1,9 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveFoldable #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DeriveDataTypeable #-}
@@ -52,20 +55,11 @@ import GHC.Generics
 -- 'Timestamps'.  Typically this is done in an arbitary, but
 -- deterministic manner.
 data Lexicographic k v = Lexicographic !k !v
-  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic
+  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1
 #endif
            )
-
-instance Foldable (Lexicographic k) where
-  foldMap f (Lexicographic _ v) = f v
-
-instance Traversable (Lexicographic k) where
-  traverse f (Lexicographic k v) = Lexicographic k <$> f v
-
-instance Functor (Lexicographic k) where
-  fmap f (Lexicographic k v) = Lexicographic k (f v)
 
 instance BoundedJoinSemiLattice k => Applicative (Lexicographic k) where
   pure = return

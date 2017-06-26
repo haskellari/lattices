@@ -8,10 +8,7 @@ module Main (main) where
 import Prelude ()
 import Prelude.Compat
 
-import Data.Functor.Compose (Compose (..))
-import Data.Functor.Identity (Identity (..))
 import Data.Monoid ((<>))
-import Data.Traversable
 import Control.Monad (ap)
 import Test.QuickCheck.Function
 import Test.Tasty
@@ -54,69 +51,13 @@ theseProps = testGroup "These"
   , latticeLaws "Ordered" (Proxy :: Proxy (O.Ordered Int))
   , latticeLaws "Divisibility " (Proxy :: Proxy (Div.Divisibility Int))
   -- , latticeLaws "Lexicographic" (Proxy :: Proxy (LO.Lexicographic (Div.Divisibility Int) (Div.Divisibility Int)))
-  , functorLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
-  , functorLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
-  , functorLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
-  , functorLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
-  , functorLaws "Op" (Proxy1 :: Proxy1 Op.Op)
-  , functorLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
   , monadLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
   , monadLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
   , monadLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
   , monadLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
   , monadLaws "Op" (Proxy1 :: Proxy1 Op.Op)
   , monadLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
-  , traversableLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
-  , traversableLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
-  , traversableLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
-  , traversableLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
-  , traversableLaws "Op" (Proxy1 :: Proxy1 Op.Op)
-  , traversableLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
   ]
-
-functorLaws :: forall (f :: * -> *). ( Functor f
-                                     , Arbitrary (f Int)
-                                     , Eq (f Int)
-                                     , Show (f Int))
-            => String
-            -> Proxy1 f
-            -> TestTree
-functorLaws name _ = testGroup ("Functor laws: " <> name)
-  [ QC.testProperty "identity" identityProp
-  , QC.testProperty "composition" compositionProp
-  ]
-  where
-    identityProp :: f Int -> Property
-    identityProp x = fmap id x === x
-
-    compositionProp :: f Int -> Fun Int Int -> Fun Int Int -> Property
-    compositionProp x (Fun _ f) (Fun _ g) = fmap g (fmap f x) === fmap (g . f) x
-
-traversableLaws :: forall (t :: * -> *). ( Traversable t
-                                         , Arbitrary (t Int)
-                                         , Eq (t Int)
-                                         , Show (t Int))
-                => String
-                -> Proxy1 t
-                -> TestTree
-traversableLaws name _ = testGroup ("Traversable laws: " <> name)
-  [ QC.testProperty "identity" identityProp
-  , QC.testProperty "composition" compositionProp
-  , QC.testProperty "functor" functorProp
-  , QC.testProperty "foldable" foldableProp
-  ]
-  where
-    identityProp :: t Int -> Property
-    identityProp x = traverse Identity x === Identity x
-
-    compositionProp :: t Int -> Fun Int (Maybe Int) -> Fun Int ([] Int) -> Property
-    compositionProp x (Fun _ f) (Fun _ g) = traverse (Compose . fmap g . f) x === (Compose . fmap (traverse g) . traverse f $ x)
-
-    functorProp :: t Int -> Fun Int Int -> Property
-    functorProp x (Fun _ f) = fmap f x === fmapDefault f x
-
-    foldableProp :: t Int -> Fun Int [Int] -> Property
-    foldableProp x (Fun _ f) = foldMap f x === foldMapDefault f x
 
 monadLaws :: forall (m :: * -> *). ( Monad m
 #if !MIN_VERSION_base(4, 8, 0)

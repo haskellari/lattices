@@ -1,6 +1,9 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveFoldable #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 #if __GLASGOW_HASKELL__ < 709
@@ -41,23 +44,11 @@ import GHC.Generics
 -- As a bonus, the bottom will be an absorbing element for the meet.
 data Lifted a = Lift a
               | Bottom
-  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic
+  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1
 #endif
            )
-
-instance Functor Lifted where
-  fmap _ Bottom   = Bottom
-  fmap f (Lift a) = Lift (f a)
-
-instance Foldable Lifted where
-  foldMap _ Bottom   = mempty
-  foldMap f (Lift a) = f a
-
-instance Traversable Lifted where
-  traverse _ Bottom   = pure Bottom
-  traverse f (Lift a) = Lift <$> f a
 
 instance Applicative Lifted where
   pure = return
