@@ -1,8 +1,11 @@
-# 1.6.0 (2017-06-xx)
+# 1.6.0 (2017-06-26)
 
 - Correct PartialOrd Map and IntMap instances
 - Add Lattice instance for `containers` types.
 - Change `meets1` and `joins1` to use `Foldable1`
+- Add `comparable` to `PartialOrd`
+- Add `Algebra.Lattice.Free` module
+- Add `Divisibility` lattice.
 
 # 1.5.0 (2015-12-18)
 
