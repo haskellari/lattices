@@ -1,6 +1,9 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveFoldable #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DeriveDataTypeable #-}
@@ -41,20 +44,11 @@ import GHC.Generics
 -- | The opposite lattice of a given lattice.  That is, switch
 -- meets and joins.
 newtype Op a = Op { getOp :: a }
-  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic
+  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1
 #endif
            )
-
-instance Foldable Op where
-  foldMap f (Op a) = f a
-
-instance Traversable Op where
-  traverse f (Op a) = Op <$> f a
-
-instance Functor Op where
-  fmap f (Op a) = Op (f a)
 
 instance Applicative Op where
   pure = return

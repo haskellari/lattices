@@ -1,6 +1,9 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveFoldable #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DeriveDataTypeable #-}
@@ -42,23 +45,11 @@ import GHC.Generics
 -- As a bonus, the top will be an absorbing element for the join.
 data Dropped a = Top
                | Drop a
-  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic
+  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1
 #endif
            )
-
-instance Functor Dropped where
-  fmap _ Top      = Top
-  fmap f (Drop a) = Drop (f a)
-
-instance Foldable Dropped where
-  foldMap _ Top      = mempty
-  foldMap f (Drop a) = f a
-
-instance Traversable Dropped where
-  traverse _ Top      = pure Top
-  traverse f (Drop a) = Drop <$> f a
 
 instance Applicative Dropped where
   pure = return

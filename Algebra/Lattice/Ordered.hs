@@ -1,6 +1,9 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveFoldable #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DeriveDataTypeable #-}
@@ -41,20 +44,11 @@ import GHC.Generics
 -- | A total order gives rise to a lattice. Join is
 -- max, meet is min.
 newtype Ordered a = Ordered { getOrdered :: a }
-  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic
+  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1
 #endif
            )
-
-instance Foldable Ordered where
-  foldMap f (Ordered a) = f a
-
-instance Traversable Ordered where
-  traverse f (Ordered a) = Ordered <$> f a
-
-instance Functor Ordered where
-  fmap f (Ordered a) = Ordered (f a)
 
 instance Applicative Ordered where
   pure = return

@@ -1,6 +1,9 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveFoldable #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DeriveDataTypeable #-}
@@ -44,25 +47,11 @@ import GHC.Generics
 data Levitated a = Top
                  | Levitate a
                  | Bottom
-  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic
+  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1
 #endif
            )
-instance Functor Levitated where
-  fmap _ Bottom       = Bottom
-  fmap _ Top          = Top
-  fmap f (Levitate a) = Levitate (f a)
-
-instance Foldable Levitated where
-  foldMap _ Bottom       = mempty
-  foldMap _ Top          = mempty
-  foldMap f (Levitate a) = f a
-
-instance Traversable Levitated where
-  traverse _ Bottom       = pure Bottom
-  traverse _ Top          = pure Top
-  traverse f (Levitate a) = Levitate <$> f a
 
 instance Applicative Levitated where
   pure = return

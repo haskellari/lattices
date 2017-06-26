@@ -8,10 +8,7 @@ module Main (main) where
 import Prelude ()
 import Prelude.Compat
 
-import Data.Functor.Compose (Compose (..))
-import Data.Functor.Identity (Identity (..))
 import Data.Monoid ((<>))
-import Data.Traversable
 import Control.Monad (ap)
 import Test.QuickCheck.Function
 import Test.Tasty
@@ -33,6 +30,7 @@ import Data.IntSet (IntSet)
 import Data.Map (Map)
 import Data.Set (Set)
 
+import Data.Universe.Instances.Base ()
 import Test.QuickCheck.Instances ()
 
 -- For old GHC to work
@@ -43,79 +41,22 @@ main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [theseProps]
-
-theseProps :: TestTree
-theseProps = testGroup "These"
-  [ functorLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
-  , functorLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
-  , functorLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
-  , functorLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
-  , functorLaws "Op" (Proxy1 :: Proxy1 Op.Op)
-  , functorLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
+tests = testGroup "Tests"
+  [ latticeLaws "Map" True (Proxy :: Proxy (Map Int (O.Ordered Int)))
+  , latticeLaws "IntMap" True (Proxy :: Proxy (IntMap (O.Ordered Int)))
+  , latticeLaws "Set" True (Proxy :: Proxy (Set Int))
+  , latticeLaws "IntSet" True (Proxy :: Proxy IntSet)
+  , latticeLaws "Ordered" True (Proxy :: Proxy (O.Ordered Int))
+  , latticeLaws "Divisibility" True (Proxy :: Proxy (Div.Divisibility Int))
+  , latticeLaws "LexOrdered" True (Proxy :: Proxy (LO.Lexicographic (O.Ordered Int) (O.Ordered Int)))
+  , latticeLaws "Lexicographic" False (Proxy :: Proxy (LO.Lexicographic (Set Bool) (Set Bool)))
   , monadLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
   , monadLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
   , monadLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
   , monadLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
   , monadLaws "Op" (Proxy1 :: Proxy1 Op.Op)
   , monadLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
-  , traversableLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
-  , traversableLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
-  , traversableLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
-  , traversableLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
-  , traversableLaws "Op" (Proxy1 :: Proxy1 Op.Op)
-  , traversableLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
-  , latticeLaws "Map" (Proxy :: Proxy (Map Int (O.Ordered Int)))
-  , latticeLaws "IntMap" (Proxy :: Proxy (IntMap (O.Ordered Int)))
-  , latticeLaws "Set" (Proxy :: Proxy (Set Int))
-  , latticeLaws "IntSet" (Proxy :: Proxy IntSet)
-  , latticeLaws "Ordered" (Proxy :: Proxy (O.Ordered Int))
-  , latticeLaws "Divisibility " (Proxy :: Proxy (Div.Divisibility Int))
   ]
-
-functorLaws :: forall (f :: * -> *). ( Functor f
-                                     , Arbitrary (f Int)
-                                     , Eq (f Int)
-                                     , Show (f Int))
-            => String
-            -> Proxy1 f
-            -> TestTree
-functorLaws name _ = testGroup ("Functor laws: " <> name)
-  [ QC.testProperty "identity" identityProp
-  , QC.testProperty "composition" compositionProp
-  ]
-  where
-    identityProp :: f Int -> Property
-    identityProp x = fmap id x === x
-
-    compositionProp :: f Int -> Fun Int Int -> Fun Int Int -> Property
-    compositionProp x (Fun _ f) (Fun _ g) = fmap g (fmap f x) === fmap (g . f) x
-
-traversableLaws :: forall (t :: * -> *). ( Traversable t
-                                         , Arbitrary (t Int)
-                                         , Eq (t Int)
-                                         , Show (t Int))
-                => String
-                -> Proxy1 t
-                -> TestTree
-traversableLaws name _ = testGroup ("Traversable laws: " <> name)
-  [ QC.testProperty "identity" identityProp
-  , QC.testProperty "composition" compositionProp
-  , QC.testProperty "functor" functorProp
-  , QC.testProperty "foldable" foldableProp
-  ]
-  where
-    identityProp :: t Int -> Property
-    identityProp x = traverse Identity x === Identity x
-
-    compositionProp :: t Int -> Fun Int (Maybe Int) -> Fun Int ([] Int) -> Property
-    compositionProp x (Fun _ f) (Fun _ g) = traverse (Compose . fmap g . f) x === (Compose . fmap (traverse g) . traverse f $ x)
-
-    functorProp :: t Int -> Fun Int Int -> Property
-    functorProp x (Fun _ f) = fmap f x === fmapDefault f x
-
-    foldableProp :: t Int -> Fun Int [Int] -> Property
-    foldableProp x (Fun _ f) = foldMap f x === foldMapDefault f x
 
 monadLaws :: forall (m :: * -> *). ( Monad m
 #if !MIN_VERSION_base(4, 8, 0)
@@ -160,16 +101,71 @@ monadLaws name _ = testGroup ("Monad laws: " <> name)
 latticeLaws
     :: forall a. (Eq a, Show a, Arbitrary a,  Lattice a, PartialOrd a)
     => String
+    -> Bool -- ^ distributive
     -> Proxy a
     -> TestTree
-latticeLaws name _ = testGroup ("Lattice laws: " <> name)
+latticeLaws name distr _ = testGroup ("Lattice laws: " <> name) $
     [ QC.testProperty "leq = joinLeq" joinLeqProp
-    , QC.testProperty "x ∧ (y ∨ z) = (x ∧ y) ∨ (x ∧ z)" distrProp
+    , QC.testProperty "leq = meetLeq" meetLeqProp
+    , QC.testProperty "meet is lower bound" meetLower
+    , QC.testProperty "join is upper bound" joinUpper
+    , QC.testProperty "meet commutes" meetComm
+    , QC.testProperty "join commute" joinComm
+    , QC.testProperty "meet associative" meetAssoc
+    , QC.testProperty "join associative" joinAssoc
+    , QC.testProperty "absorbtion 1" meetAbsorb
+    , QC.testProperty "absorbtion 2" joinAbsorb
+    , QC.testProperty "meet idempontent" meetIdemp
+    , QC.testProperty "join idempontent" joinIdemp
+    , QC.testProperty "comparableDef" comparableDef
+    ] ++ if not distr then [] else
+    -- Not all lattices are distributive!
+    [ QC.testProperty "x ∧ (y ∨ z) = (x ∧ y) ∨ (x ∧ z)" distrProp
     , QC.testProperty "x ∨ (y ∧ z) = (x ∨ y) ∧ (x ∨ z)" distr2Prop
     ]
   where
     joinLeqProp :: a -> a -> Property
     joinLeqProp x y = leq x y === joinLeq x y
+
+    meetLeqProp :: a -> a -> Property
+    meetLeqProp x y = leq x y === meetLeq x y
+
+    meetLower :: a -> a -> Property
+    meetLower x y = (m `leq` x) QC..&&. (m `leq` y)
+      where
+        m = x /\ y
+
+    joinUpper :: a -> a -> Property
+    joinUpper x y = (x `leq` j) QC..&&. (y `leq` j)
+      where
+        j = x \/ y
+
+    meetComm :: a -> a -> Property
+    meetComm x y = x /\ y === y /\ x
+
+    joinComm :: a -> a -> Property
+    joinComm x y = x \/ y === y \/ x
+
+    meetAssoc :: a -> a -> a -> Property
+    meetAssoc x y z = x /\ (y /\ z) === (x /\ y) /\ z
+
+    joinAssoc :: a -> a -> a -> Property
+    joinAssoc x y z = x \/ (y \/ z) === (x \/ y) \/ z
+
+    meetAbsorb :: a -> a -> Property
+    meetAbsorb x y = x /\ (x \/ y) === x
+
+    joinAbsorb :: a -> a -> Property
+    joinAbsorb x y = x \/ (x /\ y) === x
+
+    meetIdemp :: a -> Property
+    meetIdemp x = x /\ x === x
+
+    joinIdemp :: a -> Property
+    joinIdemp x = x \/ x === x
+
+    comparableDef :: a -> a -> Property
+    comparableDef x y = (leq x y || leq y x) === comparable x y
 
     distrProp :: a -> a -> a -> Property
     distrProp x y z = lhs === rhs
@@ -221,4 +217,5 @@ instance Arbitrary a => Arbitrary (Op.Op a) where
   arbitrary = Op.Op <$> arbitrary
 
 instance (Arbitrary k, Arbitrary v) => Arbitrary (LO.Lexicographic k v) where
-  arbitrary = LO.Lexicographic <$> arbitrary <*> arbitrary
+    arbitrary = uncurry LO.Lexicographic <$> arbitrary
+    shrink (LO.Lexicographic k v) = uncurry LO.Lexicographic <$> shrink (k, v)

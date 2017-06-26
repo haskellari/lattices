@@ -1,6 +1,9 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveFoldable #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DeriveDataTypeable #-}
@@ -40,20 +43,11 @@ import GHC.Generics
 
 -- | A divisibility lattice. @'join' = 'lcm'@, @'meet' = 'gcd'@. 
 newtype Divisibility a = Divisibility { getDivisibility :: a }
-  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic
+  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1
 #endif
            )
-
-instance Foldable Divisibility where
-  foldMap f (Divisibility a) = f a
-
-instance Traversable Divisibility where
-  traverse f (Divisibility a) = Divisibility <$> f a
-
-instance Functor Divisibility where
-  fmap f (Divisibility a) = Divisibility (f a)
 
 instance Applicative Divisibility where
   pure = return

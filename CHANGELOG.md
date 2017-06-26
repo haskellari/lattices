@@ -6,6 +6,7 @@
 - Add `comparable` to `PartialOrd`
 - Add `Algebra.Lattice.Free` module
 - Add `Divisibility` lattice.
+- Fix `Lexicographic`.
 
 # 1.5.0 (2015-12-18)
 
