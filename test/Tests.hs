@@ -47,7 +47,14 @@ tests = testGroup "Tests" [theseProps]
 
 theseProps :: TestTree
 theseProps = testGroup "These"
-  [ functorLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
+  [ latticeLaws "Map" (Proxy :: Proxy (Map Int (O.Ordered Int)))
+  , latticeLaws "IntMap" (Proxy :: Proxy (IntMap (O.Ordered Int)))
+  , latticeLaws "Set" (Proxy :: Proxy (Set Int))
+  , latticeLaws "IntSet" (Proxy :: Proxy IntSet)
+  , latticeLaws "Ordered" (Proxy :: Proxy (O.Ordered Int))
+  , latticeLaws "Divisibility " (Proxy :: Proxy (Div.Divisibility Int))
+  -- , latticeLaws "Lexicographic" (Proxy :: Proxy (LO.Lexicographic (Div.Divisibility Int) (Div.Divisibility Int)))
+  , functorLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
   , functorLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
   , functorLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
   , functorLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
@@ -65,12 +72,6 @@ theseProps = testGroup "These"
   , traversableLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
   , traversableLaws "Op" (Proxy1 :: Proxy1 Op.Op)
   , traversableLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
-  , latticeLaws "Map" (Proxy :: Proxy (Map Int (O.Ordered Int)))
-  , latticeLaws "IntMap" (Proxy :: Proxy (IntMap (O.Ordered Int)))
-  , latticeLaws "Set" (Proxy :: Proxy (Set Int))
-  , latticeLaws "IntSet" (Proxy :: Proxy IntSet)
-  , latticeLaws "Ordered" (Proxy :: Proxy (O.Ordered Int))
-  , latticeLaws "Divisibility " (Proxy :: Proxy (Div.Divisibility Int))
   ]
 
 functorLaws :: forall (f :: * -> *). ( Functor f
@@ -164,12 +165,45 @@ latticeLaws
     -> TestTree
 latticeLaws name _ = testGroup ("Lattice laws: " <> name)
     [ QC.testProperty "leq = joinLeq" joinLeqProp
+    , QC.testProperty "meet commutes" meetComm
+    , QC.testProperty "join commute" joinComm
+    , QC.testProperty "meet associative" meetAssoc
+    , QC.testProperty "joun associative" joinAssoc
+    , QC.testProperty "absorb1" meetAbsorb
+    , QC.testProperty "absorn2" joinAbsorb
+    , QC.testProperty "meet idempontent" meetIdemp
+    , QC.testProperty "join idempontent" joinIdemp
+    -- Not all lattices are distributive!
     , QC.testProperty "x ∧ (y ∨ z) = (x ∧ y) ∨ (x ∧ z)" distrProp
     , QC.testProperty "x ∨ (y ∧ z) = (x ∨ y) ∧ (x ∨ z)" distr2Prop
     ]
   where
     joinLeqProp :: a -> a -> Property
     joinLeqProp x y = leq x y === joinLeq x y
+
+    meetComm :: a -> a -> Property
+    meetComm x y = x /\ y === y /\ x
+
+    joinComm :: a -> a -> Property
+    joinComm x y = x \/ y === y \/ x
+
+    meetAssoc :: a -> a -> a -> Property
+    meetAssoc x y z = x /\ (y /\ z) === (x /\ y) /\ z
+
+    joinAssoc :: a -> a -> a -> Property
+    joinAssoc x y z = x \/ (y \/ z) === (x \/ y) \/ z
+
+    meetAbsorb :: a -> a -> Property
+    meetAbsorb x y = x /\ (x \/ y) === x
+
+    joinAbsorb :: a -> a -> Property
+    joinAbsorb x y = x \/ (x /\ y) === x
+
+    meetIdemp :: a -> Property
+    meetIdemp x = x /\ x === x
+
+    joinIdemp :: a -> Property
+    joinIdemp x = x \/ x === x
 
     distrProp :: a -> a -> a -> Property
     distrProp x y z = lhs === rhs
