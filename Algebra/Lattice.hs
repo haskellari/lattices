@@ -193,6 +193,11 @@ instance (Ord a, Finite a) => BoundedLattice (S.Set a) where
 instance JoinSemiLattice IS.IntSet where
     (\/) = IS.union
 
+instance MeetSemiLattice IS.IntSet where
+    (/\) = IS.intersection
+
+instance Lattice IS.IntSet
+
 instance BoundedJoinSemiLattice IS.IntSet where
     bottom = IS.empty
 
@@ -205,6 +210,8 @@ instance (Eq a, Hashable a) => JoinSemiLattice (HS.HashSet a) where
 
 instance (Eq a, Hashable a) => MeetSemiLattice (HS.HashSet a) where
     (/\) = HS.intersection
+
+instance (Eq a, Hashable a) => Lattice (HS.HashSet a)
 
 instance (Eq a, Hashable a) => BoundedJoinSemiLattice (HS.HashSet a) where
     bottom = HS.empty

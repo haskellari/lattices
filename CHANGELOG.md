@@ -1,7 +1,7 @@
 # 1.6.0 (2017-06-xx)
 
-- Add Lattice (IM.IntMap v) instance
 - Correct PartialOrd Map and IntMap instances
+- Add Lattice instance for `containers` types.
 
 # 1.5.0 (2015-12-18)
 

@@ -27,8 +27,12 @@ import qualified Algebra.Lattice.Lifted as U
 import qualified Algebra.Lattice.Op as Op
 import qualified Algebra.Lattice.Ordered as O
 
-import Data.Map (Map)
 import Data.IntMap (IntMap)
+import Data.IntSet (IntSet)
+import Data.Map (Map)
+import Data.Set (Set)
+
+import Test.QuickCheck.Instances ()
 
 -- For old GHC to work
 data Proxy (a :: *) = Proxy
@@ -60,8 +64,11 @@ theseProps = testGroup "These"
   , traversableLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
   , traversableLaws "Op" (Proxy1 :: Proxy1 Op.Op)
   , traversableLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
-  , joinLeqProp "Map" (Proxy :: Proxy (Map Int (O.Ordered Int)))
-  , joinLeqProp "IntMap" (Proxy :: Proxy (IntMap (O.Ordered Int)))
+  , latticeLaws "Map" (Proxy :: Proxy (Map Int (O.Ordered Int)))
+  , latticeLaws "IntMap" (Proxy :: Proxy (IntMap (O.Ordered Int)))
+  , latticeLaws "Set" (Proxy :: Proxy (Set Int))
+  , latticeLaws "IntSet" (Proxy :: Proxy IntSet)
+  , latticeLaws "Ordered" (Proxy :: Proxy (O.Ordered Int))
   ]
 
 functorLaws :: forall (f :: * -> *). ( Functor f
@@ -144,15 +151,35 @@ monadLaws name _ = testGroup ("Monad laws: " <> name)
     apProp f x = (f' <*> x) === ap f' x
        where f' = apply <$> f
 
-joinLeqProp
-    :: forall a. (Eq a, Show a, Arbitrary a, Lattice a, PartialOrd a)
+-------------------------------------------------------------------------------
+-- Lattice distributive
+-------------------------------------------------------------------------------
+
+latticeLaws
+    :: forall a. (Eq a, Show a, Arbitrary a,  Lattice a, PartialOrd a)
     => String
     -> Proxy a
     -> TestTree
-joinLeqProp name _ = QC.testProperty (name ++": leq = joinLeq") prop
+latticeLaws name _ = testGroup ("Lattice laws: " <> name)
+    [ QC.testProperty "leq = joinLeq" joinLeqProp
+    , QC.testProperty "x ∧ (y ∨ z) = (x ∧ y) ∨ (x ∧ z)" distrProp
+    , QC.testProperty "x ∨ (y ∧ z) = (x ∨ y) ∧ (x ∨ z)" distr2Prop
+    ]
   where
-    prop :: a -> a -> Property
-    prop x y = leq x y === joinLeq x y
+    joinLeqProp :: a -> a -> Property
+    joinLeqProp x y = leq x y === joinLeq x y
+
+    distrProp :: a -> a -> a -> Property
+    distrProp x y z = lhs === rhs
+      where
+        lhs = x /\ (y \/ z)
+        rhs = (x /\ y) \/ (x /\ z)
+
+    distr2Prop :: a -> a -> a -> Property
+    distr2Prop x y z = lhs === rhs
+      where
+        lhs = x \/ (y /\ z)
+        rhs = (x \/ y) /\ (x \/ z)
 
 -------------------------------------------------------------------------------
 -- Orphans
