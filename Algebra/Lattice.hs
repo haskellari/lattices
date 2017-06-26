@@ -71,6 +71,7 @@ import qualified Data.HashMap.Lazy as HM
 
 import Control.Applicative (Const(..))
 import Data.Functor.Identity (Identity(..))
+import Data.Semigroup.Foldable (Foldable1 (..))
 
 infixr 6 /\ -- This comment needed because of CPP
 infixr 5 \/
@@ -96,10 +97,6 @@ class JoinSemiLattice a where
 joinLeq :: (Eq a, JoinSemiLattice a) => a -> a -> Bool
 joinLeq x y = (x \/ y) == y
 
--- | The join of at a list of join-semilattice elements (of length at least one)
-joins1 :: JoinSemiLattice a => [a] -> a
-joins1 = foldr1 (\/)
-
 -- | A algebraic structure with element meets: <http://en.wikipedia.org/wiki/Semilattice>
 --
 -- > Associativity: x /\ (y /\ z) == (x /\ y) /\ z
@@ -121,9 +118,7 @@ class MeetSemiLattice a where
 meetLeq :: (Eq a, MeetSemiLattice a) => a -> a -> Bool
 meetLeq x y = (x /\ y) == x
 
--- | The meet of at a list of meet-semilattice elements (of length at least one)
-meets1 :: MeetSemiLattice a => [a] -> a
-meets1 = foldr1 (/\)
+
 
 -- | The combination of two semi lattices makes a lattice if the absorption law holds:
 -- see <http://en.wikipedia.org/wiki/Absorption_law> and <http://en.wikipedia.org/wiki/Lattice_(order)>
@@ -141,6 +136,10 @@ class JoinSemiLattice a => BoundedJoinSemiLattice a where
 joins :: (BoundedJoinSemiLattice a, Foldable f) => f a -> a
 joins = getJoin . foldMap Join
 
+-- | The join of at a list of join-semilattice elements (of length at least one)
+joins1 :: (JoinSemiLattice a, Foldable1 f) => f a -> a
+joins1 =  getJoin . foldMap1 Join
+
 -- | A meet-semilattice with some element |top| that /\ approaches.
 --
 -- > Identity: x /\ top == x
@@ -150,7 +149,10 @@ class MeetSemiLattice a => BoundedMeetSemiLattice a where
 -- | The meet of a list of meet-semilattice elements
 meets :: (BoundedMeetSemiLattice a, Foldable f) => f a -> a
 meets = getMeet . foldMap Meet
-
+--
+-- | The meet of at a list of meet-semilattice elements (of length at least one)
+meets1 :: (MeetSemiLattice a, Foldable1 f) => f a -> a
+meets1 = getMeet . foldMap1 Meet
 
 -- | Lattices with both bounds
 class (Lattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a where

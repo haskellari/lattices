@@ -2,6 +2,7 @@
 
 - Correct PartialOrd Map and IntMap instances
 - Add Lattice instance for `containers` types.
+- Change `meets1` and `joins1` to use `Foldable1`
 
 # 1.5.0 (2015-12-18)
 
