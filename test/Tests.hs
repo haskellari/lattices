@@ -5,21 +5,22 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Main (main) where
 
-#if MIN_VERSION_base(4,8,0)
-#else
-import Control.Applicative
-import Data.Foldable
-#endif
+import Prelude ()
+import Prelude.Compat
 
-import Data.Functor.Compose
-import Data.Functor.Identity
-import Data.Monoid
+import Data.Functor.Compose (Compose (..))
+import Data.Functor.Identity (Identity (..))
+import Data.Monoid ((<>))
 import Data.Traversable
 import Control.Monad (ap)
 import Test.QuickCheck.Function
 import Test.Tasty
 import Test.Tasty.QuickCheck as QC
 
+import Algebra.Lattice
+import Algebra.PartialOrd
+
+import qualified Algebra.Lattice.Divisibility as Div
 import qualified Algebra.Lattice.Dropped as D
 import qualified Algebra.Lattice.Levitated as L
 import qualified Algebra.Lattice.Lexicographic as LO
@@ -27,7 +28,15 @@ import qualified Algebra.Lattice.Lifted as U
 import qualified Algebra.Lattice.Op as Op
 import qualified Algebra.Lattice.Ordered as O
 
+import Data.IntMap (IntMap)
+import Data.IntSet (IntSet)
+import Data.Map (Map)
+import Data.Set (Set)
+
+import Test.QuickCheck.Instances ()
+
 -- For old GHC to work
+data Proxy (a :: *) = Proxy
 data Proxy1 (a :: * -> *) = Proxy1
 
 main :: IO ()
@@ -56,6 +65,12 @@ theseProps = testGroup "These"
   , traversableLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
   , traversableLaws "Op" (Proxy1 :: Proxy1 Op.Op)
   , traversableLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
+  , latticeLaws "Map" (Proxy :: Proxy (Map Int (O.Ordered Int)))
+  , latticeLaws "IntMap" (Proxy :: Proxy (IntMap (O.Ordered Int)))
+  , latticeLaws "Set" (Proxy :: Proxy (Set Int))
+  , latticeLaws "IntSet" (Proxy :: Proxy IntSet)
+  , latticeLaws "Ordered" (Proxy :: Proxy (O.Ordered Int))
+  , latticeLaws "Divisibility " (Proxy :: Proxy (Div.Divisibility Int))
   ]
 
 functorLaws :: forall (f :: * -> *). ( Functor f
@@ -138,8 +153,39 @@ monadLaws name _ = testGroup ("Monad laws: " <> name)
     apProp f x = (f' <*> x) === ap f' x
        where f' = apply <$> f
 
+-------------------------------------------------------------------------------
+-- Lattice distributive
+-------------------------------------------------------------------------------
 
--- Orphan instances
+latticeLaws
+    :: forall a. (Eq a, Show a, Arbitrary a,  Lattice a, PartialOrd a)
+    => String
+    -> Proxy a
+    -> TestTree
+latticeLaws name _ = testGroup ("Lattice laws: " <> name)
+    [ QC.testProperty "leq = joinLeq" joinLeqProp
+    , QC.testProperty "x ∧ (y ∨ z) = (x ∧ y) ∨ (x ∧ z)" distrProp
+    , QC.testProperty "x ∨ (y ∧ z) = (x ∨ y) ∧ (x ∨ z)" distr2Prop
+    ]
+  where
+    joinLeqProp :: a -> a -> Property
+    joinLeqProp x y = leq x y === joinLeq x y
+
+    distrProp :: a -> a -> a -> Property
+    distrProp x y z = lhs === rhs
+      where
+        lhs = x /\ (y \/ z)
+        rhs = (x /\ y) \/ (x /\ z)
+
+    distr2Prop :: a -> a -> a -> Property
+    distr2Prop x y z = lhs === rhs
+      where
+        lhs = x \/ (y /\ z)
+        rhs = (x \/ y) /\ (x \/ z)
+
+-------------------------------------------------------------------------------
+-- Orphans
+-------------------------------------------------------------------------------
 
 instance Arbitrary a => Arbitrary (D.Dropped a) where
   arbitrary = frequency [ (1, pure D.Top)
@@ -159,6 +205,17 @@ instance Arbitrary a => Arbitrary (L.Levitated a) where
 
 instance Arbitrary a => Arbitrary (O.Ordered a) where
   arbitrary = O.Ordered <$> arbitrary
+  shrink = map O.Ordered . shrink . O.getOrdered
+
+instance (Arbitrary a, Num a, Ord a) => Arbitrary (Div.Divisibility a) where
+  arbitrary = divisibility <$> arbitrary
+  shrink d = filter (<d) . map divisibility . shrink . Div.getDivisibility $ d
+
+divisibility :: (Ord a, Num a) => a -> Div.Divisibility a
+divisibility x | x < (-1)  = Div.Divisibility (abs x)
+               | x < 1     = Div.Divisibility 1
+               | otherwise = Div.Divisibility x
+
 
 instance Arbitrary a => Arbitrary (Op.Op a) where
   arbitrary = Op.Op <$> arbitrary

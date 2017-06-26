@@ -22,19 +22,11 @@ module Algebra.Lattice.Ordered (
     Ordered(..)
   ) where
 
-#ifndef MIN_VERSION_base
-#define MIN_VERSION_base(x,y,z) 1
-#endif
+import Prelude ()
+import Prelude.Compat
 
 import Algebra.Lattice
 import Algebra.PartialOrd
-
-#if MIN_VERSION_base(4,8,0)
-#else
-import Control.Applicative
-import Data.Foldable
-import Data.Traversable
-#endif
 
 import Control.DeepSeq
 import Control.Monad

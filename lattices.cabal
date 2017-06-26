@@ -1,6 +1,5 @@
 name:               lattices
-version:            1.5.0
-x-revision:         2
+version:            1.6.0
 cabal-version:      >= 1.10
 category:           Math
 license:            BSD3
@@ -29,6 +28,7 @@ source-repository head
 library
   exposed-modules:  Algebra.Enumerable,
                     Algebra.Lattice,
+                    Algebra.Lattice.Divisibility,
                     Algebra.Lattice.Dropped,
                     Algebra.Lattice.Free,
                     Algebra.Lattice.Levitated,
@@ -40,11 +40,13 @@ library
                     Algebra.PartialOrd.Instances
 
   build-depends:    base                       >= 4.5  && < 4.11,
+                    base-compat                >= 0.9.3 && < 0.10,
                     containers                 >= 0.3  && < 0.6,
                     deepseq                    >= 1.1  && < 1.5,
                     hashable                   >= 1.2  && < 1.3,
                     tagged                     >= 0.7  && < 0.9,
                     unordered-containers       >= 0.2  && < 0.3,
+                    semigroupoids              >= 5.2  && < 5.3,
                     universe-base              >= 1.0  && < 1.1,
                     universe-reverse-instances >= 1.0  && < 1.1
   ghc-options:      -Wall
@@ -54,7 +56,8 @@ library
     build-depends:  semigroups                 >= 0.16 && < 0.19
 
   if !impl(ghc >= 7.10)
-    build-depends:   void                       >= 0.7  && < 0.8
+    build-depends:   void                       >= 0.7  && < 0.8,
+                     transformers               >= 0.3  && < 0.6
 
   if impl(ghc >= 7.4 && < 7.5)
     build-depends:  ghc-prim
@@ -65,9 +68,13 @@ test-suite test
   hs-source-dirs:      test
   ghc-options:         -Wall
   default-language:    Haskell2010
-  build-depends:       base              >= 4.5  && < 4.11,
-                       tasty             >= 0.10 && < 0.12,
-                       tasty-quickcheck  >= 0.8  && < 0.10,
+  build-depends:       base,
+                       base-compat          >= 0.9.3 && <0.10,
+                       tasty                >= 0.10  && < 0.12,
+                       tasty-quickcheck     >= 0.8   && < 0.10,
+                       QuickCheck           >= 2.10  && <2.11,
+                       quickcheck-instances >=0.3.16 && <0.4,
                        lattices,
+                       containers,
                        transformers,
-                       QuickCheck
+                       unordered-containers

@@ -45,16 +45,12 @@ module Algebra.Lattice (
     gfp, gfpFrom, unsafeGfp,
   ) where
 
+import Prelude ()
+import Prelude.Compat
+
 import qualified Algebra.PartialOrd as PO
 
 import           Data.Universe.Class (Universe(..), Finite(..))
-
-#if MIN_VERSION_base(4,8,0)
-#else
-import           Control.Applicative (Applicative(..))
-import           Data.Foldable       (Foldable, foldMap)
-import           Data.Monoid         (Monoid(..))
-#endif
 
 import           Control.Monad.Zip (MonadZip(..))
 import           Data.Data         (Data, Typeable)
@@ -74,9 +70,8 @@ import qualified Data.HashSet as HS
 import qualified Data.HashMap.Lazy as HM
 
 import Control.Applicative (Const(..))
-#if MIN_VERSION_base(4,8,0)
 import Data.Functor.Identity (Identity(..))
-#endif
+import Data.Semigroup.Foldable (Foldable1 (..))
 
 infixr 6 /\ -- This comment needed because of CPP
 infixr 5 \/
@@ -102,10 +97,6 @@ class JoinSemiLattice a where
 joinLeq :: (Eq a, JoinSemiLattice a) => a -> a -> Bool
 joinLeq x y = (x \/ y) == y
 
--- | The join of at a list of join-semilattice elements (of length at least one)
-joins1 :: JoinSemiLattice a => [a] -> a
-joins1 = foldr1 (\/)
-
 -- | A algebraic structure with element meets: <http://en.wikipedia.org/wiki/Semilattice>
 --
 -- > Associativity: x /\ (y /\ z) == (x /\ y) /\ z
@@ -127,9 +118,7 @@ class MeetSemiLattice a where
 meetLeq :: (Eq a, MeetSemiLattice a) => a -> a -> Bool
 meetLeq x y = (x /\ y) == x
 
--- | The meet of at a list of meet-semilattice elements (of length at least one)
-meets1 :: MeetSemiLattice a => [a] -> a
-meets1 = foldr1 (/\)
+
 
 -- | The combination of two semi lattices makes a lattice if the absorption law holds:
 -- see <http://en.wikipedia.org/wiki/Absorption_law> and <http://en.wikipedia.org/wiki/Lattice_(order)>
@@ -147,6 +136,10 @@ class JoinSemiLattice a => BoundedJoinSemiLattice a where
 joins :: (BoundedJoinSemiLattice a, Foldable f) => f a -> a
 joins = getJoin . foldMap Join
 
+-- | The join of at a list of join-semilattice elements (of length at least one)
+joins1 :: (JoinSemiLattice a, Foldable1 f) => f a -> a
+joins1 =  getJoin . foldMap1 Join
+
 -- | A meet-semilattice with some element |top| that /\ approaches.
 --
 -- > Identity: x /\ top == x
@@ -156,7 +149,10 @@ class MeetSemiLattice a => BoundedMeetSemiLattice a where
 -- | The meet of a list of meet-semilattice elements
 meets :: (BoundedMeetSemiLattice a, Foldable f) => f a -> a
 meets = getMeet . foldMap Meet
-
+--
+-- | The meet of at a list of meet-semilattice elements (of length at least one)
+meets1 :: (MeetSemiLattice a, Foldable1 f) => f a -> a
+meets1 = getMeet . foldMap1 Meet
 
 -- | Lattices with both bounds
 class (Lattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a where
@@ -193,6 +189,11 @@ instance (Ord a, Finite a) => BoundedLattice (S.Set a) where
 instance JoinSemiLattice IS.IntSet where
     (\/) = IS.union
 
+instance MeetSemiLattice IS.IntSet where
+    (/\) = IS.intersection
+
+instance Lattice IS.IntSet
+
 instance BoundedJoinSemiLattice IS.IntSet where
     bottom = IS.empty
 
@@ -205,6 +206,8 @@ instance (Eq a, Hashable a) => JoinSemiLattice (HS.HashSet a) where
 
 instance (Eq a, Hashable a) => MeetSemiLattice (HS.HashSet a) where
     (/\) = HS.intersection
+
+instance (Eq a, Hashable a) => Lattice (HS.HashSet a)
 
 instance (Eq a, Hashable a) => BoundedJoinSemiLattice (HS.HashSet a) where
     bottom = HS.empty
@@ -238,6 +241,12 @@ instance JoinSemiLattice v => JoinSemiLattice (IM.IntMap v) where
 
 instance JoinSemiLattice v => BoundedJoinSemiLattice (IM.IntMap v) where
     bottom = IM.empty
+
+instance MeetSemiLattice v => MeetSemiLattice (IM.IntMap v) where
+    (/\) = IM.intersectionWith (/\)
+
+instance Lattice v => Lattice (IM.IntMap v)
+
 
 --
 -- HashMaps

@@ -23,19 +23,10 @@ module Algebra.Lattice.Levitated (
   , retractLevitated
   ) where
 
-#ifndef MIN_VERSION_base
-#define MIN_VERSION_base(x,y,z) 1
-#endif
+import Prelude ()
+import Prelude.Compat
 
 import Algebra.Lattice
-
-#if MIN_VERSION_base(4,8,0)
-#else
-import Control.Applicative
-import Data.Monoid (Monoid(..))
-import Data.Foldable
-import Data.Traversable
-#endif
 
 import Control.DeepSeq
 import Control.Monad

@@ -29,10 +29,11 @@ module Algebra.Lattice.Free
   , retractFreeLattice
   ) where
 
+import Prelude ()
+import Prelude.Compat
+
 import Algebra.Lattice
 import Data.Universe.Class
-import Data.Functor (Functor(fmap, (<$)))
-import Prelude hiding (Functor(..))
 
 --
 -- Free join-semilattices
