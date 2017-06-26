@@ -20,6 +20,7 @@ import Test.Tasty.QuickCheck as QC
 import Algebra.Lattice
 import Algebra.PartialOrd
 
+import qualified Algebra.Lattice.Divisibility as Div
 import qualified Algebra.Lattice.Dropped as D
 import qualified Algebra.Lattice.Levitated as L
 import qualified Algebra.Lattice.Lexicographic as LO
@@ -69,6 +70,7 @@ theseProps = testGroup "These"
   , latticeLaws "Set" (Proxy :: Proxy (Set Int))
   , latticeLaws "IntSet" (Proxy :: Proxy IntSet)
   , latticeLaws "Ordered" (Proxy :: Proxy (O.Ordered Int))
+  , latticeLaws "Divisibility " (Proxy :: Proxy (Div.Divisibility Int))
   ]
 
 functorLaws :: forall (f :: * -> *). ( Functor f
@@ -204,6 +206,16 @@ instance Arbitrary a => Arbitrary (L.Levitated a) where
 instance Arbitrary a => Arbitrary (O.Ordered a) where
   arbitrary = O.Ordered <$> arbitrary
   shrink = map O.Ordered . shrink . O.getOrdered
+
+instance (Arbitrary a, Num a, Ord a) => Arbitrary (Div.Divisibility a) where
+  arbitrary = divisibility <$> arbitrary
+  shrink d = filter (<d) . map divisibility . shrink . Div.getDivisibility $ d
+
+divisibility :: (Ord a, Num a) => a -> Div.Divisibility a
+divisibility x | x < (-1)  = Div.Divisibility (abs x)
+               | x < 1     = Div.Divisibility 1
+               | otherwise = Div.Divisibility x
+
 
 instance Arbitrary a => Arbitrary (Op.Op a) where
   arbitrary = Op.Op <$> arbitrary

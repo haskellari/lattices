@@ -29,6 +29,7 @@ source-repository head
 library
   exposed-modules:  Algebra.Enumerable,
                     Algebra.Lattice,
+                    Algebra.Lattice.Divisibility,
                     Algebra.Lattice.Dropped,
                     Algebra.Lattice.Free,
                     Algebra.Lattice.Levitated,
