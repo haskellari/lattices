@@ -30,6 +30,7 @@ import Data.IntSet (IntSet)
 import Data.Map (Map)
 import Data.Set (Set)
 
+import Data.Universe.Instances.Base ()
 import Test.QuickCheck.Instances ()
 
 -- For old GHC to work
@@ -40,17 +41,15 @@ main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [theseProps]
-
-theseProps :: TestTree
-theseProps = testGroup "These"
-  [ latticeLaws "Map" (Proxy :: Proxy (Map Int (O.Ordered Int)))
-  , latticeLaws "IntMap" (Proxy :: Proxy (IntMap (O.Ordered Int)))
-  , latticeLaws "Set" (Proxy :: Proxy (Set Int))
-  , latticeLaws "IntSet" (Proxy :: Proxy IntSet)
-  , latticeLaws "Ordered" (Proxy :: Proxy (O.Ordered Int))
-  , latticeLaws "Divisibility " (Proxy :: Proxy (Div.Divisibility Int))
-  -- , latticeLaws "Lexicographic" (Proxy :: Proxy (LO.Lexicographic (Div.Divisibility Int) (Div.Divisibility Int)))
+tests = testGroup "Tests"
+  [ latticeLaws "Map" True (Proxy :: Proxy (Map Int (O.Ordered Int)))
+  , latticeLaws "IntMap" True (Proxy :: Proxy (IntMap (O.Ordered Int)))
+  , latticeLaws "Set" True (Proxy :: Proxy (Set Int))
+  , latticeLaws "IntSet" True (Proxy :: Proxy IntSet)
+  , latticeLaws "Ordered" True (Proxy :: Proxy (O.Ordered Int))
+  , latticeLaws "Divisibility" True (Proxy :: Proxy (Div.Divisibility Int))
+  , latticeLaws "LexOrdered" True (Proxy :: Proxy (LO.Lexicographic (O.Ordered Int) (O.Ordered Int)))
+  , latticeLaws "Lexicographic" False (Proxy :: Proxy (LO.Lexicographic (Set Bool) (Set Bool)))
   , monadLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
   , monadLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
   , monadLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
@@ -102,25 +101,44 @@ monadLaws name _ = testGroup ("Monad laws: " <> name)
 latticeLaws
     :: forall a. (Eq a, Show a, Arbitrary a,  Lattice a, PartialOrd a)
     => String
+    -> Bool -- ^ distributive
     -> Proxy a
     -> TestTree
-latticeLaws name _ = testGroup ("Lattice laws: " <> name)
+latticeLaws name distr _ = testGroup ("Lattice laws: " <> name) $
     [ QC.testProperty "leq = joinLeq" joinLeqProp
+    , QC.testProperty "leq = meetLeq" meetLeqProp
+    , QC.testProperty "meet is lower bound" meetLower
+    , QC.testProperty "join is upper bound" joinUpper
     , QC.testProperty "meet commutes" meetComm
     , QC.testProperty "join commute" joinComm
     , QC.testProperty "meet associative" meetAssoc
-    , QC.testProperty "joun associative" joinAssoc
-    , QC.testProperty "absorb1" meetAbsorb
-    , QC.testProperty "absorn2" joinAbsorb
+    , QC.testProperty "join associative" joinAssoc
+    , QC.testProperty "absorbtion 1" meetAbsorb
+    , QC.testProperty "absorbtion 2" joinAbsorb
     , QC.testProperty "meet idempontent" meetIdemp
     , QC.testProperty "join idempontent" joinIdemp
+    , QC.testProperty "comparableDef" comparableDef
+    ] ++ if not distr then [] else
     -- Not all lattices are distributive!
-    , QC.testProperty "x ∧ (y ∨ z) = (x ∧ y) ∨ (x ∧ z)" distrProp
+    [ QC.testProperty "x ∧ (y ∨ z) = (x ∧ y) ∨ (x ∧ z)" distrProp
     , QC.testProperty "x ∨ (y ∧ z) = (x ∨ y) ∧ (x ∨ z)" distr2Prop
     ]
   where
     joinLeqProp :: a -> a -> Property
     joinLeqProp x y = leq x y === joinLeq x y
+
+    meetLeqProp :: a -> a -> Property
+    meetLeqProp x y = leq x y === meetLeq x y
+
+    meetLower :: a -> a -> Property
+    meetLower x y = (m `leq` x) QC..&&. (m `leq` y)
+      where
+        m = x /\ y
+
+    joinUpper :: a -> a -> Property
+    joinUpper x y = (x `leq` j) QC..&&. (y `leq` j)
+      where
+        j = x \/ y
 
     meetComm :: a -> a -> Property
     meetComm x y = x /\ y === y /\ x
@@ -145,6 +163,9 @@ latticeLaws name _ = testGroup ("Lattice laws: " <> name)
 
     joinIdemp :: a -> Property
     joinIdemp x = x \/ x === x
+
+    comparableDef :: a -> a -> Property
+    comparableDef x y = (leq x y || leq y x) === comparable x y
 
     distrProp :: a -> a -> a -> Property
     distrProp x y z = lhs === rhs
@@ -196,4 +217,5 @@ instance Arbitrary a => Arbitrary (Op.Op a) where
   arbitrary = Op.Op <$> arbitrary
 
 instance (Arbitrary k, Arbitrary v) => Arbitrary (LO.Lexicographic k v) where
-  arbitrary = LO.Lexicographic <$> arbitrary <*> arbitrary
+    arbitrary = uncurry LO.Lexicographic <$> arbitrary
+    shrink (LO.Lexicographic k v) = uncurry LO.Lexicographic <$> shrink (k, v)

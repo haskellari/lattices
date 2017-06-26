@@ -74,6 +74,7 @@ test-suite test
                        tasty-quickcheck     >= 0.8   && < 0.10,
                        QuickCheck           >= 2.10  && <2.11,
                        quickcheck-instances >=0.3.16 && <0.4,
+                       universe-instances-base >= 1.0 && <1.1,
                        lattices,
                        containers,
                        transformers,

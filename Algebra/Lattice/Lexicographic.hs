@@ -77,19 +77,40 @@ instance (NFData k, NFData v) => NFData (Lexicographic k v) where
 
 instance (Hashable k, Hashable v) => Hashable (Lexicographic k v)
 
-instance (PartialOrd k, JoinSemiLattice k, JoinSemiLattice v) => JoinSemiLattice (Lexicographic k v) where
+-- Why we have 'bottom', and not @v1 \\/ v2@ in the @otherwise@ clause?
+--
+-- For example what is the join of @(2, 1)@ and @(3, 2)@
+-- in lexicographic divisibility divisibility lattice.
+--
+-- With @v1 \\/ v2@, we get the upper bound, but not least!
+--
+-- @
+-- (2, 1) `leq` (6, 2)
+-- (3, 2) `leq` (6, 2)
+-- @
+--
+-- But @(6, 1) `leq` (6, 2)@, and
+--
+-- @
+-- (2, 1) `leq` (6, 1)
+-- (3, 2) `leq` (6, 1)
+-- @
+--
+instance (PartialOrd k, JoinSemiLattice k, BoundedJoinSemiLattice v) => JoinSemiLattice (Lexicographic k v) where
   l@(Lexicographic k1 v1) \/ r@(Lexicographic k2 v2)
+    | k1 == k2 = Lexicographic k1 (v1 \/ v2)
     | k1 `leq` k2 = r
     | k2 `leq` k1 = l
-    | otherwise   = Lexicographic (k1 \/ k2) (v1 \/ v2)
+    | otherwise   = Lexicographic (k1 \/ k2) bottom
 
-instance (PartialOrd k, MeetSemiLattice k, MeetSemiLattice v) => MeetSemiLattice (Lexicographic k v) where
+instance (PartialOrd k, MeetSemiLattice k, BoundedMeetSemiLattice v) => MeetSemiLattice (Lexicographic k v) where
   l@(Lexicographic k1 v1) /\ r@(Lexicographic k2 v2)
+    | k1 == k2 = Lexicographic k1 (v1 /\ v2)
     | k1 `leq` k2 = l
     | k2 `leq` k1 = r
-    | otherwise   = Lexicographic (k1 /\ k2) (v1 /\ v2)
+    | otherwise   = Lexicographic (k1 /\ k2) top
 
-instance (PartialOrd k, Lattice k, Lattice v) => Lattice (Lexicographic k v) where
+instance (PartialOrd k, Lattice k, BoundedLattice v) => Lattice (Lexicographic k v) where
 
 instance (PartialOrd k, BoundedJoinSemiLattice k, BoundedJoinSemiLattice v) => BoundedJoinSemiLattice (Lexicographic k v) where
   bottom = Lexicographic bottom bottom
@@ -101,8 +122,8 @@ instance (PartialOrd k, BoundedLattice k, BoundedLattice v) => BoundedLattice (L
 
 instance (PartialOrd k, PartialOrd v) => PartialOrd (Lexicographic k v) where
   Lexicographic k1 v1 `leq` Lexicographic k2 v2
+    | k1   ==  k2 = v1 `leq` v2
     | k1 `leq` k2 = True
-    | k1   ==  k1 = v1 `leq` v2
     | otherwise   = False -- Incomparable or k2 `leq` k1
   comparable (Lexicographic k1 v1) (Lexicographic k2 v2)
     | k1 == k2 = comparable v1 v2
