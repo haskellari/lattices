@@ -252,14 +252,21 @@ instance Lattice v => Lattice (IM.IntMap v)
 -- HashMaps
 --
 
-instance (Eq k, Hashable k) => JoinSemiLattice (HM.HashMap k v) where
-    (\/) = HM.union
+instance (Eq k, Hashable k, JoinSemiLattice v) => JoinSemiLattice (HM.HashMap k v) where
+    (\/) = HM.unionWith (\/)
 
-instance (Eq k, Hashable k) => MeetSemiLattice (HM.HashMap k v) where
-    (/\) = HM.intersection
+instance (Eq k, Hashable k, MeetSemiLattice v) => MeetSemiLattice (HM.HashMap k v) where
+    (/\) = HM.intersectionWith (/\)
 
-instance (Eq k, Hashable k) => BoundedJoinSemiLattice (HM.HashMap k v) where
+instance (Eq k, Hashable k, JoinSemiLattice v) => BoundedJoinSemiLattice (HM.HashMap k v) where
     bottom = HM.empty
+
+instance (Eq k, Hashable k, Lattice v) => Lattice (HM.HashMap k v) where
+
+instance (Eq k, Hashable k, Finite k, BoundedMeetSemiLattice v) => BoundedMeetSemiLattice (HM.HashMap k v) where
+    top = HM.fromList (universeF `zip` repeat top)
+
+instance (Eq k, Hashable k, Finite k, BoundedLattice v) => BoundedLattice (HM.HashMap k v) where
 
 --
 -- Functions

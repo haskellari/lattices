@@ -18,9 +18,13 @@ module Algebra.PartialOrd (
     gfpFrom, unsafeGfpFrom
   ) where
 
+import           Data.Foldable (Foldable (..))
+import           Data.Hashable (Hashable (..))
+import qualified Data.HashMap.Lazy as HM
 import qualified Data.IntMap as IM
 import qualified Data.IntSet as IS
 import qualified Data.Map as M
+import           Data.Monoid (All (..))
 import qualified Data.Set as S
 
 -- | A partial ordering on sets
@@ -105,6 +109,10 @@ instance (Ord k, PartialOrd v) => PartialOrd (M.Map k v) where
 
 instance PartialOrd v => PartialOrd (IM.IntMap v) where
     leq = IM.isSubmapOfBy leq
+
+instance (Eq k, Hashable k, PartialOrd v) => PartialOrd (HM.HashMap k v) where
+    x `leq` y = {- wish: HM.isSubmapOfBy leq -}
+        HM.null (HM.difference x y) && getAll (fold $ HM.intersectionWith (\vx vy -> All (vx `leq` vy)) x y)
 
 instance (PartialOrd a, PartialOrd b) => PartialOrd (a, b) where
     -- NB: *not* a lexical ordering. This is because for some component partial orders, lexical
