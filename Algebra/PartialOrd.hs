@@ -18,15 +18,15 @@ module Algebra.PartialOrd (
     gfpFrom, unsafeGfpFrom
   ) where
 
-import           Data.Foldable (Foldable (..))
-import           Data.Hashable (Hashable (..))
+import           Data.Foldable     (Foldable (..))
+import           Data.Hashable     (Hashable (..))
 import qualified Data.HashMap.Lazy as HM
-import qualified Data.IntMap as IM
-import qualified Data.IntSet as IS
-import qualified Data.Map as M
-import           Data.Monoid (All (..))
-import qualified Data.Set as S
-import           Data.Void (Void)
+import qualified Data.IntMap       as IM
+import qualified Data.IntSet       as IS
+import qualified Data.Map          as M
+import           Data.Monoid       (All (..))
+import qualified Data.Set          as S
+import           Data.Void         (Void)
 
 -- | A partial ordering on sets
 -- (<http://en.wikipedia.org/wiki/Partially_ordered_set>) is a set equipped
@@ -103,6 +103,7 @@ instance PartialOrd () where
     leq _ _ = True
 
 instance PartialOrd Void where
+    leq _ _ = True
 
 instance Ord a => PartialOrd (S.Set a) where
     leq = S.isSubsetOf
