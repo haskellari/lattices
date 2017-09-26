@@ -357,6 +357,9 @@ instance BoundedJoinSemiLattice a => Monoid (Join a) where
   mempty = Join bottom
   Join a `mappend` Join b = Join (a \/ b)
 
+instance (Eq a, JoinSemiLattice a) => PO.PartialOrd (Join a) where
+  leq (Join a) (Join b) = joinLeq a b
+
 instance Functor Join where
   fmap f (Join x) = Join (f x)
 
@@ -389,6 +392,9 @@ instance MeetSemiLattice a => Semigroup (Meet a) where
 instance BoundedMeetSemiLattice a => Monoid (Meet a) where
   mempty = Meet top
   Meet a `mappend` Meet b = Meet (a /\ b)
+
+instance (Eq a, MeetSemiLattice a) => PO.PartialOrd (Meet a) where
+  leq (Meet a) (Meet b) = meetLeq a b
 
 instance Functor Meet where
   fmap f (Meet x) = Meet (f x)
