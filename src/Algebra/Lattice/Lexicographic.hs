@@ -1,16 +1,15 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP                #-}
 {-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE DeriveFoldable #-}
-{-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveFoldable     #-}
+{-# LANGUAGE DeriveFunctor      #-}
+{-# LANGUAGE DeriveGeneric      #-}
+{-# LANGUAGE DeriveTraversable  #-}
+{-# LANGUAGE FlexibleContexts   #-}
+{-# LANGUAGE TypeOperators      #-}
 #if __GLASGOW_HASKELL__ < 709
-{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE Trustworthy        #-}
 #else
-{-# LANGUAGE Safe #-}
+{-# LANGUAGE Safe               #-}
 #endif
 ----------------------------------------------------------------------------
 -- |
@@ -41,7 +40,7 @@ import GHC.Generics
 -- Lexicographic
 --
 
--- | A pair lattice with a lexicographic ordering.  This means in 
+-- | A pair lattice with a lexicographic ordering.  This means in
 -- a join the second component of the resulting pair is the second
 -- component of the pair with the larger first component.  If the
 -- first components are equal, then the second components will be
@@ -49,8 +48,8 @@ import GHC.Generics
 -- component.
 --
 -- An application of this type is versioning.  For example, a
--- Last-Writer-Wins register would look like 
--- 'Lexicographc (Ordered Timestamp) v' where the lattice 
+-- Last-Writer-Wins register would look like
+-- 'Lexicographc (Ordered Timestamp) v' where the lattice
 -- structure handles the, presumably rare, case of matching
 -- 'Timestamps'.  Typically this is done in an arbitary, but
 -- deterministic manner.

@@ -13,8 +13,8 @@
 ----------------------------------------------------------------------------
 module Algebra.PartialOrd.Instances () where
 
-import Algebra.PartialOrd (PartialOrd(..))
-import Data.Universe.Class (Finite(..))
+import Algebra.PartialOrd         (PartialOrd (..))
+import Data.Universe.Class        (Finite (..))
 import Data.Universe.Instances.Eq ()
 
 -- | @Eq (k -> v)@ is from 'Data.Universe.Instances.Eq'

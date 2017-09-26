@@ -1,12 +1,12 @@
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE CPP                #-}
+{-# LANGUAGE FlexibleInstances  #-}
 #if __GLASGOW_HASKELL__ >=710 && MIN_VERSION_unordered_containers(0,2,6)
-{-# LANGUAGE Safe #-}
+{-# LANGUAGE Safe               #-}
 #else
-{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE Trustworthy        #-}
 #endif
 {-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric      #-}
 #if __GLASGOW_HASKELL__ >= 707 && __GLASGOW_HASKELL__ < 709
 {-# OPTIONS_GHC -fno-warn-amp #-}
 #endif
@@ -50,27 +50,27 @@ import Prelude.Compat
 
 import qualified Algebra.PartialOrd as PO
 
-import           Data.Universe.Class (Universe(..), Finite(..))
+import Data.Universe.Class (Finite (..), Universe (..))
 
-import           Control.Monad.Zip (MonadZip(..))
-import           Data.Data         (Data, Typeable)
-import           Data.Hashable     (Hashable(..))
-import           Data.Proxy        (Proxy(..))
-import           Data.Semigroup    (Semigroup(..), Endo(..), Any(..), All(..))
-import           Data.Tagged       (Tagged(..))
-import           Data.Void         (Void)
-import           GHC.Generics      (Generic)
+import Control.Monad.Zip (MonadZip (..))
+import Data.Data         (Data, Typeable)
+import Data.Hashable     (Hashable (..))
+import Data.Proxy        (Proxy (..))
+import Data.Semigroup    (All (..), Any (..), Endo (..), Semigroup (..))
+import Data.Tagged       (Tagged (..))
+import Data.Void         (Void)
+import GHC.Generics      (Generic)
 
 import qualified Data.IntMap as IM
 import qualified Data.IntSet as IS
-import qualified Data.Map as M
-import qualified Data.Set as S
+import qualified Data.Map    as M
+import qualified Data.Set    as S
 
-import qualified Data.HashSet as HS
 import qualified Data.HashMap.Lazy as HM
+import qualified Data.HashSet      as HS
 
-import Control.Applicative (Const(..))
-import Data.Functor.Identity (Identity(..))
+import Control.Applicative     (Const (..))
+import Data.Functor.Identity   (Identity (..))
 import Data.Semigroup.Foldable (Foldable1 (..))
 
 infixr 6 /\ -- This comment needed because of CPP
