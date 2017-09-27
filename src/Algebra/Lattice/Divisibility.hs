@@ -1,16 +1,15 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP                #-}
 {-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE DeriveFoldable #-}
-{-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveFoldable     #-}
+{-# LANGUAGE DeriveFunctor      #-}
+{-# LANGUAGE DeriveGeneric      #-}
+{-# LANGUAGE DeriveTraversable  #-}
+{-# LANGUAGE FlexibleContexts   #-}
+{-# LANGUAGE TypeOperators      #-}
 #if __GLASGOW_HASKELL__ < 709
-{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE Trustworthy        #-}
 #else
-{-# LANGUAGE Safe #-}
+{-# LANGUAGE Safe               #-}
 #endif
 ----------------------------------------------------------------------------
 -- |
@@ -41,7 +40,7 @@ import GHC.Generics
 -- Divisibility
 --
 
--- | A divisibility lattice. @'join' = 'lcm'@, @'meet' = 'gcd'@. 
+-- | A divisibility lattice. @'join' = 'lcm'@, @'meet' = 'gcd'@.
 newtype Divisibility a = Divisibility { getDivisibility :: a }
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706

@@ -1,15 +1,15 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP                #-}
 {-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE DeriveFoldable #-}
-{-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DeriveFoldable     #-}
+{-# LANGUAGE DeriveFunctor      #-}
+{-# LANGUAGE DeriveGeneric      #-}
+{-# LANGUAGE DeriveTraversable  #-}
+{-# LANGUAGE FlexibleContexts   #-}
+{-# LANGUAGE TypeOperators      #-}
 #if __GLASGOW_HASKELL__ < 709
-{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE Trustworthy        #-}
 #else
-{-# LANGUAGE Safe #-}
+{-# LANGUAGE Safe               #-}
 #endif
 ----------------------------------------------------------------------------
 -- |
