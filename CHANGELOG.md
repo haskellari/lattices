@@ -1,3 +1,11 @@
+# 1.7 (2017-10-01)
+
+- `HashMap` instances changed
+- `PartialOrd Meet` and `Join`
+- `PartialOrd ()` and `Void`
+- `BoundedLattice (HashSet a)`
+- `PartialOrd [a]` (`leq = isInfixOf`)
+
 # 1.6.0 (2017-06-26)
 
 - Correct PartialOrd Map and IntMap instances
