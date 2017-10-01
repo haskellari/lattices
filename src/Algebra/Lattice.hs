@@ -172,7 +172,7 @@ instance Ord a => JoinSemiLattice (S.Set a) where
 instance Ord a => MeetSemiLattice (S.Set a) where
     (/\) = S.intersection
 
-instance Ord a => Lattice (S.Set a) where
+instance Ord a => Lattice (S.Set a)
 
 instance Ord a => BoundedJoinSemiLattice (S.Set a) where
     bottom = S.empty
@@ -180,7 +180,7 @@ instance Ord a => BoundedJoinSemiLattice (S.Set a) where
 instance (Ord a, Finite a) => BoundedMeetSemiLattice (S.Set a) where
     top = S.fromList universeF
 
-instance (Ord a, Finite a) => BoundedLattice (S.Set a) where
+instance (Ord a, Finite a) => BoundedLattice (S.Set a)
 
 --
 -- IntSets
@@ -211,6 +211,11 @@ instance (Eq a, Hashable a) => Lattice (HS.HashSet a)
 
 instance (Eq a, Hashable a) => BoundedJoinSemiLattice (HS.HashSet a) where
     bottom = HS.empty
+
+instance (Eq a, Hashable a, Finite a) => BoundedMeetSemiLattice (HS.HashSet a) where
+    top = HS.fromList universeF
+
+instance (Eq a, Hashable a, Finite a) => BoundedLattice (HS.HashSet a)
 
 --
 -- Maps

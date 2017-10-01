@@ -21,6 +21,7 @@ module Algebra.PartialOrd (
 import           Data.Foldable     (Foldable (..))
 import           Data.Hashable     (Hashable (..))
 import qualified Data.HashMap.Lazy as HM
+import qualified Data.HashSet      as HS
 import qualified Data.IntMap       as IM
 import qualified Data.IntSet       as IS
 import qualified Data.Map          as M
@@ -110,6 +111,9 @@ instance Ord a => PartialOrd (S.Set a) where
 
 instance PartialOrd IS.IntSet where
     leq = IS.isSubsetOf
+
+instance (Eq k, Hashable k) => PartialOrd (HS.HashSet k) where
+    leq a b = HS.null (HS.difference a b)
 
 instance (Ord k, PartialOrd v) => PartialOrd (M.Map k v) where
     leq = M.isSubmapOfBy leq
