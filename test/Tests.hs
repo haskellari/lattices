@@ -25,6 +25,7 @@ import qualified Algebra.Lattice.Lexicographic as LO
 import qualified Algebra.Lattice.Lifted as U
 import qualified Algebra.Lattice.Op as Op
 import qualified Algebra.Lattice.Ordered as O
+import qualified Algebra.PartialOrd as P
 
 import Data.IntMap (IntMap)
 import Data.IntSet (IntSet)
@@ -66,6 +67,7 @@ tests = testGroup "Tests"
   , monadLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
   , monadLaws "Op" (Proxy1 :: Proxy1 Op.Op)
   , monadLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
+  , monadLaws "Partial" (Proxy1 :: Proxy1 P.Partial)
   ]
 
 monadLaws :: forall (m :: * -> *). ( Monad m
@@ -229,6 +231,9 @@ instance Arbitrary a => Arbitrary (Op.Op a) where
 instance (Arbitrary k, Arbitrary v) => Arbitrary (LO.Lexicographic k v) where
     arbitrary = uncurry LO.Lexicographic <$> arbitrary
     shrink (LO.Lexicographic k v) = uncurry LO.Lexicographic <$> shrink (k, v)
+
+instance Arbitrary a => Arbitrary (Partial a) where
+  arbitrary = Partial <$> arbitrary
 
 -------------------------------------------------------------------------------
 -- Examples

@@ -1,4 +1,17 @@
-{-# LANGUAGE Safe #-}
+{-# LANGUAGE CPP                #-}
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveFoldable     #-}
+{-# LANGUAGE DeriveFunctor      #-}
+{-# LANGUAGE DeriveGeneric      #-}
+{-# LANGUAGE DeriveTraversable  #-}
+{-# LANGUAGE FlexibleContexts   #-}
+{-# LANGUAGE TypeOperators      #-}
+#if __GLASGOW_HASKELL__ < 709
+{-# LANGUAGE Trustworthy        #-}
+#else
+{-# LANGUAGE Safe               #-}
+#endif
+
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.PartialOrd
@@ -15,9 +28,14 @@ module Algebra.PartialOrd (
 
     -- * Fixed points of chains in partial orders
     lfpFrom, unsafeLfpFrom,
-    gfpFrom, unsafeGfpFrom
+    gfpFrom, unsafeGfpFrom,
+
+    -- * Newtypes
+    Partial(Partial, runPartial)
   ) where
 
+import           Control.Applicative
+import           Data.Data
 import           Data.Foldable     (Foldable (..))
 import           Data.Hashable     (Hashable (..))
 import qualified Data.HashMap.Lazy as HM
@@ -28,7 +46,9 @@ import qualified Data.List         as L
 import qualified Data.Map          as M
 import           Data.Monoid       (All (..))
 import qualified Data.Set          as S
+import           Data.Traversable
 import           Data.Void         (Void)
+import           GHC.Generics
 
 -- | A partial ordering on sets
 -- (<http://en.wikipedia.org/wiki/Partially_ordered_set>) is a set equipped
@@ -169,3 +189,23 @@ gfpFrom' check init_x f = go init_x
              | x' `check` x = go x'
              | otherwise    = error "gfpFrom: non-antinone function"
           where x' = f x
+
+newtype Partial a = Partial { runPartial :: a }
+  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
+#if __GLASGOW_HASKELL__ >= 706
+           , Generic1
+#endif
+           )
+
+instance Ord a => PartialOrd (Partial a) where
+  leq = (<=)
+  comparable _ _ = True
+
+instance Applicative Partial where
+  pure = Partial
+  Partial f <*> Partial a = Partial (f a)
+
+instance Monad Partial where
+  return = Partial
+  Partial a >>= f = f a
+
