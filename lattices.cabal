@@ -30,6 +30,7 @@ library
                     Algebra.Lattice,
                     Algebra.Lattice.Divisibility,
                     Algebra.Lattice.Dropped,
+                    Algebra.Lattice.Flat,
                     Algebra.Lattice.Free,
                     Algebra.Lattice.Levitated,
                     Algebra.Lattice.Lexicographic,
