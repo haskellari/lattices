@@ -126,7 +126,7 @@ meetLeq x y = (x /\ y) == x
 -- > Absorption: a \/ (a /\ b) == a /\ (a \/ b) == a
 class (JoinSemiLattice a, MeetSemiLattice a) => Lattice a where
 
--- | A join-semilattice with some element |bottom| that \/ approaches.
+-- | A join-semilattice with an identity element 'bottom' for '\/'.
 --
 -- > Identity: x \/ bottom == x
 class JoinSemiLattice a => BoundedJoinSemiLattice a where
@@ -140,7 +140,7 @@ joins = getJoin . foldMap Join
 joins1 :: (JoinSemiLattice a, Foldable1 f) => f a -> a
 joins1 =  getJoin . foldMap1 Join
 
--- | A meet-semilattice with some element |top| that /\ approaches.
+-- | A meet-semilattice with an identity element 'top' for '/\'.
 --
 -- > Identity: x /\ top == x
 class MeetSemiLattice a => BoundedMeetSemiLattice a where
