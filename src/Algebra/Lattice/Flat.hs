@@ -89,3 +89,9 @@ instance Eq a => PartialOrd (Flat a) where
   leq (Flat _) Top = True
   leq (Flat x) (Flat y) = x == y
 
+  comparable Bottom _ = True
+  comparable Top _ = True
+  comparable (Flat _) Bottom = True
+  comparable (Flat _) Top = True
+  comparable (Flat x) (Flat y) = x == y
+
