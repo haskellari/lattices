@@ -58,14 +58,14 @@ instance Applicative Flat where
   (<*>) = ap
 
 instance Monad Flat where
-  return            = Flat
-  Top >>= _         = Top
-  Bottom >>= _      = Bottom
-  Flat x >>= f  = f x
+  return       = Flat
+  Top >>= _    = Top
+  Bottom >>= _ = Bottom
+  Flat x >>= f = f x
 
 instance NFData a => NFData (Flat a) where
-  rnf Top          = ()
-  rnf Bottom       = ()
+  rnf Top      = ()
+  rnf Bottom   = ()
   rnf (Flat a) = rnf a
 
 instance Hashable a => Hashable (Flat a)
@@ -81,17 +81,17 @@ instance Eq a => BoundedJoinSemiLattice (Flat a) where
   bottom = Bottom
 
 instance Eq a => PartialOrd (Flat a) where
-  leq Bottom _ = True
-  leq Top Bottom = False
-  leq Top (Flat _) = False
-  leq Top Top = True
-  leq (Flat _) Bottom = False
-  leq (Flat _) Top = True
+  leq Bottom _          = True
+  leq Top Bottom        = False
+  leq Top (Flat _)      = False
+  leq Top Top           = True
+  leq (Flat _) Bottom   = False
+  leq (Flat _) Top      = True
   leq (Flat x) (Flat y) = x == y
 
-  comparable Bottom _ = True
-  comparable Top _ = True
-  comparable (Flat _) Bottom = True
-  comparable (Flat _) Top = True
+  comparable Bottom _          = True
+  comparable Top _             = True
+  comparable (Flat _) Bottom   = True
+  comparable (Flat _) Top      = True
   comparable (Flat x) (Flat y) = x == y
 
