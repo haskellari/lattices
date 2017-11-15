@@ -81,13 +81,11 @@ instance Eq a => BoundedJoinSemiLattice (Flat a) where
   bottom = Bottom
 
 instance Eq a => PartialOrd (Flat a) where
-  leq Bottom Bottom = True
-  leq Bottom Top = True
+  leq Bottom _ = True
   leq Top Bottom = False
-  leq Top Top = True
-  leq Bottom (Flat _) = True
-  leq (Flat _) Bottom = False
   leq Top (Flat _) = False
+  leq Top Top = True
+  leq (Flat _) Bottom = False
   leq (Flat _) Top = True
   leq (Flat x) (Flat y) = x == y
 
