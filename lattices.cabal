@@ -36,6 +36,7 @@ library
                     Algebra.Lattice.Lifted,
                     Algebra.Lattice.Op,
                     Algebra.Lattice.Ordered,
+                    Algebra.Lattice.Wide,
                     Algebra.PartialOrd,
                     Algebra.PartialOrd.Instances
 
