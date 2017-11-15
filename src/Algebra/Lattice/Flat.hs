@@ -72,9 +72,9 @@ instance Hashable a => Hashable (Flat a)
 
 instance Eq a => JoinSemiLattice (Flat a) where
   Top    \/ _      = Top
-  _      \/ Top    = Top
-  Bottom \/ flat_y = flat_y
-  flat_x \/ Bottom = flat_x
+  Bottom \/ x      = x
+  Flat _ \/ Top    = Top
+  Flat x \/ Bottom = Flat x
   Flat x \/ Flat y = if x == y then Flat x else Top
 
 instance Eq a => BoundedJoinSemiLattice (Flat a) where
