@@ -20,6 +20,7 @@ import Algebra.PartialOrd
 
 import qualified Algebra.Lattice.Divisibility as Div
 import qualified Algebra.Lattice.Dropped as D
+import qualified Algebra.Lattice.Flat as F
 import qualified Algebra.Lattice.Levitated as L
 import qualified Algebra.Lattice.Lexicographic as LO
 import qualified Algebra.Lattice.Lifted as U
@@ -61,6 +62,7 @@ tests = testGroup "Tests"
   , testProperty "Lexicographic M2 M2 contains M3" $ QC.property $
       isJust searchM3LexM2
   , monadLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
+  , monadLaws "Flat" (Proxy1 :: Proxy1 F.Flat)
   , monadLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
   , monadLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
   , monadLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
@@ -196,6 +198,12 @@ latticeLaws name distr _ = testGroup ("Lattice laws: " <> name) $
 instance Arbitrary a => Arbitrary (D.Dropped a) where
   arbitrary = frequency [ (1, pure D.Top)
                         , (9, D.Drop <$> arbitrary)
+                        ]
+
+instance Arbitrary a => Arbitrary (F.Flat a) where
+  arbitrary = frequency [ (1, pure F.Top)
+                        , (1, pure F.Bottom)
+                        , (9, F.Flat <$> arbitrary)
                         ]
 
 instance Arbitrary a => Arbitrary (U.Lifted a) where
