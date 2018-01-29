@@ -1,14 +1,18 @@
 {-# LANGUAGE CPP                #-}
 {-# LANGUAGE FlexibleInstances  #-}
-#if __GLASGOW_HASKELL__ >=710 && MIN_VERSION_unordered_containers(0,2,6)
-{-# LANGUAGE Safe               #-}
-#else
-{-# LANGUAGE Trustworthy        #-}
-#endif
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric      #-}
 #if __GLASGOW_HASKELL__ >= 707 && __GLASGOW_HASKELL__ < 709
 {-# OPTIONS_GHC -fno-warn-amp #-}
+#endif
+
+#define unordered_containers_SAFE MIN_VERSION_unordered_containers(0,2,6)
+#define semigroupoids_SAFE (!MIN_VERSION_semigroupoids(5,2,2) || __GLASGOW_HASKELL__ >= 802)
+
+#if __GLASGOW_HASKELL__ >= 710 && unordered_containers_SAFE && semigroupoids_SAFE
+{-# LANGUAGE Safe               #-}
+#else
+{-# LANGUAGE Trustworthy        #-}
 #endif
 ----------------------------------------------------------------------------
 -- |
