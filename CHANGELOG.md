@@ -1,3 +1,8 @@
+# 1.7.1 (2018-01-29)
+
+- Correct *Safe Haskell* annotations. See https://github.com/ekmett/semigroupoids/issues/69
+- Bump lower bounds
+
 # 1.7 (2017-10-01)
 
 - `HashMap` instances changed
