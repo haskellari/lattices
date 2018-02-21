@@ -1,4 +1,3 @@
-resolver: nightly-2017-06-01
+resolver: lts-10.5
 extra-deps:
-- QuickCheck-2.10.0.1
-- quickcheck-instances-0.3.16
+- semigroupoids-5.2.2
