@@ -1,6 +1,6 @@
 name:               lattices
 version:            1.7.1
-x-revision:         1
+x-revision:         2
 cabal-version:      >= 1.10
 category:           Math
 license:            BSD3
@@ -41,7 +41,7 @@ library
                     Algebra.PartialOrd.Instances
 
   build-depends:    base                       >= 4.5     && < 4.12,
-                    base-compat                >= 0.9.3   && < 0.10,
+                    base-compat                >= 0.9.3   && < 0.11,
                     containers                 >= 0.4.2.1 && < 0.6,
                     deepseq                    >= 1.3.0.0 && < 1.5,
                     hashable                   >= 1.2.6.1 && < 1.3,
@@ -71,7 +71,7 @@ test-suite test
   ghc-options:         -Wall
   default-language:    Haskell2010
   build-depends:       base,
-                       base-compat          >= 0.9.3 && <0.10,
+                       base-compat,
                        tasty                >= 0.10  && < 1.1,
                        tasty-quickcheck     >= 0.8   && < 0.11,
                        QuickCheck           >= 2.10  && <2.12,
