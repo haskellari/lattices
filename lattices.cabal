@@ -12,7 +12,7 @@ bug-reports:        http://github.com/phadej/lattices/issues
 copyright:          (C) 2010-2015 Maximilian Bolingbroke
 build-type:         Simple
 extra-source-files: README.md CHANGELOG.md
-tested-with:        GHC==7.4.2, GHC==7.6.3, GHC==7.8.4, GHC==7.10.3, GHC==8.0.2, GHC==8.2.2, GHC==8.4.1
+tested-with:        GHC==7.4.2, GHC==7.6.3, GHC==7.8.4, GHC==7.10.3, GHC==8.0.2, GHC==8.2.2, GHC==8.4.3
 synopsis:           Fine-grained library for constructing and manipulating lattices
 description:
   In mathematics, a lattice is a partially ordered set in which every two
@@ -72,7 +72,7 @@ test-suite test
   default-language:    Haskell2010
   build-depends:       base,
                        base-compat,
-                       tasty                >= 0.10  && < 1.1,
+                       tasty                >= 0.10  && < 1.2,
                        tasty-quickcheck     >= 0.8   && < 0.11,
                        QuickCheck           >= 2.10  && <2.12,
                        quickcheck-instances >=0.3.16 && <0.4,
