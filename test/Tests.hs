@@ -9,7 +9,7 @@ import Prelude ()
 import Prelude.Compat
 
 import Data.Maybe (listToMaybe, isJust)
-import Data.Monoid ((<>))
+import Data.Semigroup ((<>))
 import Control.Monad (ap, guard)
 import Test.QuickCheck.Function
 import Test.Tasty

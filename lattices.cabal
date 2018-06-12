@@ -81,3 +81,6 @@ test-suite test
                        containers,
                        transformers,
                        unordered-containers
+
+  if !impl(ghc >= 8.0)
+    build-depends:  semigroups                 >= 0.18.3 && < 0.19
