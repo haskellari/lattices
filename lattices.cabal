@@ -1,6 +1,6 @@
 name:               lattices
 version:            1.7.1
-x-revision:         2
+x-revision:         3
 cabal-version:      >= 1.10
 category:           Math
 license:            BSD3
@@ -47,7 +47,7 @@ library
                     hashable                   >= 1.2.6.1 && < 1.3,
                     tagged                     >= 0.8.5   && < 0.9,
                     unordered-containers       >= 0.2.6.0 && < 0.3,
-                    semigroupoids              >= 5.2.2   && < 5.3,
+                    semigroupoids              >= 5.2.2   && < 5.4,
                     universe-base              >= 1.0     && < 1.1,
                     universe-reverse-instances >= 1.0     && < 1.1
   hs-source-dirs:   src
