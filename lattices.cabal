@@ -1,6 +1,5 @@
 name:               lattices
-version:            1.7.1
-x-revision:         3
+version:            1.7.1.1
 cabal-version:      >= 1.10
 category:           Math
 license:            BSD3
