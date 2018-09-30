@@ -1,4 +1,5 @@
 {-# LANGUAGE Safe #-}
+{-# LANGUAGE FlexibleInstances #-}
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.PartialOrd
@@ -113,6 +114,11 @@ instance Eq a => PartialOrd [a] where
 
 instance Ord a => PartialOrd (S.Set a) where
     leq = S.isSubsetOf
+
+instance PartialOrd a => PartialOrd (Maybe a) where
+    leq (Just a) (Just b) = leq a b
+    leq (Just _) Nothing  = False
+    leq Nothing  _        = True
 
 instance PartialOrd IS.IntSet where
     leq = IS.isSubsetOf
