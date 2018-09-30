@@ -47,6 +47,7 @@ tests :: TestTree
 tests = testGroup "Tests"
   [ latticeLaws "M3" False (Proxy :: Proxy M3) -- non distributive lattice!
   , latticeLaws "M2" True (Proxy :: Proxy M2) -- M2
+  , latticeLaws "Maybe M2" True (Proxy :: Proxy (Maybe M2))
   , latticeLaws "Map" True (Proxy :: Proxy (Map Int (O.Ordered Int)))
   , latticeLaws "IntMap" True (Proxy :: Proxy (IntMap (O.Ordered Int)))
   , latticeLaws "HashMap" True (Proxy :: Proxy (HashMap Int (O.Ordered Int)))
