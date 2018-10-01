@@ -93,10 +93,11 @@ class Eq a => PartialOrd a where
     comparable :: a -> a -> Bool
     comparable x y = leq x y || leq y x
 
--- | The equality relation induced by the partial-order structure. It must obey
--- the laws
+-- | The equality relation induced by the partial-order structure. It satisfies
+-- the laws of an equivalence relation:
 -- @
 -- Reflexive:  a == a
+-- Symmetric:  a == b => b == a
 -- Transitive: a == b && b == c ==> a == c
 -- @
 partialOrdEq :: PartialOrd a => a -> a -> Bool
