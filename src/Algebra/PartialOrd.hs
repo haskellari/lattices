@@ -1,4 +1,5 @@
 {-# LANGUAGE Safe #-}
+{-# LANGUAGE FlexibleInstances #-}
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.PartialOrd
@@ -92,10 +93,11 @@ class Eq a => PartialOrd a where
     comparable :: a -> a -> Bool
     comparable x y = leq x y || leq y x
 
--- | The equality relation induced by the partial-order structure. It must obey
--- the laws
+-- | The equality relation induced by the partial-order structure. It satisfies
+-- the laws of an equivalence relation:
 -- @
 -- Reflexive:  a == a
+-- Symmetric:  a == b => b == a
 -- Transitive: a == b && b == c ==> a == c
 -- @
 partialOrdEq :: PartialOrd a => a -> a -> Bool
@@ -113,6 +115,11 @@ instance Eq a => PartialOrd [a] where
 
 instance Ord a => PartialOrd (S.Set a) where
     leq = S.isSubsetOf
+
+instance PartialOrd a => PartialOrd (Maybe a) where
+    leq (Just a) (Just b) = leq a b
+    leq (Just _) Nothing  = False
+    leq Nothing  _        = True
 
 instance PartialOrd IS.IntSet where
     leq = IS.isSubsetOf

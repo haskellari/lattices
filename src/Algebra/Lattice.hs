@@ -353,6 +353,30 @@ instance BoundedMeetSemiLattice Bool where
 
 instance BoundedLattice Bool where
 
+--
+-- Maybe
+--
+
+instance JoinSemiLattice a => JoinSemiLattice (Maybe a) where
+    (Just a) \/ (Just b) = Just (a \/ b)
+    Nothing  \/ b        = b
+    a        \/ Nothing  = a
+
+instance MeetSemiLattice a => MeetSemiLattice (Maybe a) where
+    (Just a) /\ (Just b) = Just (a /\ b)
+    Nothing  /\ _        = Nothing
+    _        /\ Nothing  = Nothing
+
+instance Lattice a => Lattice (Maybe a)
+
+instance JoinSemiLattice a => BoundedJoinSemiLattice (Maybe a) where
+    bottom = Nothing
+
+instance BoundedMeetSemiLattice a => BoundedMeetSemiLattice (Maybe a) where
+    top = Just top
+
+instance BoundedLattice a => BoundedLattice (Maybe a)
+
 --- Monoids
 
 -- | Monoid wrapper for JoinSemiLattice
