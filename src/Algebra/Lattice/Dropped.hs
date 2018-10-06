@@ -23,7 +23,7 @@
 module Algebra.Lattice.Dropped (
     Dropped(..)
   , retractDropped
-  , dropped
+  , foldDropped
   ) where
 
 import Prelude ()
@@ -88,9 +88,9 @@ instance BoundedLattice a => BoundedLattice (Dropped a) where
 
 -- | Interpret @'Dropped' a@ using the 'BoundedMeetSemiLattice' of @a@.
 retractDropped :: BoundedMeetSemiLattice a => Dropped a -> a
-retractDropped = dropped top id
+retractDropped = foldDropped top id
 
 -- | Similar to @'maybe'@, but for @'Dropped'@ type.
-dropped :: b -> (a -> b) -> Dropped a -> b
-dropped _ f (Drop x) = f x
-dropped y _ Top      = y
+foldDropped :: b -> (a -> b) -> Dropped a -> b
+foldDropped _ f (Drop x) = f x
+foldDropped y _ Top      = y
