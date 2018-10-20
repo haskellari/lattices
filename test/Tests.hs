@@ -36,6 +36,8 @@ import Data.HashSet (HashSet)
 import Data.Universe.Instances.Base ()
 import Test.QuickCheck.Instances ()
 
+import qualified Tests.Heyting
+
 -- For old GHC to work
 data Proxy (a :: *) = Proxy
 data Proxy1 (a :: * -> *) = Proxy1
@@ -66,6 +68,7 @@ tests = testGroup "Tests"
   , monadLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
   , monadLaws "Op" (Proxy1 :: Proxy1 Op.Op)
   , monadLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
+  , Tests.Heyting.tests
   ]
 
 monadLaws :: forall (m :: * -> *). ( Monad m

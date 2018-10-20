@@ -23,6 +23,13 @@ description:
   This package provide type-classes for different lattice types, as well
   as a class for the partial order.
 
+flag export-properties
+  description:
+    Export quickcheck properties from library; this adds QuickCheck
+    as a dependency.
+  manual:  False
+  default: True
+
 source-repository head
   type: git
   location: git://github.com/phadej/lattices.git
@@ -38,6 +45,10 @@ library
                     Algebra.Lattice.Lifted,
                     Algebra.Lattice.Op,
                     Algebra.Lattice.Ordered,
+                    Algebra.Lattice.Heyting,
+                    Algebra.Lattice.Heyting.Layered,
+                    Algebra.Lattice.Heyting.BoolRing,
+                    Algebra.Lattice.Boolean
                     Algebra.PartialOrd,
                     Algebra.PartialOrd.Instances
 
@@ -49,6 +60,7 @@ library
                     tagged                     >= 0.8.5   && < 0.9,
                     unordered-containers       >= 0.2.6.0 && < 0.3,
                     semigroupoids              >= 5.2.2   && < 5.4,
+                    semiring-simple            >= 1.0     && < 1.2,
                     universe-base              >= 1.0     && < 1.1,
                     universe-reverse-instances >= 1.0     && < 1.1
   hs-source-dirs:   src
@@ -65,10 +77,17 @@ library
   if impl(ghc >= 7.4 && < 7.5)
     build-depends:  ghc-prim
 
+  if flag(export-properties)
+    build-depends:
+                    QuickCheck                  >= 2.10 && < 2.13
+    cpp-options:
+                    -DEXPORT_PROPERTIES
+
 test-suite test
   type:                exitcode-stdio-1.0
   main-is:             Tests.hs
   hs-source-dirs:      test
+  other-modules:       Tests.Heyting
   ghc-options:         -Wall
   default-language:    Haskell2010
   build-depends:       base,
@@ -77,6 +96,7 @@ test-suite test
                        tasty-quickcheck     >= 0.8   && < 0.11,
                        QuickCheck           >= 2.10  && <2.13,
                        quickcheck-instances >=0.3.16 && <0.4,
+                       universe-base        >=1.0    && <1.1,
                        universe-instances-base >= 1.0 && <1.1,
                        lattices,
                        containers,
