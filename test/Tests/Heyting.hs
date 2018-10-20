@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
-{-# LANGUAGE TypeApplications           #-}
 module Tests.Heyting
   ( tests ) where
 
@@ -18,6 +18,7 @@ import Algebra.Lattice.Levitated (Levitated)
 import qualified Algebra.Lattice.Levitated as L
 import Algebra.Lattice.Ordered (Ordered (..))
 import Data.Universe.Class (Universe (..), Finite)
+import Data.Functor ((<$>))
 import qualified Data.Set as S
 import qualified Data.Map as M
 
@@ -32,31 +33,97 @@ tests :: TestTree
 tests =
   testGroup "heyting-algebras tests"
     [ testGroup "Boolean algebras"
-        [ testProperty "Bool"                   $ prop_BooleanAlgebra @Bool
-        , testProperty "(Bool, Bool)"           $ prop_BooleanAlgebra @(Bool, Bool)
-        , testProperty "Boolean (Lifted Bool)"  $ prop_BooleanAlgebra @(Arb (Boolean (Arb (Lifted Bool))))
-        , testProperty "Boolean (Dropped Bool)" $ prop_BooleanAlgebra @(Arb (Boolean (Arb (Dropped Bool))))
-        , testProperty "(Set S5)"               $ prop_BooleanAlgebra @(Arb (S.Set S5))
+        [ testProperty "Bool"
+            (prop_BooleanAlgebra :: Bool
+                                 -> Bool
+                                 -> Bool
+                                 -> Property)
+        , testProperty "(Bool, Bool)"
+            (prop_BooleanAlgebra :: (Bool, Bool)
+                                 -> (Bool, Bool)
+                                 -> (Bool, Bool)
+                                 -> Property)
+        , testProperty "Boolean (Lifted Bool)"
+            (prop_BooleanAlgebra :: Arb (Boolean (Arb (Lifted Bool)))
+                                 -> Arb (Boolean (Arb (Lifted Bool)))
+                                 -> Arb (Boolean (Arb (Lifted Bool)))
+                                 -> Property)
+        , testProperty "Boolean (Dropped Bool)"
+            (prop_BooleanAlgebra :: Arb (Boolean (Arb (Dropped Bool)))
+                                 -> Arb (Boolean (Arb (Dropped Bool)))
+                                 -> Arb (Boolean (Arb (Dropped Bool)))
+                                 -> Property)
+        , testProperty "(Set S5)"              
+            (prop_BooleanAlgebra :: Arb (S.Set S5)
+                                 -> Arb (S.Set S5)
+                                 -> Arb (S.Set S5)
+                                 -> Property)
         ]
     , testGroup "Non Boolean algebras"
-        [ testProperty "Not a BooleanAlgebra (Lifted Bool)"  $ expectFailure $ prop_not @(Arb (Lifted Bool))
-        , testProperty "Not a BooleanAlgebra (Dropped Bool)" $ expectFailure $ prop_not @(Arb (Dropped Bool))
-        , testProperty "Not a BooleanAlgebra Levitated (Ordered Int)" $ expectFailure $ prop_not @(Arb (Levitated (Arb (Ordered Int))))
-        ]
+      [ testProperty "Not a BooleanAlgebra (Lifted Bool)"
+          (expectFailure (prop_not :: Arb (Lifted Bool)  -> Property))
+      , testProperty "Not a BooleanAlgebra (Dropped Bool)"
+          (expectFailure (prop_not :: Arb (Dropped Bool) -> Property))
+      , testProperty "Not a BooleanAlgebra Levitated (Ordered Int)"
+          (expectFailure (prop_not :: Arb (Levitated (Arb (Ordered Int))) -> Property))
+      ]
     , testGroup "Heyting algebras"
-        [ testProperty "Lifted Bool"            $ prop_HeytingAlgebra @(Arb (Lifted Bool))
-        , testProperty "Dropped Bool"           $ prop_HeytingAlgebra @(Arb (Dropped Bool))
-        , testProperty "Layered Bool Bool"      $ prop_HeytingAlgebra @(Arb (Layered Bool Bool))
-        , testProperty "Levitated Bool"         $ prop_HeytingAlgebra @(Arb (Levitated Bool))
-        , testProperty "Sum (Lifted Bool) (Dropped Bool)"
-                                                $ prop_HeytingAlgebra @(Arb (Layered (Arb (Lifted Bool)) (Arb (Dropped Bool))))
-        , testProperty "Levitated (Ordered Int)" $ prop_HeytingAlgebra @(Arb (Levitated (Arb (Ordered Int))))
-        , testProperty "Map S5 Bool"            $ prop_HeytingAlgebra @(Arb (M.Map S5 Bool))
-        , testProperty "Dropped (Lifted Bool)"  $ prop_HeytingAlgebra @(Composed Dropped Lifted Bool)
-        , testProperty "Lifted (Dropped Bool)"  $ prop_HeytingAlgebra @(Composed Lifted Dropped Bool)
-        , testProperty "Lifted (Lifted Bool)"   $ prop_HeytingAlgebra @(Composed Lifted Lifted Bool)
-        , testProperty "Dropped (Dropped Bool)" $ prop_HeytingAlgebra @(Composed Dropped Dropped Bool)
-        ]
+      [ testProperty "Lifted Bool"
+          (prop_HeytingAlgebra :: Blind (Arb (Lifted Bool))
+                               -> Blind (Arb (Lifted Bool))
+                               -> Blind (Arb (Lifted Bool))
+                               -> Property)
+      , testProperty "Dropped Bool"          
+          (prop_HeytingAlgebra :: Blind (Arb (Dropped Bool))
+                               -> Blind (Arb (Dropped Bool))
+                               -> Blind (Arb (Dropped Bool))
+                               -> Property)
+      , testProperty "Layered Bool Bool"     
+          (prop_HeytingAlgebra :: Blind (Arb (Layered Bool Bool))
+                               -> Blind (Arb (Layered Bool Bool))
+                               -> Blind (Arb (Layered Bool Bool))
+                               -> Property)
+      , testProperty "Levitated Bool"        
+          (prop_HeytingAlgebra :: Blind (Arb (Levitated Bool))
+                               -> Blind (Arb (Levitated Bool))
+                               -> Blind (Arb (Levitated Bool))
+                               -> Property)
+      , testProperty "Sum (Lifted Bool) (Dropped Bool)"
+          (prop_HeytingAlgebra :: Blind (Arb (Layered (Arb (Lifted Bool)) (Arb (Dropped Bool))))
+                               -> Blind (Arb (Layered (Arb (Lifted Bool)) (Arb (Dropped Bool))))
+                               -> Blind (Arb (Layered (Arb (Lifted Bool)) (Arb (Dropped Bool))))
+                               -> Property)
+      , testProperty "Levitated (Ordered Int)"
+          (prop_HeytingAlgebra :: Blind (Arb (Levitated (Arb (Ordered Int))))
+                               -> Blind (Arb (Levitated (Arb (Ordered Int))))
+                               -> Blind (Arb (Levitated (Arb (Ordered Int))))
+                               -> Property)
+      , testProperty "Map S5 Bool"
+          (prop_HeytingAlgebra :: Blind (Arb (M.Map S5 Bool))
+                               -> Blind (Arb (M.Map S5 Bool))
+                               -> Blind (Arb (M.Map S5 Bool))
+                               -> Property)
+      , testProperty "Dropped (Lifted Bool)"
+          (prop_HeytingAlgebra :: Blind (Composed Dropped Lifted Bool)
+                               -> Blind (Composed Dropped Lifted Bool)
+                               -> Blind (Composed Dropped Lifted Bool)
+                               -> Property)
+      , testProperty "Lifted (Dropped Bool)"
+          (prop_HeytingAlgebra :: Blind (Composed Lifted Dropped Bool)
+                               -> Blind (Composed Lifted Dropped Bool)
+                               -> Blind (Composed Lifted Dropped Bool)
+                               -> Property)
+      , testProperty "Lifted (Lifted Bool)"
+          (prop_HeytingAlgebra :: Blind (Composed Lifted Lifted Bool)
+                               -> Blind (Composed Lifted Lifted Bool)
+                               -> Blind (Composed Lifted Lifted Bool)
+                               -> Property)
+      , testProperty "Dropped (Dropped Bool)"
+          (prop_HeytingAlgebra :: Blind (Composed Dropped Dropped Bool)
+                               -> Blind (Composed Dropped Dropped Bool)
+                               -> Blind (Composed Dropped Dropped Bool)
+                               -> Property)
+      ]
     ]
 
 -- | Arbitrary wrapper
@@ -79,7 +146,7 @@ instance Show a => Show (Arb a) where
 instance (Finite k, Arbitrary k, Arbitrary v, Ord k) => Arbitrary (Arb (M.Map k v)) where
   arbitrary = frequency 
     [ (1, Arb . M.fromList <$> arbitrary)
-    , (4, Arb . M.fromList . zip universe <$> vectorOf (length (universe @k)) arbitrary)
+    , (4, Arb . M.fromList . zip universe <$> vectorOf (length (universe :: [k])) arbitrary)
     , (6, return $ Arb M.empty)
     ]
 

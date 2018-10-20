@@ -115,7 +115,9 @@ instance BooleanAlgebra a => BooleanAlgebra (Tagged t a)
 
 instance BooleanAlgebra b => BooleanAlgebra (a -> b)
 
+#if MIN_VERSION_base(4,8,0)
 instance BooleanAlgebra a => BooleanAlgebra (Identity a)
+#endif
 
 instance BooleanAlgebra a => BooleanAlgebra (Const a b)
 

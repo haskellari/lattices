@@ -28,7 +28,10 @@ import Data.List              (intersperse)
 import Data.Functor.Identity  (Identity (..))
 import Data.Hashable          (Hashable)
 import Data.Proxy             (Proxy (..))
-import Data.Semigroup         (All (..), Any (..), Endo (..))
+import Data.Semigroup         (All (..), Any (..), Endo (..), (<>))
+#ifdef EXPORT_PROPERTIES
+import Data.Monoid            (mempty)
+#endif
 import Data.Tagged            (Tagged (..))
 import Data.Universe.Class    (Finite, universe)
 import qualified Data.Map as M
@@ -148,8 +151,10 @@ instance HeytingAlgebra a => HeytingAlgebra (Tagged t a) where
 instance HeytingAlgebra b => HeytingAlgebra (a -> b) where
   f ==> g = \a -> f a ==> g a
 
+#if MIN_VERSION_base(4,8,0)
 instance HeytingAlgebra a => HeytingAlgebra (Identity a) where
   (Identity a) ==> (Identity b) = Identity (a ==> b)
+#endif
 
 instance HeytingAlgebra a => HeytingAlgebra (Const a b) where
   (Const a) ==> (Const b) = Const (a ==> b)
@@ -237,7 +242,7 @@ instance (Eq k, Finite k, Hashable k, HeytingAlgebra v) => HeytingAlgebra (HM.Ha
 #ifdef EXPORT_PROPERTIES
 
 withBlinds :: Show a => String -> [a] -> String
-withBlinds s bs = s ++ "\n\t" ++ foldMap id (intersperse "\n\t" (map show bs))
+withBlinds s bs = s ++ "\n\t" ++ foldr (<>) mempty (intersperse "\n\t" (map show bs))
 
 -- |
 -- Verifies bounded meet semilattice laws.
