@@ -6,11 +6,10 @@ module Algebra.Lattice.Heyting
   , iff
   , iff'
   , toBoolean
-
+#ifdef EXPORT_PROPERTIES
     -- * QuickCheck Properties
     --
     -- $properties
-#ifdef EXPORT_PROPERTIES
   , prop_BoundedMeetSemiLattice
   , prop_BoundedJoinSemiLattice
   , prop_DistributiveLattice
@@ -141,7 +140,7 @@ toBoolean :: HeytingAlgebra a => a -> a
 toBoolean = not . not
 
 instance HeytingAlgebra Bool where
-  not     = Prelude.not
+  not = Prelude.not
 
 instance HeytingAlgebra All where
   All a ==> All b = All (a ==> b)
