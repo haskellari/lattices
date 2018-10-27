@@ -1,6 +1,8 @@
 {-# LANGUAGE CPP #-}
 module Algebra.Lattice.Heyting
   ( HeytingAlgebra (..)
+  , implies
+  , (<=>)
   , iff
   , iff'
   , toBoolean
@@ -99,6 +101,8 @@ class BoundedLattice a => HeytingAlgebra a where
   -- |
   -- Default implementation: @a ==> b = not a \/ b@, it requires @not@ to
   -- satisfy Boolean axioms, which will make it into a Boolean algebra.
+  --
+  -- Fixity is less than fixity of both @'\/'@ and @'/\'@.
   (==>) :: a -> a -> a
   (==>) a b = not a \/ b
 
@@ -111,12 +115,20 @@ class BoundedLattice a => HeytingAlgebra a where
 
   {-# MINIMAL (==>) | not #-}
 
--- |
--- Less than fixity of both @'\/'@ and @'/\'@.
 infixr 4 ==>
 
+-- |
+-- @'implies'@ is an alias for @'==>'@
+implies :: HeytingAlgebra a => a -> a -> a
+implies = (==>)
+
+(<=>) :: HeytingAlgebra a => a -> a -> a
+a <=> b = (a ==> b) /\ (b ==> a)
+
+-- |
+-- @'iff'@ is an alias for @'<=>'@
 iff :: HeytingAlgebra a => a -> a -> a
-iff a b = (a ==> b) /\ (b ==> a)
+iff = (<=>)
 
 iff' :: (Eq a, HeytingAlgebra a) => a -> a -> Bool
 iff' a b = Meet top `leq` Meet (iff a b)
