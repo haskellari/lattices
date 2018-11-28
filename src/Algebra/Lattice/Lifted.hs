@@ -29,6 +29,7 @@ import Prelude ()
 import Prelude.Compat
 
 import Algebra.Lattice
+import Algebra.PartialOrd
 
 import Control.DeepSeq
 import Control.Monad
@@ -64,6 +65,14 @@ instance NFData a => NFData (Lifted a) where
   rnf (Lift a) = rnf a
 
 instance Hashable a => Hashable (Lifted a)
+
+instance PartialOrd a => PartialOrd (Lifted a) where
+  leq Bottom _ = True
+  leq _ Bottom = False
+  leq (Lift x) (Lift y) = leq x y
+  comparable Bottom _ = True
+  comparable _ Bottom = True
+  comparable (Lift x) (Lift y) = comparable x y
 
 instance JoinSemiLattice a => JoinSemiLattice (Lifted a) where
     Lift x \/ Lift y = Lift (x \/ y)
