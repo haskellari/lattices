@@ -58,6 +58,11 @@ tests = testGroup "Tests"
   , latticeLaws "LexOrdered" True (Proxy :: Proxy (LO.Lexicographic (O.Ordered Int) (O.Ordered Int)))
   , latticeLaws "Lexicographic" False (Proxy :: Proxy (LO.Lexicographic (Set Bool) (Set Bool)))
   , latticeLaws "Lexicographic" False (Proxy :: Proxy (LO.Lexicographic M2 M2)) -- non distributive!
+  , partialOrdLaws "Dropped" (Proxy :: Proxy (D.Dropped (O.Ordered Int)))
+  , partialOrdLaws "Levitated" (Proxy :: Proxy (L.Levitated (O.Ordered Int)))
+  , partialOrdLaws "Lifted" (Proxy :: Proxy (U.Lifted (O.Ordered Int)))
+  , partialOrdLaws "Op" (Proxy :: Proxy (Op.Op (O.Ordered Int)))
+  , partialOrdLaws "Ordered" (Proxy :: Proxy (O.Ordered Int))
   , testProperty "Lexicographic M2 M2 contains M3" $ QC.property $
       isJust searchM3LexM2
   , monadLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
@@ -188,6 +193,24 @@ latticeLaws name distr _ = testGroup ("Lattice laws: " <> name) $
       where
         lhs = x \/ (y /\ z)
         rhs = (x \/ y) /\ (x \/ z)
+
+-- | This aren't strictly required. But good too have, if possible.
+partialOrdLaws
+    :: forall a. (Eq a, Show a, Arbitrary a, PartialOrd a, Ord a)
+    => String
+    -> Proxy a
+    -> TestTree
+partialOrdLaws name _ = testGroup ("Partial ord laws: " <> name) $
+    [ QC.testProperty "leq/compare are congruent" leqCompareProp
+    ]
+  where
+    leqCompareProp :: a -> a -> Property
+    leqCompareProp x y = agree (leq x y) (leq y x) (compare x y)
+      where
+        agree True True = (=== EQ)
+        agree True False = (=== LT)
+        agree False True = (=== GT)
+        agree False False = discard
 
 -------------------------------------------------------------------------------
 -- Orphans

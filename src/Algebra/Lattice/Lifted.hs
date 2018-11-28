@@ -29,6 +29,7 @@ import Prelude ()
 import Prelude.Compat
 
 import Algebra.Lattice
+import Algebra.PartialOrd
 
 import Control.DeepSeq
 import Control.Monad
@@ -42,8 +43,8 @@ import GHC.Generics
 
 -- | Graft a distinct bottom onto an otherwise unbounded lattice.
 -- As a bonus, the bottom will be an absorbing element for the meet.
-data Lifted a = Lift a
-              | Bottom
+data Lifted a = Bottom
+              | Lift a
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1
@@ -64,6 +65,14 @@ instance NFData a => NFData (Lifted a) where
   rnf (Lift a) = rnf a
 
 instance Hashable a => Hashable (Lifted a)
+
+instance PartialOrd a => PartialOrd (Lifted a) where
+  leq Bottom _ = True
+  leq _ Bottom = False
+  leq (Lift x) (Lift y) = leq x y
+  comparable Bottom _ = True
+  comparable _ Bottom = True
+  comparable (Lift x) (Lift y) = comparable x y
 
 instance JoinSemiLattice a => JoinSemiLattice (Lifted a) where
     Lift x \/ Lift y = Lift (x \/ y)

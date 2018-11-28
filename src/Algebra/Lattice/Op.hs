@@ -11,6 +11,7 @@
 #else
 {-# LANGUAGE Safe               #-}
 #endif
+
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Op
@@ -43,11 +44,14 @@ import GHC.Generics
 -- | The opposite lattice of a given lattice.  That is, switch
 -- meets and joins.
 newtype Op a = Op { getOp :: a }
-  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
+  deriving ( Eq, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1
 #endif
            )
+
+instance Ord a => Ord (Op a) where
+  compare (Op a) (Op b) = compare b a
 
 instance Applicative Op where
   pure = return
