@@ -11,6 +11,11 @@
 #else
 {-# LANGUAGE Safe               #-}
 #endif
+#if __GLASGOW_HASKELL__ >= 806
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE DerivingVia        #-}
+#endif
+
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Op
@@ -34,6 +39,7 @@ import Control.DeepSeq
 import Control.Monad
 import Data.Data
 import Data.Hashable
+import Data.Ord
 import GHC.Generics
 
 --
@@ -43,11 +49,17 @@ import GHC.Generics
 -- | The opposite lattice of a given lattice.  That is, switch
 -- meets and joins.
 newtype Op a = Op { getOp :: a }
-  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
+  deriving ( Eq, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1
 #endif
            )
+#if __GLASGOW_HASKELL__ >= 806
+  deriving Ord via (Down a)
+#else
+instance Ord a => Ord (Op a) where
+  compare (Op a) (Op b) = compare b a
+#endif
 
 instance Applicative Op where
   pure = return

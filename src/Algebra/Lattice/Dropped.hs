@@ -43,8 +43,8 @@ import GHC.Generics
 
 -- | Graft a distinct top onto an otherwise unbounded lattice.
 -- As a bonus, the top will be an absorbing element for the join.
-data Dropped a = Top
-               | Drop a
+data Dropped a = Drop a
+               | Top
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1

@@ -44,9 +44,9 @@ import GHC.Generics
 -- | Graft a distinct top and bottom onto an otherwise unbounded lattice.
 -- The top is the absorbing element for the join, and the bottom is the absorbing
 -- element for the meet.
-data Levitated a = Top
+data Levitated a = Bottom
                  | Levitate a
-                 | Bottom
+                 | Top
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1

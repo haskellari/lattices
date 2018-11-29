@@ -43,8 +43,8 @@ import GHC.Generics
 
 -- | Graft a distinct bottom onto an otherwise unbounded lattice.
 -- As a bonus, the bottom will be an absorbing element for the meet.
-data Lifted a = Lift a
-              | Bottom
+data Lifted a = Bottom
+              | Lift a
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1
