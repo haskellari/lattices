@@ -1,20 +1,26 @@
-cabal-version:      >= 1.10
+cabal-version:      >=1.10
 name:               lattices
 version:            1.7.1.1
 x-revision:         1
-
 category:           Math
 license:            BSD3
-license-File:       LICENSE
+license-file:       LICENSE
 author:             Maximilian Bolingbroke <batterseapower@hotmail.com>
 maintainer:         Oleg Grenrus <oleg.grenrus@iki.fi>
 homepage:           http://github.com/phadej/lattices/
 bug-reports:        http://github.com/phadej/lattices/issues
 copyright:          (C) 2010-2015 Maximilian Bolingbroke
 build-type:         Simple
-extra-source-files: README.md CHANGELOG.md
-tested-with:        GHC==7.4.2, GHC==7.6.3, GHC==7.8.4, GHC==7.10.3, GHC==8.0.2, GHC==8.2.2, GHC==8.4.4, GHC==8.6.3
-synopsis:           Fine-grained library for constructing and manipulating lattices
+extra-source-files:
+  README.md
+  CHANGELOG.md
+
+tested-with:
+  ghc ==7.4.2 || ==7.6.3 || ==7.8.4 || ==7.10.3 || ==8.0.2 || ==8.2.2 || ==8.4.4 || ==8.6.3
+
+synopsis:
+  Fine-grained library for constructing and manipulating lattices
+
 description:
   In mathematics, a lattice is a partially ordered set in which every two
   elements @x@ and @y@ have a unique supremum (also called a least upper bound, join, or @x /\\ y@)
@@ -24,64 +30,69 @@ description:
   as a class for the partial order.
 
 source-repository head
-  type: git
+  type:     git
   location: git://github.com/phadej/lattices.git
 
 library
-  exposed-modules:  Algebra.Enumerable,
-                    Algebra.Lattice,
-                    Algebra.Lattice.Divisibility,
-                    Algebra.Lattice.Dropped,
-                    Algebra.Lattice.Free,
-                    Algebra.Lattice.Levitated,
-                    Algebra.Lattice.Lexicographic,
-                    Algebra.Lattice.Lifted,
-                    Algebra.Lattice.Op,
-                    Algebra.Lattice.Ordered,
-                    Algebra.PartialOrd,
-                    Algebra.PartialOrd.Instances
-
-  build-depends:    base                       >= 4.5     && < 4.13,
-                    base-compat                >= 0.9.3   && < 0.11,
-                    containers                 >= 0.4.2.1 && < 0.7,
-                    deepseq                    >= 1.3.0.0 && < 1.5,
-                    hashable                   >= 1.2.6.1 && < 1.3,
-                    tagged                     >= 0.8.5   && < 0.9,
-                    unordered-containers       >= 0.2.6.0 && < 0.3,
-                    semigroupoids              >= 5.2.2   && < 5.4,
-                    universe-base              >= 1.0     && < 1.1,
-                    universe-reverse-instances >= 1.0     && < 1.1
+  default-language: Haskell2010
   hs-source-dirs:   src
   ghc-options:      -Wall
-  default-language: Haskell2010
 
-  if !impl(ghc >= 8.0)
-    build-depends:  semigroups                 >= 0.18.3 && < 0.19
+  exposed-modules:
+    Algebra.Enumerable
+    Algebra.Lattice
+    Algebra.Lattice.Divisibility
+    Algebra.Lattice.Dropped
+    Algebra.Lattice.Free
+    Algebra.Lattice.Levitated
+    Algebra.Lattice.Lexicographic
+    Algebra.Lattice.Lifted
+    Algebra.Lattice.Op
+    Algebra.Lattice.Ordered
+    Algebra.PartialOrd
+    Algebra.PartialOrd.Instances
 
-  if !impl(ghc >= 7.10)
-    build-depends:   void                       >= 0.7  && < 0.8,
-                     transformers               >= 0.3  && < 0.6
+  build-depends:
+      base                        >=4.5     && <4.13
+    , base-compat                 >=0.9.3   && <0.11
+    , containers                  >=0.4.2.1 && <0.7
+    , deepseq                     >=1.3.0.0 && <1.5
+    , hashable                    >=1.2.6.1 && <1.3
+    , semigroupoids               >=5.2.2   && <5.4
+    , tagged                      >=0.8.5   && <0.9
+    , universe-base               >=1.0     && <1.1
+    , universe-reverse-instances  >=1.0     && <1.1
+    , unordered-containers        >=0.2.6.0 && <0.3
 
-  if impl(ghc >= 7.4 && < 7.5)
-    build-depends:  ghc-prim
+  if !impl(ghc >=8.0)
+    build-depends: semigroups >=0.18.3 && <0.19
+
+  if !impl(ghc >=7.10)
+    build-depends:
+        transformers  >=0.3 && <0.6
+      , void          >=0.7 && <0.8
+
+  if impl(ghc >=7.4 && <7.5)
+    build-depends: ghc-prim
 
 test-suite test
-  type:                exitcode-stdio-1.0
-  main-is:             Tests.hs
-  hs-source-dirs:      test
-  ghc-options:         -Wall
-  default-language:    Haskell2010
-  build-depends:       base,
-                       base-compat,
-                       tasty                >= 0.10  && < 1.3,
-                       tasty-quickcheck     >= 0.8   && < 0.11,
-                       QuickCheck           >= 2.10  && <2.13,
-                       quickcheck-instances >=0.3.16 && <0.4,
-                       universe-instances-base >= 1.0 && <1.1,
-                       lattices,
-                       containers,
-                       transformers,
-                       unordered-containers
+  type:             exitcode-stdio-1.0
+  main-is:          Tests.hs
+  hs-source-dirs:   test
+  ghc-options:      -Wall
+  default-language: Haskell2010
+  build-depends:
+      base
+    , base-compat
+    , containers
+    , lattices
+    , QuickCheck               >=2.10   && <2.13
+    , quickcheck-instances     >=0.3.16 && <0.4
+    , tasty                    >=0.10   && <1.3
+    , tasty-quickcheck         >=0.8    && <0.11
+    , transformers
+    , universe-instances-base  >=1.0    && <1.1
+    , unordered-containers
 
-  if !impl(ghc >= 8.0)
-    build-depends:  semigroups                 >= 0.18.3 && < 0.19
+  if !impl(ghc >=8.0)
+    build-depends: semigroups >=0.18.3 && <0.19
