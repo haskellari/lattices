@@ -97,9 +97,9 @@ instance BoundedLattice a => BoundedLattice (Dropped a) where
 
 -- | Interpret @'Dropped' a@ using the 'BoundedMeetSemiLattice' of @a@.
 retractDropped :: BoundedMeetSemiLattice a => Dropped a -> a
-retractDropped = foldDropped top id
+retractDropped = foldDropped id top
 
 -- | Similar to @'maybe'@, but for @'Dropped'@ type.
-foldDropped :: b -> (a -> b) -> Dropped a -> b
-foldDropped _ f (Drop x) = f x
-foldDropped y _ Top      = y
+foldDropped :: (a -> b) -> b -> Dropped a -> b
+foldDropped f _ (Drop x) = f x
+foldDropped _ y Top      = y

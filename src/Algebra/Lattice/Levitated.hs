@@ -23,6 +23,7 @@
 module Algebra.Lattice.Levitated (
     Levitated(..)
   , retractLevitated
+  , foldLevitated
   ) where
 
 import Prelude ()
@@ -108,6 +109,10 @@ instance Lattice a => BoundedLattice (Levitated a) where
 
 -- | Interpret @'Levitated' a@ using the 'BoundedLattice' of @a@.
 retractLevitated :: BoundedLattice a => Levitated a -> a
-retractLevitated Top           = top
-retractLevitated Bottom        = bottom
-retractLevitated (Levitate x)  = x
+retractLevitated = foldLevitated bottom id top
+
+-- | Fold 'Levitated'.
+foldLevitated :: b -> (a -> b) -> b -> Levitated a -> b
+foldLevitated b _ _ Bottom       = b
+foldLevitated _ f _ (Levitate x) = f x
+foldLevitated _ _ t Top          = t
