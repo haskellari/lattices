@@ -1,7 +1,7 @@
 {-# LANGUAGE CPP                #-}
-{-# LANGUAGE FlexibleInstances  #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric      #-}
+{-# LANGUAGE FlexibleInstances  #-}
 #if __GLASGOW_HASKELL__ >= 707 && __GLASGOW_HASKELL__ < 709
 {-# OPTIONS_GHC -fno-warn-amp #-}
 #endif
@@ -72,6 +72,7 @@ import qualified Data.Set    as S
 
 import qualified Data.HashMap.Lazy as HM
 import qualified Data.HashSet      as HS
+import qualified Test.QuickCheck   as QC
 
 import Control.Applicative     (Const (..))
 import Data.Functor.Identity   (Identity (..))
@@ -541,7 +542,10 @@ instance BoundedMeetSemiLattice a => BoundedMeetSemiLattice (Const a b) where
 instance Lattice a => Lattice (Const a b) where
 instance BoundedLattice a => BoundedLattice (Const a b) where
 
+-------------------------------------------------------------------------------
 -- Void
+-------------------------------------------------------------------------------
+
 instance JoinSemiLattice Void where
   a \/ _ = a
 
@@ -549,6 +553,21 @@ instance MeetSemiLattice Void where
   a /\ _ = a
 
 instance Lattice Void where
+
+-------------------------------------------------------------------------------
+-- QuickCheck
+-------------------------------------------------------------------------------
+
+instance JoinSemiLattice QC.Property where (\/) = (QC..||.)
+instance MeetSemiLattice QC.Property where (/\) = (QC..&&.)
+instance BoundedJoinSemiLattice QC.Property where bottom = QC.property False
+instance BoundedMeetSemiLattice QC.Property where top = QC.property True
+instance Lattice QC.Property
+instance BoundedLattice QC.Property
+
+-------------------------------------------------------------------------------
+-- Theorems
+-------------------------------------------------------------------------------
 
 -- | Implementation of Kleene fixed-point theorem <http://en.wikipedia.org/wiki/Kleene_fixed-point_theorem>.
 -- Assumes that the function is monotone and does not check if that is correct.
