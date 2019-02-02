@@ -23,6 +23,7 @@
 module Algebra.Lattice.Lifted (
     Lifted(..)
   , retractLifted
+  , foldLifted
   ) where
 
 import Prelude ()
@@ -96,5 +97,9 @@ instance BoundedLattice a => BoundedLattice (Lifted a) where
 
 -- | Interpret @'Lifted' a@ using the 'BoundedJoinSemiLattice' of @a@.
 retractLifted :: BoundedJoinSemiLattice a => Lifted a -> a
-retractLifted Bottom    = bottom
-retractLifted (Lift x)  = x
+retractLifted = foldLifted bottom id
+
+-- | Similar to @'maybe'@, but for @'Lifted'@ type.
+foldLifted :: b -> (a -> b) -> Lifted a -> b
+foldLifted _ f (Lift x) = f x
+foldLifted y _ Bottom   = y
