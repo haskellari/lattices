@@ -62,21 +62,15 @@ instance NFData a => NFData (Ordered a) where
 
 instance Hashable a => Hashable (Ordered a)
 
-instance Ord a => JoinSemiLattice (Ordered a) where
-  Ordered x \/ Ordered y = Ordered (max x y)
-
-instance Ord a => MeetSemiLattice (Ordered a) where
-  Ordered x /\ Ordered y = Ordered (min x y)
-
 instance Ord a => Lattice (Ordered a) where
+  Ordered x \/ Ordered y = Ordered (max x y)
+  Ordered x /\ Ordered y = Ordered (min x y)
 
 instance (Ord a, Bounded a) => BoundedJoinSemiLattice (Ordered a) where
   bottom = Ordered minBound
 
 instance (Ord a, Bounded a) => BoundedMeetSemiLattice (Ordered a) where
   top = Ordered maxBound
-
-instance (Ord a, Bounded a) => BoundedLattice (Ordered a) where
 
 instance Ord a => PartialOrd (Ordered a) where
     leq = (<=)

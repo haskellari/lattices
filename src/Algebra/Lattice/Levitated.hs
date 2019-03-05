@@ -83,32 +83,27 @@ instance PartialOrd a => PartialOrd (Levitated a) where
   comparable _ Bottom = True
   comparable (Levitate x) (Levitate y) = comparable x y
 
-instance JoinSemiLattice a => JoinSemiLattice (Levitated a) where
+instance Lattice a => Lattice (Levitated a) where
     Top        \/ _          = Top
     _          \/ Top        = Top
     Levitate x \/ Levitate y = Levitate (x \/ y)
     Bottom     \/ lev_y      = lev_y
     lev_x      \/ Bottom     = lev_x
 
-instance MeetSemiLattice a => MeetSemiLattice (Levitated a) where
     Top        /\ lev_y      = lev_y
     lev_x      /\ Top        = lev_x
     Levitate x /\ Levitate y = Levitate (x /\ y)
     Bottom     /\ _          = Bottom
     _          /\ Bottom     = Bottom
 
-instance Lattice a => Lattice (Levitated a) where
-
-instance JoinSemiLattice a => BoundedJoinSemiLattice (Levitated a) where
+instance Lattice a => BoundedJoinSemiLattice (Levitated a) where
     bottom = Bottom
 
-instance MeetSemiLattice a => BoundedMeetSemiLattice (Levitated a) where
+instance Lattice a => BoundedMeetSemiLattice (Levitated a) where
     top = Top
 
-instance Lattice a => BoundedLattice (Levitated a) where
-
 -- | Interpret @'Levitated' a@ using the 'BoundedLattice' of @a@.
-retractLevitated :: BoundedLattice a => Levitated a -> a
+retractLevitated :: (BoundedMeetSemiLattice a, BoundedJoinSemiLattice a) => Levitated a -> a
 retractLevitated = foldLevitated bottom id top
 
 -- | Fold 'Levitated'.

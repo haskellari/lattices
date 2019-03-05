@@ -1,3 +1,12 @@
+# 2 (2019-xx-xx)
+
+- Reduce to three classes (from six): `Lattice`, `BoundedMeetSemiLattice`
+  `BoundeJoinSemiLattice`.
+  The latter two names are kept to help migration.
+- Remove `Algebra.Enumerable` module. Use `universe` package.
+- Drop GHC-7.4.3 support (broken `ConstraintKinds`)
+
+
 # 1.7.1.1 (2019-07-05)
 
 - Allow newer dependencies, update cabal file

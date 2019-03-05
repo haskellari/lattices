@@ -75,25 +75,20 @@ instance PartialOrd a => PartialOrd (Lifted a) where
   comparable _ Bottom = True
   comparable (Lift x) (Lift y) = comparable x y
 
-instance JoinSemiLattice a => JoinSemiLattice (Lifted a) where
+instance Lattice a => Lattice (Lifted a) where
     Lift x \/ Lift y = Lift (x \/ y)
     Bottom \/ lift_y = lift_y
     lift_x \/ Bottom = lift_x
 
-instance MeetSemiLattice a => MeetSemiLattice (Lifted a) where
     Lift x /\ Lift y = Lift (x /\ y)
     Bottom /\ _      = Bottom
     _      /\ Bottom = Bottom
 
-instance Lattice a => Lattice (Lifted a) where
-
-instance JoinSemiLattice a => BoundedJoinSemiLattice (Lifted a) where
+instance Lattice a => BoundedJoinSemiLattice (Lifted a) where
     bottom = Bottom
 
 instance BoundedMeetSemiLattice a => BoundedMeetSemiLattice (Lifted a) where
     top = Lift top
-
-instance BoundedLattice a => BoundedLattice (Lifted a) where
 
 -- | Interpret @'Lifted' a@ using the 'BoundedJoinSemiLattice' of @a@.
 retractLifted :: BoundedJoinSemiLattice a => Lifted a -> a

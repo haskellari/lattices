@@ -95,29 +95,24 @@ instance (Hashable k, Hashable v) => Hashable (Lexicographic k v)
 -- (3, 2) `leq` (6, 1)
 -- @
 --
-instance (PartialOrd k, JoinSemiLattice k, BoundedJoinSemiLattice v) => JoinSemiLattice (Lexicographic k v) where
+instance (PartialOrd k, Lattice k, BoundedJoinSemiLattice v, BoundedMeetSemiLattice v) => Lattice (Lexicographic k v) where
   l@(Lexicographic k1 v1) \/ r@(Lexicographic k2 v2)
     | k1 == k2 = Lexicographic k1 (v1 \/ v2)
     | k1 `leq` k2 = r
     | k2 `leq` k1 = l
     | otherwise   = Lexicographic (k1 \/ k2) bottom
 
-instance (PartialOrd k, MeetSemiLattice k, BoundedMeetSemiLattice v) => MeetSemiLattice (Lexicographic k v) where
   l@(Lexicographic k1 v1) /\ r@(Lexicographic k2 v2)
     | k1 == k2 = Lexicographic k1 (v1 /\ v2)
     | k1 `leq` k2 = l
     | k2 `leq` k1 = r
     | otherwise   = Lexicographic (k1 /\ k2) top
 
-instance (PartialOrd k, Lattice k, BoundedLattice v) => Lattice (Lexicographic k v) where
-
-instance (PartialOrd k, BoundedJoinSemiLattice k, BoundedJoinSemiLattice v) => BoundedJoinSemiLattice (Lexicographic k v) where
+instance (PartialOrd k, BoundedJoinSemiLattice k, BoundedJoinSemiLattice v, BoundedMeetSemiLattice v) => BoundedJoinSemiLattice (Lexicographic k v) where
   bottom = Lexicographic bottom bottom
 
-instance (PartialOrd k, BoundedMeetSemiLattice k, BoundedMeetSemiLattice v) => BoundedMeetSemiLattice (Lexicographic k v) where
+instance (PartialOrd k, BoundedMeetSemiLattice k, BoundedJoinSemiLattice v, BoundedMeetSemiLattice v) => BoundedMeetSemiLattice (Lexicographic k v) where
   top = Lexicographic top top
-
-instance (PartialOrd k, BoundedLattice k, BoundedLattice v) => BoundedLattice (Lexicographic k v) where
 
 instance (PartialOrd k, PartialOrd v) => PartialOrd (Lexicographic k v) where
   Lexicographic k1 v1 `leq` Lexicographic k2 v2

@@ -75,25 +75,20 @@ instance PartialOrd a => PartialOrd (Dropped a) where
   comparable _ Top = True
   comparable (Drop x) (Drop y) = comparable x y
 
-instance JoinSemiLattice a => JoinSemiLattice (Dropped a) where
+instance Lattice a => Lattice (Dropped a) where
     Top    \/ _      = Top
     _      \/ Top    = Top
     Drop x \/ Drop y = Drop (x \/ y)
 
-instance MeetSemiLattice a => MeetSemiLattice (Dropped a) where
     Top    /\ drop_y = drop_y
     drop_x /\ Top    = drop_x
     Drop x /\ Drop y = Drop (x /\ y)
 
-instance Lattice a => Lattice (Dropped a) where
-
 instance BoundedJoinSemiLattice a => BoundedJoinSemiLattice (Dropped a) where
     bottom = Drop bottom
 
-instance MeetSemiLattice a => BoundedMeetSemiLattice (Dropped a) where
+instance Lattice a => BoundedMeetSemiLattice (Dropped a) where
     top = Top
-
-instance BoundedLattice a => BoundedLattice (Dropped a) where
 
 -- | Interpret @'Dropped' a@ using the 'BoundedMeetSemiLattice' of @a@.
 retractDropped :: BoundedMeetSemiLattice a => Dropped a -> a

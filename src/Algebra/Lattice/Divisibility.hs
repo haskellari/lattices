@@ -61,13 +61,10 @@ instance NFData a => NFData (Divisibility a) where
 
 instance Hashable a => Hashable (Divisibility a)
 
-instance Integral a => JoinSemiLattice (Divisibility a) where
+instance Integral a => Lattice (Divisibility a) where
   Divisibility x \/ Divisibility y = Divisibility (lcm x y)
 
-instance Integral a => MeetSemiLattice (Divisibility a) where
   Divisibility x /\ Divisibility y = Divisibility (gcd x y)
-
-instance Integral a => Lattice (Divisibility a) where
 
 instance Integral a => BoundedJoinSemiLattice (Divisibility a) where
   bottom = Divisibility 1

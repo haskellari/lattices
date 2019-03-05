@@ -9,99 +9,19 @@
 --
 ----------------------------------------------------------------------------
 
-module Algebra.Lattice.Free
-  ( -- * Free join-semilattices
-    FreeJoinSemiLattice
-  , liftFreeJoinSemiLattice
-  , lowerFreeJoinSemiLattice
-  , retractFreeJoinSemiLattice
-
-   -- * Free meet-semilattices
-  , FreeMeetSemiLattice
-  , liftFreeMeetSemiLattice
-  , lowerFreeMeetSemiLattice
-  , retractFreeMeetSemiLattice
-
+module Algebra.Lattice.Free (
    -- * Free lattices
-  , FreeLattice
-  , liftFreeLattice
-  , lowerFreeLattice
-  , retractFreeLattice
-  ) where
+    FreeLattice,
+    liftFreeLattice,
+    lowerFreeLattice,
+    retractFreeLattice,
+    ) where
 
 import Prelude ()
 import Prelude.Compat
 
 import Algebra.Lattice
 import Data.Universe.Class
-
---
--- Free join-semilattices
---
-
-newtype FreeJoinSemiLattice a = FreeJoinSemiLattice
-  { lowerFreeJoinSemiLattice :: forall b. JoinSemiLattice b =>
-                                            (a -> b) -> b
-  }
-
-liftFreeJoinSemiLattice :: a -> FreeJoinSemiLattice a
-liftFreeJoinSemiLattice a = FreeJoinSemiLattice (\inj -> inj a)
-
-retractFreeJoinSemiLattice :: JoinSemiLattice a => FreeJoinSemiLattice a -> a
-retractFreeJoinSemiLattice a = lowerFreeJoinSemiLattice a id
-
-instance Functor FreeJoinSemiLattice where
-  fmap f (FreeJoinSemiLattice g) = FreeJoinSemiLattice (\inj -> g (inj . f))
-  a <$ FreeJoinSemiLattice f = FreeJoinSemiLattice (\inj -> f (const (inj a)))
-
-instance JoinSemiLattice (FreeJoinSemiLattice a) where
-  FreeJoinSemiLattice f \/ FreeJoinSemiLattice g =
-    FreeJoinSemiLattice (\inj -> f inj \/ g inj)
-
-instance BoundedJoinSemiLattice a =>
-         BoundedJoinSemiLattice (FreeJoinSemiLattice a) where
-  bottom = FreeJoinSemiLattice (\inj -> inj bottom)
-
-instance Universe a => Universe (FreeJoinSemiLattice a) where
-  universe = fmap liftFreeJoinSemiLattice universe
-
-instance Finite a => Finite (FreeJoinSemiLattice a) where
-  universeF = fmap liftFreeJoinSemiLattice universeF
-
-
---
--- Free meet-semilattices
---
-
-newtype FreeMeetSemiLattice a = FreeMeetSemiLattice
-  { lowerFreeMeetSemiLattice :: forall b. MeetSemiLattice b =>
-                                            (a -> b) -> b
-  }
-
-instance Functor FreeMeetSemiLattice where
-  fmap f (FreeMeetSemiLattice g) = FreeMeetSemiLattice (\inj -> g (inj . f))
-  a <$ FreeMeetSemiLattice f = FreeMeetSemiLattice (\inj -> f (const (inj a)))
-
-liftFreeMeetSemiLattice :: a -> FreeMeetSemiLattice a
-liftFreeMeetSemiLattice a = FreeMeetSemiLattice (\inj -> inj a)
-
-retractFreeMeetSemiLattice :: MeetSemiLattice a => FreeMeetSemiLattice a -> a
-retractFreeMeetSemiLattice a = lowerFreeMeetSemiLattice a id
-
-instance MeetSemiLattice (FreeMeetSemiLattice a) where
-  FreeMeetSemiLattice f /\ FreeMeetSemiLattice g =
-    FreeMeetSemiLattice (\inj -> f inj /\ g inj)
-
-instance BoundedMeetSemiLattice a =>
-         BoundedMeetSemiLattice (FreeMeetSemiLattice a) where
-  top = FreeMeetSemiLattice (\inj -> inj top)
-
-instance Universe a => Universe (FreeMeetSemiLattice a) where
-  universe = fmap liftFreeMeetSemiLattice universe
-
-instance Finite a => Finite (FreeMeetSemiLattice a) where
-  universeF = fmap liftFreeMeetSemiLattice universeF
-
 
 --
 -- Free lattices
@@ -122,13 +42,10 @@ liftFreeLattice a = FreeLattice (\inj -> inj a)
 retractFreeLattice :: Lattice a => FreeLattice a -> a
 retractFreeLattice a = lowerFreeLattice a id
 
-instance JoinSemiLattice (FreeLattice a) where
+instance Lattice (FreeLattice a) where
   FreeLattice f \/ FreeLattice g = FreeLattice (\inj -> f inj \/ g inj)
-
-instance MeetSemiLattice (FreeLattice a) where
   FreeLattice f /\ FreeLattice g = FreeLattice (\inj -> f inj /\ g inj)
 
-instance Lattice (FreeLattice a)
 
 instance BoundedJoinSemiLattice a =>
          BoundedJoinSemiLattice (FreeLattice a) where
@@ -137,9 +54,6 @@ instance BoundedJoinSemiLattice a =>
 instance BoundedMeetSemiLattice a =>
          BoundedMeetSemiLattice (FreeLattice a) where
   top = FreeLattice (\inj -> inj top)
-
-instance BoundedLattice a =>
-         BoundedLattice (FreeLattice a)
 
 instance Universe a => Universe (FreeLattice a) where
   universe = fmap liftFreeLattice universe
