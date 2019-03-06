@@ -38,7 +38,6 @@ library
   hs-source-dirs:   src
   ghc-options:      -Wall
   exposed-modules:
-    Algebra.Enumerable
     Algebra.Lattice
     Algebra.Lattice.Divisibility
     Algebra.Lattice.Dropped
