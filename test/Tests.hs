@@ -270,7 +270,7 @@ instance PartialOrd M3 where
     _    `leq` M3_1          = True
     _    `leq` _             = False
 
-instance JoinSemiLattice M3 where
+instance Lattice M3 where
     x    \/ M3_0          = x
     M3_0 \/ y             = y
     _    \/ M3_1          = M3_1
@@ -278,7 +278,6 @@ instance JoinSemiLattice M3 where
     x    \/ y | x == y    = x
               | otherwise = M3_1
 
-instance MeetSemiLattice M3 where
     x    /\ M3_1          = x
     M3_1 /\ y             = y
     _    /\ M3_0          = M3_0
@@ -286,7 +285,6 @@ instance MeetSemiLattice M3 where
     x    /\ y | x == y    = x
               | otherwise = M3_0
 
-instance Lattice M3 where
 
 -- | Set Bool, M2
 data M2 = M2_0 | M2_T | M2_F | M2_1
@@ -301,7 +299,7 @@ instance PartialOrd M2 where
     _    `leq` M2_1          = True
     _    `leq` _             = False
 
-instance JoinSemiLattice M2 where
+instance Lattice M2 where
     x    \/ M2_0          = x
     M2_0 \/ y             = y
     _    \/ M2_1          = M2_1
@@ -309,7 +307,6 @@ instance JoinSemiLattice M2 where
     x    \/ y | x == y    = x
               | otherwise = M2_1
 
-instance MeetSemiLattice M2 where
     x    /\ M2_1          = x
     M2_1 /\ y             = y
     _    /\ M2_0          = M2_0
@@ -317,15 +314,11 @@ instance MeetSemiLattice M2 where
     x    /\ y | x == y    = x
               | otherwise = M2_0
 
-instance Lattice M2 where
-
 instance BoundedJoinSemiLattice M2 where
     bottom = M2_0
 
 instance BoundedMeetSemiLattice M2 where
     top = M2_1
-
-instance BoundedLattice M2 where
 
 -------------------------------------------------------------------------------
 -- Lexicographic M2 search

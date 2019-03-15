@@ -66,21 +66,15 @@ instance NFData a => NFData (Op a) where
 
 instance Hashable a => Hashable (Op a)
 
-instance MeetSemiLattice a => JoinSemiLattice (Op a) where
-  Op x \/ Op y = Op (x /\ y)
-
-instance JoinSemiLattice a => MeetSemiLattice (Op a) where
-  Op x /\ Op y = Op (x \/ y)
-
 instance Lattice a => Lattice (Op a) where
+  Op x \/ Op y = Op (x /\ y)
+  Op x /\ Op y = Op (x \/ y)
 
 instance BoundedMeetSemiLattice a => BoundedJoinSemiLattice (Op a) where
   bottom = Op top
 
 instance BoundedJoinSemiLattice a => BoundedMeetSemiLattice (Op a) where
   top = Op bottom
-
-instance BoundedLattice a => BoundedLattice (Op a) where
 
 instance PartialOrd a => PartialOrd (Op a) where
     Op a `leq` Op b = b `leq` a -- Note swap.
