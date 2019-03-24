@@ -44,10 +44,11 @@ library
     Algebra.Lattice.Levitated
     Algebra.Lattice.Lexicographic
     Algebra.Lattice.Lifted
-    Algebra.Lattice.Op
-    Algebra.Lattice.Ordered
     Algebra.Lattice.M2
     Algebra.Lattice.M3
+    Algebra.Lattice.Op
+    Algebra.Lattice.Ordered
+    Algebra.Lattice.Wide
     Algebra.PartialOrd
     Algebra.PartialOrd.Instances
 

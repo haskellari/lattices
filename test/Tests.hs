@@ -22,6 +22,7 @@ import Algebra.Lattice.M2 (M2 (..))
 import Algebra.Lattice.M3 (M3 (..))
 
 import qualified Algebra.Lattice.Divisibility as Div
+import qualified Algebra.Lattice.Wide as W
 import qualified Algebra.Lattice.Dropped as D
 import qualified Algebra.Lattice.Levitated as L
 import qualified Algebra.Lattice.Lexicographic as LO
@@ -48,33 +49,39 @@ main = defaultMain tests
 
 tests :: TestTree
 tests = testGroup "Tests"
-  [ latticeLaws "M3" Modular (Proxy :: Proxy M3) -- non distributive lattice!
-  , latticeLaws "M2" Distributive (Proxy :: Proxy M2) -- M2
-  , latticeLaws "Map" Distributive (Proxy :: Proxy (Map Int (O.Ordered Int)))
-  , latticeLaws "IntMap" Distributive (Proxy :: Proxy (IntMap (O.Ordered Int)))
-  , latticeLaws "HashMap" Distributive (Proxy :: Proxy (HashMap Int (O.Ordered Int)))
-  , latticeLaws "Set" Distributive (Proxy :: Proxy (Set Int))
-  , latticeLaws "IntSet" Distributive (Proxy :: Proxy IntSet)
-  , latticeLaws "HashSet" Distributive (Proxy :: Proxy (HashSet Int))
-  , latticeLaws "Ordered" Distributive (Proxy :: Proxy (O.Ordered Int))
-  , latticeLaws "Divisibility" Distributive (Proxy :: Proxy (Div.Divisibility Int))
-  , latticeLaws "LexOrdered" Distributive (Proxy :: Proxy (LO.Lexicographic (O.Ordered Int) (O.Ordered Int)))
-  , latticeLaws "Lexicographic (Set Bool)" NonModular (Proxy :: Proxy (LO.Lexicographic (Set Bool) (Set Bool)))
-  , latticeLaws "Lexicographic M2" NonModular (Proxy :: Proxy (LO.Lexicographic M2 M2)) -- non distributive!
-  , partialOrdLaws "Dropped" (Proxy :: Proxy (D.Dropped (O.Ordered Int)))
-  , partialOrdLaws "Levitated" (Proxy :: Proxy (L.Levitated (O.Ordered Int)))
-  , partialOrdLaws "Lifted" (Proxy :: Proxy (U.Lifted (O.Ordered Int)))
-  , partialOrdLaws "Op" (Proxy :: Proxy (Op.Op (O.Ordered Int)))
-  , partialOrdLaws "Ordered" (Proxy :: Proxy (O.Ordered Int))
-  , testProperty "Lexicographic M2 M2 contains M3" $ QC.property $
-      isJust searchM3LexM2
-  , monadLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
-  , monadLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
-  , monadLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
-  , monadLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
-  , monadLaws "Op" (Proxy1 :: Proxy1 Op.Op)
-  , monadLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
-  ]
+    [ latticeLaws "M3" Modular (Proxy :: Proxy M3) -- non distributive lattice!
+    , latticeLaws "M2" Distributive (Proxy :: Proxy M2) -- M2
+    , latticeLaws "Map" Distributive (Proxy :: Proxy (Map Int (O.Ordered Int)))
+    , latticeLaws "IntMap" Distributive (Proxy :: Proxy (IntMap (O.Ordered Int)))
+    , latticeLaws "HashMap" Distributive (Proxy :: Proxy (HashMap Int (O.Ordered Int)))
+    , latticeLaws "Set" Distributive (Proxy :: Proxy (Set Int))
+    , latticeLaws "IntSet" Distributive (Proxy :: Proxy IntSet)
+    , latticeLaws "HashSet" Distributive (Proxy :: Proxy (HashSet Int))
+    , latticeLaws "Ordered" Distributive (Proxy :: Proxy (O.Ordered Int))
+    , latticeLaws "Divisibility" Distributive (Proxy :: Proxy (Div.Divisibility Int))
+    , latticeLaws "LexOrdered" Distributive (Proxy :: Proxy (LO.Lexicographic (O.Ordered Int) (O.Ordered Int)))
+    , latticeLaws "Wide" Modular (Proxy :: Proxy (W.Wide Int))
+    , latticeLaws "Lexicographic (Set Bool)" NonModular (Proxy :: Proxy (LO.Lexicographic (Set Bool) (Set Bool)))
+    , latticeLaws "Lexicographic M2" NonModular (Proxy :: Proxy (LO.Lexicographic M2 M2)) -- non distributive!
+    , partialOrdLaws "Dropped" (Proxy :: Proxy (D.Dropped (O.Ordered Int)))
+    , partialOrdLaws "Levitated" (Proxy :: Proxy (L.Levitated (O.Ordered Int)))
+    , partialOrdLaws "Lifted" (Proxy :: Proxy (U.Lifted (O.Ordered Int)))
+    , partialOrdLaws "Op" (Proxy :: Proxy (Op.Op (O.Ordered Int)))
+    , partialOrdLaws "Ordered" (Proxy :: Proxy (O.Ordered Int))
+    , testProperty "Lexicographic M2 M2 contains M3" $ QC.property $
+        isJust searchM3LexM2
+    , monadLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
+    , monadLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
+    , monadLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
+    , monadLaws "Lifted" (Proxy1 :: Proxy1 U.Lifted)
+    , monadLaws "Op" (Proxy1 :: Proxy1 Op.Op)
+    , monadLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
+    , monadLaws "Wide" (Proxy1 :: Proxy1 W.Wide)
+    ]
+
+-------------------------------------------------------------------------------
+-- Monad laws
+-------------------------------------------------------------------------------
 
 monadLaws :: forall (m :: * -> *). ( Monad m
 #if !MIN_VERSION_base(4, 8, 0)
@@ -89,12 +96,12 @@ monadLaws :: forall (m :: * -> *). ( Monad m
           -> Proxy1 m
           -> TestTree
 monadLaws name _ = testGroup ("Monad laws: " <> name)
-  [ QC.testProperty "left identity" leftIdentityProp
-  , QC.testProperty "right identity" rightIdentityProp
-  , QC.testProperty "composition" compositionProp
-  , QC.testProperty "Applicative pure" pureProp
-  , QC.testProperty "Applicative ap" apProp
-  ]
+    [ QC.testProperty "left identity" leftIdentityProp
+    , QC.testProperty "right identity" rightIdentityProp
+    , QC.testProperty "composition" compositionProp
+    , QC.testProperty "Applicative pure" pureProp
+    , QC.testProperty "Applicative ap" apProp
+    ]
   where
     leftIdentityProp :: Int -> Fun Int (m Int) -> Property
     leftIdentityProp x (Fun _ k) = (return x >>= k) === k x
@@ -213,6 +220,10 @@ latticeLaws name distr _ = testGroup ("Lattice laws: " <> name) $
         lhs = (y /\ (x \/ z)) \/ z
         rhs = (y \/ z) /\ (x \/ z)
 
+-------------------------------------------------------------------------------
+-- PartialOrd <=> Ord; desirable
+-------------------------------------------------------------------------------
+
 -- | This aren't strictly required. But good too have, if possible.
 partialOrdLaws
     :: forall a. (Eq a, Show a, Arbitrary a, PartialOrd a, Ord a)
@@ -271,6 +282,13 @@ instance Arbitrary a => Arbitrary (Op.Op a) where
 instance (Arbitrary k, Arbitrary v) => Arbitrary (LO.Lexicographic k v) where
     arbitrary = uncurry LO.Lexicographic <$> arbitrary
     shrink (LO.Lexicographic k v) = uncurry LO.Lexicographic <$> shrink (k, v)
+
+instance Arbitrary a => Arbitrary (W.Wide a) where
+    arbitrary = frequency
+        [ (1, pure W.Top)
+        , (1, pure W.Bottom)
+        , (9, W.Middle <$> arbitrary)
+        ]
 
 instance Arbitrary M2 where
     arbitrary = QC.arbitraryBoundedEnum
