@@ -46,6 +46,8 @@ library
     Algebra.Lattice.Lifted
     Algebra.Lattice.Op
     Algebra.Lattice.Ordered
+    Algebra.Lattice.M2
+    Algebra.Lattice.M3
     Algebra.PartialOrd
     Algebra.PartialOrd.Instances
 
