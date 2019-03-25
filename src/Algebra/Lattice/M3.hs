@@ -21,7 +21,7 @@ import GHC.Generics
 
 -- | \(M_3\), is smallest non-distributive, yet modular lattice.
 --
--- TODO: picture
+-- <<m3.png>>
 --
 data M3 = M3o | M3a | M3b | M3c | M3i
   deriving (Eq, Ord, Read, Show, Enum, Bounded, Typeable, Data, Generic)

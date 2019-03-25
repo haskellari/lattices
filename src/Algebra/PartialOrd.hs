@@ -88,7 +88,9 @@ class Eq a => PartialOrd a where
     -- | Whether two elements are ordered with respect to the relation. A
     -- default implementation is given by
     --
-    -- > comparable x y = leq x y || leq y x
+    -- @
+    -- 'comparable' x y = 'leq' x y '||' 'leq' y x
+    -- @
     comparable :: a -> a -> Bool
     comparable x y = leq x y || leq y x
 

@@ -40,14 +40,16 @@ import GHC.Generics
 --
 
 -- | Graft a distinct top and bottom onto any type.
--- The 'Top' is identity for 'meet' and the absorbing element for 'join'.
--- The 'Bottom' is the identity for 'join' and and the absorbing element for 'meet'.
+-- The 'Top' is identity for '/\' and the absorbing element for '\/'.
+-- The 'Bottom' is the identity for '\/' and and the absorbing element for '/\'.
 -- Two 'Middle' values join to top, unless they are equal.
 --
--- TODO: picture
-data Wide a = Top
-            | Middle a
-            | Bottom
+-- <<wide.png>>
+--
+data Wide a
+    = Top
+    | Middle a
+    | Bottom
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
 #if __GLASGOW_HASKELL__ >= 706
            , Generic1

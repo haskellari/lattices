@@ -13,6 +13,10 @@ build-type:         Simple
 extra-source-files:
   README.md
   CHANGELOG.md
+extra-doc-files:
+  m2.png
+  m3.png
+  wide.png
 
 tested-with:
   GHC ==7.6.3 || ==7.8.4 || ==7.10.3 || ==8.0.2 || ==8.2.2 || ==8.4.4 || ==8.6.4

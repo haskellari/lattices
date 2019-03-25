@@ -26,7 +26,8 @@ import qualified Data.Set as Set
 
 -- | \(M_2\) is isomorphic to \(\mathcal{P}\{\mathbb{B}\}\), i.e. powerset of 'Bool'.
 --
--- TODO: picture
+-- <<m2.png>>
+--
 data M2 = M2o | M2a | M2b | M2i
   deriving (Eq, Ord, Read, Show, Enum, Bounded, Typeable, Data, Generic)
 
