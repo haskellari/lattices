@@ -20,6 +20,7 @@ import Algebra.PartialOrd
 
 import Algebra.Lattice.M2 (M2 (..))
 import Algebra.Lattice.M3 (M3 (..))
+import Algebra.Lattice.N5 (N5 (..))
 
 import qualified Algebra.Lattice.Divisibility as Div
 import qualified Algebra.Lattice.Wide as W
@@ -51,6 +52,7 @@ tests :: TestTree
 tests = testGroup "Tests"
     [ latticeLaws "M3" Modular (Proxy :: Proxy M3) -- non distributive lattice!
     , latticeLaws "M2" Distributive (Proxy :: Proxy M2) -- M2
+    , latticeLaws "N5" NonModular (Proxy :: Proxy N5)
     , latticeLaws "Map" Distributive (Proxy :: Proxy (Map Int (O.Ordered Int)))
     , latticeLaws "IntMap" Distributive (Proxy :: Proxy (IntMap (O.Ordered Int)))
     , latticeLaws "HashMap" Distributive (Proxy :: Proxy (HashMap Int (O.Ordered Int)))
@@ -290,11 +292,9 @@ instance Arbitrary a => Arbitrary (W.Wide a) where
         , (9, W.Middle <$> arbitrary)
         ]
 
-instance Arbitrary M2 where
-    arbitrary = QC.arbitraryBoundedEnum
-
-instance Arbitrary M3 where
-    arbitrary = QC.arbitraryBoundedEnum
+instance Arbitrary M2 where arbitrary = QC.arbitraryBoundedEnum
+instance Arbitrary M3 where arbitrary = QC.arbitraryBoundedEnum
+instance Arbitrary N5 where arbitrary = QC.arbitraryBoundedEnum
 
 -------------------------------------------------------------------------------
 -- Lexicographic M2 search

@@ -16,6 +16,7 @@ extra-source-files:
 extra-doc-files:
   m2.png
   m3.png
+  n5.png
   wide.png
 
 tested-with:
@@ -50,6 +51,7 @@ library
     Algebra.Lattice.Lifted
     Algebra.Lattice.M2
     Algebra.Lattice.M3
+    Algebra.Lattice.N5
     Algebra.Lattice.Op
     Algebra.Lattice.Ordered
     Algebra.Lattice.Wide
