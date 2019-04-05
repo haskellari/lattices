@@ -1,20 +1,15 @@
-{-# LANGUAGE CPP                #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveFoldable     #-}
 {-# LANGUAGE DeriveFunctor      #-}
 {-# LANGUAGE DeriveGeneric      #-}
 {-# LANGUAGE DeriveTraversable  #-}
 {-# LANGUAGE FlexibleContexts   #-}
-{-# LANGUAGE TypeOperators      #-}
-#if __GLASGOW_HASKELL__ < 709
-{-# LANGUAGE Trustworthy        #-}
-#else
 {-# LANGUAGE Safe               #-}
-#endif
+{-# LANGUAGE TypeOperators      #-}
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Divisibility
--- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015 Oleg Grenrus
+-- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015-2019 Oleg Grenrus
 -- License     :  BSD-3-Clause (see the file LICENSE)
 --
 -- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
@@ -30,11 +25,14 @@ import Prelude.Compat
 import Algebra.Lattice
 import Algebra.PartialOrd
 
-import Control.DeepSeq
-import Control.Monad
-import Data.Data
-import Data.Hashable
-import GHC.Generics
+import Control.DeepSeq     (NFData (..))
+import Control.Monad       (ap)
+import Data.Data           (Data, Typeable)
+import Data.Hashable       (Hashable (..))
+import Data.Universe.Class (Finite (..), Universe (..))
+import GHC.Generics        (Generic, Generic1)
+
+import qualified Test.QuickCheck as QC
 
 --
 -- Divisibility
@@ -43,9 +41,7 @@ import GHC.Generics
 -- | A divisibility lattice. @'join' = 'lcm'@, @'meet' = 'gcd'@.
 newtype Divisibility a = Divisibility { getDivisibility :: a }
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
-#if __GLASGOW_HASKELL__ >= 706
            , Generic1
-#endif
            )
 
 instance Applicative Divisibility where
@@ -71,3 +67,23 @@ instance Integral a => BoundedJoinSemiLattice (Divisibility a) where
 
 instance (Eq a, Integral a) => PartialOrd (Divisibility a) where
     leq (Divisibility a) (Divisibility b) = b `mod` a == 0
+
+instance Universe a => Universe (Divisibility a) where
+    universe = map Divisibility universe
+instance Finite a => Finite (Divisibility a) where
+    universeF = map Divisibility universeF
+
+instance (QC.Arbitrary a, Num a, Ord a) => QC.Arbitrary (Divisibility a) where
+    arbitrary = divisibility <$> QC.arbitrary
+    shrink d = filter (<d) . map divisibility . QC.shrink . getDivisibility $ d
+
+instance QC.CoArbitrary a => QC.CoArbitrary (Divisibility a) where
+    coarbitrary = QC.coarbitrary . getDivisibility
+
+instance QC.Function a => QC.Function (Divisibility a) where
+    function = QC.functionMap Divisibility getDivisibility
+
+divisibility :: (Ord a, Num a) => a -> Divisibility a
+divisibility x | x < (-1)  = Divisibility (abs x)
+               | x < 1     = Divisibility 1
+               | otherwise = Divisibility x

@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP                #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveFoldable     #-}
 {-# LANGUAGE DeriveFunctor      #-}
@@ -6,15 +5,11 @@
 {-# LANGUAGE DeriveTraversable  #-}
 {-# LANGUAGE FlexibleContexts   #-}
 {-# LANGUAGE TypeOperators      #-}
-#if __GLASGOW_HASKELL__ < 709
-{-# LANGUAGE Trustworthy        #-}
-#else
 {-# LANGUAGE Safe               #-}
-#endif
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Lexicographic
--- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015 Oleg Grenrus
+-- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015-2019 Oleg Grenrus
 -- License     :  BSD-3-Clause (see the file LICENSE)
 --
 -- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
@@ -30,11 +25,15 @@ import Prelude.Compat
 import Algebra.Lattice
 import Algebra.PartialOrd
 
-import Control.DeepSeq
-import Control.Monad
-import Data.Data
-import Data.Hashable
-import GHC.Generics
+import Control.DeepSeq     (NFData (..))
+import Control.Monad       (ap)
+import Data.Data           (Data, Typeable)
+import Data.Hashable       (Hashable (..))
+import Data.Universe.Class (Finite (..), Universe (..))
+import Data.Universe.Instances.Base ()
+import GHC.Generics        (Generic, Generic1)
+
+import qualified Test.QuickCheck as QC
 
 --
 -- Lexicographic
@@ -55,9 +54,7 @@ import GHC.Generics
 -- deterministic manner.
 data Lexicographic k v = Lexicographic !k !v
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
-#if __GLASGOW_HASKELL__ >= 706
            , Generic1
-#endif
            )
 
 instance BoundedJoinSemiLattice k => Applicative (Lexicographic k) where
@@ -122,3 +119,18 @@ instance (PartialOrd k, PartialOrd v) => PartialOrd (Lexicographic k v) where
   comparable (Lexicographic k1 v1) (Lexicographic k2 v2)
     | k1 == k2 = comparable v1 v2
     | otherwise = comparable k1 k2
+
+instance (Universe k, Universe v) => Universe (Lexicographic k v) where
+    universe = map (uncurry Lexicographic) universe
+instance (Finite k, Finite v) => Finite (Lexicographic k v) where
+    universeF = map (uncurry Lexicographic) universeF
+
+instance (QC.Arbitrary k, QC.Arbitrary v) => QC.Arbitrary (Lexicographic k v) where
+    arbitrary = uncurry Lexicographic <$> QC.arbitrary
+    shrink (Lexicographic k v) = uncurry Lexicographic <$> QC.shrink (k, v)
+
+instance (QC.CoArbitrary k, QC.CoArbitrary v) => QC.CoArbitrary (Lexicographic k v) where
+    coarbitrary (Lexicographic k v) = QC.coarbitrary (k, v)
+
+instance (QC.Function k, QC.Function v) => QC.Function (Lexicographic k v) where
+    function = QC.functionMap (\(Lexicographic k v) -> (k,v)) (uncurry Lexicographic)

@@ -1,20 +1,15 @@
-{-# LANGUAGE CPP                #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveFoldable     #-}
 {-# LANGUAGE DeriveFunctor      #-}
 {-# LANGUAGE DeriveGeneric      #-}
 {-# LANGUAGE DeriveTraversable  #-}
 {-# LANGUAGE FlexibleContexts   #-}
-{-# LANGUAGE TypeOperators      #-}
-#if __GLASGOW_HASKELL__ < 709
-{-# LANGUAGE Trustworthy        #-}
-#else
 {-# LANGUAGE Safe               #-}
-#endif
+{-# LANGUAGE TypeOperators      #-}
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Ordered
--- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015 Oleg Grenrus
+-- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015-2019 Oleg Grenrus
 -- License     :  BSD-3-Clause (see the file LICENSE)
 --
 -- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
@@ -27,14 +22,18 @@ module Algebra.Lattice.Ordered (
 import Prelude ()
 import Prelude.Compat
 
+import Algebra.Heyting
 import Algebra.Lattice
 import Algebra.PartialOrd
 
-import Control.DeepSeq
-import Control.Monad
-import Data.Data
-import Data.Hashable
-import GHC.Generics
+import Control.DeepSeq     (NFData (..))
+import Control.Monad       (ap)
+import Data.Data           (Data, Typeable)
+import Data.Hashable       (Hashable (..))
+import Data.Universe.Class (Finite (..), Universe (..))
+import GHC.Generics        (Generic, Generic1)
+
+import qualified Test.QuickCheck as QC
 
 --
 -- Ordered
@@ -44,9 +43,7 @@ import GHC.Generics
 -- max, meet is min.
 newtype Ordered a = Ordered { getOrdered :: a }
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
-#if __GLASGOW_HASKELL__ >= 706
            , Generic1
-#endif
            )
 
 instance Applicative Ordered where
@@ -72,6 +69,25 @@ instance (Ord a, Bounded a) => BoundedJoinSemiLattice (Ordered a) where
 instance (Ord a, Bounded a) => BoundedMeetSemiLattice (Ordered a) where
   top = Ordered maxBound
 
+instance (Ord a, Bounded a) => Heyting (Ordered a) where
+    x ==> y | x > y     = y
+            | otherwise = top
+
 instance Ord a => PartialOrd (Ordered a) where
     leq = (<=)
     comparable _ _ = True
+
+instance Universe a => Universe (Ordered a) where
+    universe = map Ordered universe
+instance Finite a => Finite (Ordered a) where
+    universeF = map Ordered universeF
+
+instance QC.Arbitrary a => QC.Arbitrary (Ordered a) where
+    arbitrary = Ordered <$> QC.arbitrary
+    shrink    = QC.shrinkMap getOrdered Ordered
+
+instance QC.CoArbitrary a => QC.CoArbitrary (Ordered a) where
+    coarbitrary = QC.coarbitrary . getOrdered
+
+instance QC.Function a => QC.Function (Ordered a) where
+    function = QC.functionMap getOrdered Ordered

@@ -1,11 +1,15 @@
-{-# LANGUAGE CPP                #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric      #-}
-#if __GLASGOW_HASKELL__ < 709
-{-# LANGUAGE Trustworthy        #-}
-#else
 {-# LANGUAGE Safe               #-}
-#endif
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Algebra.Lattice.N5
+-- Copyright   :  (C) 2019 Oleg Grenrus
+-- License     :  BSD-3-Clause (see the file LICENSE)
+--
+-- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
+--
+----------------------------------------------------------------------------
 module Algebra.Lattice.N5 (
     N5 (..),
     ) where
@@ -13,11 +17,16 @@ module Algebra.Lattice.N5 (
 import Prelude ()
 import Prelude.Compat
 
+import Control.DeepSeq     (NFData (..))
+import Data.Data           (Data, Typeable)
+import Data.Hashable       (Hashable (..))
+import Data.Universe.Class (Finite (..), Universe (..))
+import GHC.Generics        (Generic)
+
+import qualified Test.QuickCheck as QC
+
 import Algebra.Lattice
 import Algebra.PartialOrd
-
-import Data.Data
-import GHC.Generics
 
 -- | \(N_5\), is smallest non-modular (and non-distributive) lattice.
 --
@@ -63,3 +72,23 @@ instance BoundedJoinSemiLattice N5 where
 
 instance BoundedMeetSemiLattice N5 where
     top = N5i
+
+instance QC.Arbitrary N5 where
+    arbitrary = QC.arbitraryBoundedEnum
+    shrink x | x == minBound = []
+             | otherwise     = [minBound .. pred x]
+
+instance QC.CoArbitrary N5 where
+    coarbitrary = QC.coarbitraryEnum
+
+instance QC.Function N5 where
+    function = QC.functionBoundedEnum
+
+instance Universe N5 where universe = [minBound .. maxBound]
+instance Finite N5
+
+instance NFData N5 where
+    rnf x = x `seq` ()
+
+instance Hashable N5 where
+    hashWithSalt salt = hashWithSalt salt . fromEnum

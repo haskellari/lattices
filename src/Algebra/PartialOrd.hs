@@ -2,7 +2,7 @@
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.PartialOrd
--- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke
+-- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015-2019 Oleg Grenrus
 -- License     :  BSD-3-Clause (see the file LICENSE)
 --
 -- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
@@ -26,7 +26,7 @@ import qualified Data.IntMap       as IM
 import qualified Data.IntSet       as IS
 import qualified Data.List         as L
 import qualified Data.Map          as M
-import           Data.Monoid       (All (..))
+import           Data.Monoid       (All (..), Any (..))
 import qualified Data.Set          as S
 import           Data.Void         (Void)
 
@@ -106,6 +106,16 @@ partialOrdEq x y = leq x y && leq y x
 
 instance PartialOrd () where
     leq _ _ = True
+
+-- | @since 2
+instance PartialOrd Bool where
+    leq = (<=)
+
+instance PartialOrd Any where
+    leq = (<=)
+
+instance PartialOrd All where
+    leq = (<=)
 
 instance PartialOrd Void where
     leq _ _ = True

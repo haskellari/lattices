@@ -1,19 +1,14 @@
-{-# LANGUAGE CPP                #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveFoldable     #-}
 {-# LANGUAGE DeriveFunctor      #-}
 {-# LANGUAGE DeriveGeneric      #-}
 {-# LANGUAGE DeriveTraversable  #-}
 {-# LANGUAGE FlexibleContexts   #-}
-#if __GLASGOW_HASKELL__ < 709
-{-# LANGUAGE Trustworthy        #-}
-#else
 {-# LANGUAGE Safe               #-}
-#endif
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Wide
--- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015 Oleg Grenrus
+-- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015-2019 Oleg Grenrus
 -- License     :  BSD-3-Clause (see the file LICENSE)
 --
 -- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
@@ -29,11 +24,14 @@ import Prelude.Compat
 import Algebra.Lattice
 import Algebra.PartialOrd
 
-import Control.DeepSeq
-import Control.Monad
-import Data.Data
-import Data.Hashable
-import GHC.Generics
+import Control.DeepSeq     (NFData (..))
+import Control.Monad       (ap)
+import Data.Data           (Data, Typeable)
+import Data.Hashable       (Hashable (..))
+import Data.Universe.Class (Finite (..), Universe (..))
+import GHC.Generics        (Generic, Generic1)
+
+import qualified Test.QuickCheck as QC
 
 --
 -- Wide
@@ -51,9 +49,7 @@ data Wide a
     | Middle a
     | Bottom
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
-#if __GLASGOW_HASKELL__ >= 706
            , Generic1
-#endif
            )
 
 instance Applicative Wide where
@@ -106,3 +102,34 @@ instance Eq a => PartialOrd (Wide a) where
   comparable (Middle _) Bottom     = True
   comparable (Middle _) Top        = True
   comparable (Middle x) (Middle y) = x == y
+
+instance Universe a => Universe (Wide a) where
+    universe = Top : Bottom : map Middle universe
+instance Finite a => Finite (Wide a) where
+    universeF = Top : Bottom : map Middle universeF
+
+instance QC.Arbitrary a => QC.Arbitrary (Wide a) where
+    arbitrary = QC.frequency
+        [ (1, pure Top)
+        , (1, pure Bottom)
+        , (9, Middle <$> QC.arbitrary)
+        ]
+
+    shrink Top        = []
+    shrink Bottom     = []
+    shrink (Middle x) = Top : Bottom : map Middle (QC.shrink x)
+
+instance QC.CoArbitrary a => QC.CoArbitrary (Wide a) where
+    coarbitrary Top        = QC.variant (0 :: Int)
+    coarbitrary Bottom     = QC.variant (0 :: Int)
+    coarbitrary (Middle x) = QC.variant (0 :: Int) . QC.coarbitrary x
+
+instance QC.Function a => QC.Function (Wide a) where
+    function = QC.functionMap fromWide toWide where
+        fromWide Top        = Left True
+        fromWide Bottom     = Left False
+        fromWide (Middle x) = Right x
+
+        toWide (Left True)  = Top
+        toWide (Left False) = Bottom
+        toWide (Right x)    = Middle x

@@ -14,9 +14,18 @@
 module Algebra.PartialOrd.Instances () where
 
 import Algebra.PartialOrd         (PartialOrd (..))
+import Data.Monoid                (Endo (..))
 import Data.Universe.Class        (Finite (..))
 import Data.Universe.Instances.Eq ()
 
 -- | @Eq (k -> v)@ is from 'Data.Universe.Instances.Eq'
 instance (PartialOrd v, Finite k) => PartialOrd (k -> v) where
     f `leq` g = all (\k -> f k `leq` g k) universeF
+
+instance (Finite a, Eq a) => Eq (Endo a) where
+    Endo f == Endo g = f == g
+
+instance (PartialOrd v, Finite v) => PartialOrd (Endo v) where
+    Endo f `leq` Endo g = f `leq` g
+
+

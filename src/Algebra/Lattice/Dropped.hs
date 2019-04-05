@@ -1,20 +1,15 @@
-{-# LANGUAGE CPP                #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveFoldable     #-}
 {-# LANGUAGE DeriveFunctor      #-}
 {-# LANGUAGE DeriveGeneric      #-}
 {-# LANGUAGE DeriveTraversable  #-}
 {-# LANGUAGE FlexibleContexts   #-}
-{-# LANGUAGE TypeOperators      #-}
-#if __GLASGOW_HASKELL__ < 709
-{-# LANGUAGE Trustworthy        #-}
-#else
 {-# LANGUAGE Safe               #-}
-#endif
+{-# LANGUAGE TypeOperators      #-}
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Dropped
--- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015 Oleg Grenrus
+-- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015-2019 Oleg Grenrus
 -- License     :  BSD-3-Clause (see the file LICENSE)
 --
 -- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
@@ -32,11 +27,14 @@ import Prelude.Compat
 import Algebra.Lattice
 import Algebra.PartialOrd
 
-import Control.DeepSeq
-import Control.Monad
-import Data.Data
-import Data.Hashable
-import GHC.Generics
+import Control.DeepSeq     (NFData (..))
+import Control.Monad       (ap)
+import Data.Data           (Data, Typeable)
+import Data.Hashable       (Hashable (..))
+import Data.Universe.Class (Finite (..), Universe (..))
+import GHC.Generics        (Generic, Generic1)
+
+import qualified Test.QuickCheck as QC
 
 --
 -- Dropped
@@ -47,9 +45,7 @@ import GHC.Generics
 data Dropped a = Drop a
                | Top
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
-#if __GLASGOW_HASKELL__ >= 706
            , Generic1
-#endif
            )
 
 instance Applicative Dropped where
@@ -92,9 +88,32 @@ instance Lattice a => BoundedMeetSemiLattice (Dropped a) where
 
 -- | Interpret @'Dropped' a@ using the 'BoundedMeetSemiLattice' of @a@.
 retractDropped :: BoundedMeetSemiLattice a => Dropped a -> a
-retractDropped = foldDropped id top
+retractDropped = foldDropped top id
 
 -- | Similar to @'maybe'@, but for @'Dropped'@ type.
-foldDropped :: (a -> b) -> b -> Dropped a -> b
-foldDropped f _ (Drop x) = f x
-foldDropped _ y Top      = y
+foldDropped :: b -> (a -> b) -> Dropped a -> b
+foldDropped _ f (Drop x) = f x
+foldDropped y _ Top      = y
+
+instance Universe a => Universe (Dropped a) where
+    universe = Top : map Drop universe
+instance Finite a => Finite (Dropped a) where
+    universeF = Top : map Drop universeF
+
+instance QC.Arbitrary a => QC.Arbitrary (Dropped a) where
+    arbitrary = QC.frequency
+        [ (1, pure Top)
+        , (9, Drop <$> QC.arbitrary)
+        ]
+
+    shrink Top      = []
+    shrink (Drop x) = Top : map Drop (QC.shrink x)
+
+instance QC.CoArbitrary a => QC.CoArbitrary (Dropped a) where
+    coarbitrary Top      = QC.variant (0 :: Int)
+    coarbitrary (Drop x) = QC.variant (1 :: Int) . QC.coarbitrary x
+
+instance QC.Function a => QC.Function (Dropped a) where
+    function = QC.functionMap fromDropped toDropped where
+        fromDropped = foldDropped Nothing Just
+        toDropped   = maybe Top Drop
