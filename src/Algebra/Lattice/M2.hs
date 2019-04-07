@@ -1,11 +1,15 @@
-{-# LANGUAGE CPP                #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric      #-}
-#if __GLASGOW_HASKELL__ < 709
-{-# LANGUAGE Trustworthy        #-}
-#else
 {-# LANGUAGE Safe               #-}
-#endif
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Algebra.Lattice.M2
+-- Copyright   :  (C) 2019 Oleg Grenrus
+-- License     :  BSD-3-Clause (see the file LICENSE)
+--
+-- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
+--
+----------------------------------------------------------------------------
 module Algebra.Lattice.M2 (
     M2 (..),
     toSetBool,
@@ -15,13 +19,19 @@ module Algebra.Lattice.M2 (
 import Prelude ()
 import Prelude.Compat
 
+import Control.DeepSeq     (NFData (..))
+import Data.Data           (Data, Typeable)
+import Data.Hashable       (Hashable (..))
+import Data.Universe.Class (Finite (..), Universe (..))
+import GHC.Generics        (Generic)
+
+import qualified Test.QuickCheck as QC
+
+import Algebra.Heyting
 import Algebra.Lattice
 import Algebra.PartialOrd
 
-import Data.Data
-import GHC.Generics
-
-import Data.Set (Set)
+import           Data.Set (Set)
 import qualified Data.Set as Set
 
 -- | \(M_2\) is isomorphic to \(\mathcal{P}\{\mathbb{B}\}\), i.e. powerset of 'Bool'.
@@ -61,6 +71,25 @@ instance BoundedJoinSemiLattice M2 where
 instance BoundedMeetSemiLattice M2 where
     top = M2i
 
+instance Heyting M2 where
+    M2o ==> _   = M2i
+    M2i ==> x   = x
+
+    M2a ==> M2o = M2b
+    M2a ==> M2a = M2i
+    M2a ==> M2b = M2b
+    M2a ==> M2i = M2i
+
+    M2b ==> M2o = M2a
+    M2b ==> M2a = M2a
+    M2b ==> M2b = M2i
+    M2b ==> M2i = M2i
+
+    neg M2o = M2i
+    neg M2a = M2b
+    neg M2b = M2a
+    neg M2i = M2o
+
 toSetBool :: M2 -> Set Bool
 toSetBool M2o = mempty
 toSetBool M2a = Set.singleton False
@@ -73,3 +102,23 @@ fromSetBool x = case Set.toList x of
     [False]      -> M2a
     [True]       -> M2b
     _            -> M2o
+
+instance QC.Arbitrary M2 where
+    arbitrary = QC.arbitraryBoundedEnum
+    shrink x | x == minBound = []
+             | otherwise     = [minBound .. pred x]
+
+instance QC.CoArbitrary M2 where
+    coarbitrary = QC.coarbitraryEnum
+
+instance QC.Function M2 where
+    function = QC.functionBoundedEnum
+
+instance Universe M2 where universe = [minBound .. maxBound]
+instance Finite M2
+
+instance NFData M2 where
+    rnf x = x `seq` ()
+
+instance Hashable M2 where
+    hashWithSalt salt = hashWithSalt salt . fromEnum

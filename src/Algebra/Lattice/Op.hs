@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP                #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveFoldable     #-}
 {-# LANGUAGE DeriveFunctor      #-}
@@ -6,16 +5,11 @@
 {-# LANGUAGE DeriveTraversable  #-}
 {-# LANGUAGE FlexibleContexts   #-}
 {-# LANGUAGE TypeOperators      #-}
-#if __GLASGOW_HASKELL__ < 709
-{-# LANGUAGE Trustworthy        #-}
-#else
 {-# LANGUAGE Safe               #-}
-#endif
-
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Op
--- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015 Oleg Grenrus
+-- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015-2019 Oleg Grenrus
 -- License     :  BSD-3-Clause (see the file LICENSE)
 --
 -- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
@@ -31,11 +25,14 @@ import Prelude.Compat
 import Algebra.Lattice
 import Algebra.PartialOrd
 
-import Control.DeepSeq
-import Control.Monad
-import Data.Data
-import Data.Hashable
-import GHC.Generics
+import Control.DeepSeq     (NFData (..))
+import Control.Monad       (ap)
+import Data.Data           (Data, Typeable)
+import Data.Hashable       (Hashable (..))
+import Data.Universe.Class (Finite (..), Universe (..))
+import GHC.Generics        (Generic, Generic1)
+
+import qualified Test.QuickCheck as QC
 
 --
 -- Op
@@ -45,9 +42,7 @@ import GHC.Generics
 -- meets and joins.
 newtype Op a = Op { getOp :: a }
   deriving ( Eq, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
-#if __GLASGOW_HASKELL__ >= 706
            , Generic1
-#endif
            )
 
 instance Ord a => Ord (Op a) where
@@ -79,3 +74,18 @@ instance BoundedJoinSemiLattice a => BoundedMeetSemiLattice (Op a) where
 instance PartialOrd a => PartialOrd (Op a) where
     Op a `leq` Op b = b `leq` a -- Note swap.
     comparable (Op a) (Op b) = comparable a b
+
+instance Universe a => Universe (Op a) where
+    universe = map Op universe
+instance Finite a => Finite (Op a) where
+    universeF = map Op universeF
+
+instance QC.Arbitrary a => QC.Arbitrary (Op a) where
+    arbitrary = Op <$> QC.arbitrary
+    shrink    = QC.shrinkMap getOp Op
+
+instance QC.CoArbitrary a => QC.CoArbitrary (Op a) where
+    coarbitrary = QC.coarbitrary . getOp
+
+instance QC.Function a => QC.Function (Op a) where
+    function = QC.functionMap getOp Op

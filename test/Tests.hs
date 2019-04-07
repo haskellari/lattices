@@ -1,44 +1,58 @@
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE CPP                 #-}
+{-# LANGUAGE ConstraintKinds     #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE GADTs               #-}
+{-# LANGUAGE KindSignatures      #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE KindSignatures #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Main (main) where
 
 import Prelude ()
 import Prelude.Compat
 
-import Data.Maybe (listToMaybe, isJust)
-import Data.Semigroup ((<>))
-import Control.Monad (ap, guard)
+import Control.Monad            (ap, guard)
+import Data.Int                 (Int8)
+import Data.Maybe               (isJust, listToMaybe)
+import Data.Semigroup           (All, Any, Endo (..), (<>))
+import Data.Typeable            (Typeable, typeOf)
+import Data.Universe.Class      (Finite)
+import Test.QuickCheck
+       (Arbitrary (..), Property, discard, label, (=/=), (===))
 import Test.QuickCheck.Function
 import Test.Tasty
-import Test.Tasty.QuickCheck as QC
+import Test.Tasty.QuickCheck    (testProperty)
 
+import qualified Test.QuickCheck as QC
+
+import Algebra.Heyting
 import Algebra.Lattice
 import Algebra.PartialOrd
 
-import Algebra.Lattice.M2 (M2 (..))
-import Algebra.Lattice.M3 (M3 (..))
-import Algebra.Lattice.N5 (N5 (..))
+import Algebra.Lattice.M2          (M2 (..))
+import Algebra.Lattice.M3          (M3 (..))
+import Algebra.Lattice.N5          (N5 (..))
+import Algebra.Lattice.ZeroHalfOne (ZeroHalfOne (..))
 
-import qualified Algebra.Lattice.Divisibility as Div
-import qualified Algebra.Lattice.Wide as W
-import qualified Algebra.Lattice.Dropped as D
-import qualified Algebra.Lattice.Levitated as L
+import qualified Algebra.Lattice.Divisibility  as Div
+import qualified Algebra.Lattice.Dropped       as D
+import qualified Algebra.Lattice.Levitated     as L
 import qualified Algebra.Lattice.Lexicographic as LO
-import qualified Algebra.Lattice.Lifted as U
-import qualified Algebra.Lattice.Op as Op
-import qualified Algebra.Lattice.Ordered as O
+import qualified Algebra.Lattice.Lifted        as U
+import qualified Algebra.Lattice.Op            as Op
+import qualified Algebra.Lattice.Ordered       as O
+import qualified Algebra.Lattice.Wide          as W
 
-import Data.IntMap (IntMap)
-import Data.IntSet (IntSet)
-import Data.Map (Map)
-import Data.Set (Set)
 import Data.HashMap.Lazy (HashMap)
-import Data.HashSet (HashSet)
+import Data.HashSet      (HashSet)
+import Data.IntMap       (IntMap)
+import Data.IntSet       (IntSet)
+import Data.Map          (Map)
+import Data.Set          (Set)
 
+import Algebra.PartialOrd.Instances ()
 import Data.Universe.Instances.Base ()
+import Data.Universe.Instances.Eq ()
+import Data.Universe.Instances.Ord ()
+import Data.Universe.Instances.Show ()
 import Test.QuickCheck.Instances ()
 
 -- For old GHC to work
@@ -50,28 +64,45 @@ main = defaultMain tests
 
 tests :: TestTree
 tests = testGroup "Tests"
-    [ latticeLaws "M3" Modular (Proxy :: Proxy M3) -- non distributive lattice!
-    , latticeLaws "M2" Distributive (Proxy :: Proxy M2) -- M2
-    , latticeLaws "N5" NonModular (Proxy :: Proxy N5)
-    , latticeLaws "Map" Distributive (Proxy :: Proxy (Map Int (O.Ordered Int)))
-    , latticeLaws "IntMap" Distributive (Proxy :: Proxy (IntMap (O.Ordered Int)))
-    , latticeLaws "HashMap" Distributive (Proxy :: Proxy (HashMap Int (O.Ordered Int)))
-    , latticeLaws "Set" Distributive (Proxy :: Proxy (Set Int))
-    , latticeLaws "IntSet" Distributive (Proxy :: Proxy IntSet)
-    , latticeLaws "HashSet" Distributive (Proxy :: Proxy (HashSet Int))
-    , latticeLaws "Ordered" Distributive (Proxy :: Proxy (O.Ordered Int))
-    , latticeLaws "Divisibility" Distributive (Proxy :: Proxy (Div.Divisibility Int))
-    , latticeLaws "LexOrdered" Distributive (Proxy :: Proxy (LO.Lexicographic (O.Ordered Int) (O.Ordered Int)))
-    , latticeLaws "Wide" Modular (Proxy :: Proxy (W.Wide Int))
-    , latticeLaws "Lexicographic (Set Bool)" NonModular (Proxy :: Proxy (LO.Lexicographic (Set Bool) (Set Bool)))
-    , latticeLaws "Lexicographic M2" NonModular (Proxy :: Proxy (LO.Lexicographic M2 M2)) -- non distributive!
-    , partialOrdLaws "Dropped" (Proxy :: Proxy (D.Dropped (O.Ordered Int)))
-    , partialOrdLaws "Levitated" (Proxy :: Proxy (L.Levitated (O.Ordered Int)))
-    , partialOrdLaws "Lifted" (Proxy :: Proxy (U.Lifted (O.Ordered Int)))
-    , partialOrdLaws "Op" (Proxy :: Proxy (Op.Op (O.Ordered Int)))
-    , partialOrdLaws "Ordered" (Proxy :: Proxy (O.Ordered Int))
+    [ allLatticeLaws (LBounded Partial Modular)          (Proxy :: Proxy M3) -- non distributive lattice!
+    , allLatticeLaws (LHeyting Partial IsBoolean)        (Proxy :: Proxy M2) -- M2
+    , allLatticeLaws (LHeyting Partial IsBoolean)        (Proxy :: Proxy (Set Bool)) -- isomorphic to M2
+    , allLatticeLaws (LBounded Partial NonModular)       (Proxy :: Proxy N5)
+    , allLatticeLaws (LHeyting Total IsBoolean)          (Proxy :: Proxy ())
+    , allLatticeLaws (LHeyting Total IsBoolean)          (Proxy :: Proxy Bool)
+    , allLatticeLaws (LHeyting Total NonBoolean)         (Proxy :: Proxy ZeroHalfOne)
+    , allLatticeLaws (LNormal Partial Distributive)      (Proxy :: Proxy (Map Int (O.Ordered Int)))
+    , allLatticeLaws (LNormal Partial Distributive)      (Proxy :: Proxy (IntMap (O.Ordered Int)))
+    , allLatticeLaws (LNormal Partial Distributive)      (Proxy :: Proxy (HashMap Int (O.Ordered Int)))
+    , allLatticeLaws (LHeyting     Partial IsBoolean)    (Proxy :: Proxy (Set Int8))
+    , allLatticeLaws (LHeyting     Partial IsBoolean)    (Proxy :: Proxy (HashSet Int8))
+    , allLatticeLaws (LBoundedJoin Partial Distributive) (Proxy :: Proxy (Set Int))
+    , allLatticeLaws (LBoundedJoin Partial Distributive) (Proxy :: Proxy IntSet)
+    , allLatticeLaws (LBoundedJoin Partial Distributive) (Proxy :: Proxy (HashSet Int))
+    , allLatticeLaws (LHeyting Total NonBoolean)         (Proxy :: Proxy (O.Ordered Int))
+    , allLatticeLaws (LBoundedJoin Partial Distributive) (Proxy :: Proxy (Div.Divisibility Int))
+    , allLatticeLaws (LNormal Total Distributive)        (Proxy :: Proxy (LO.Lexicographic (O.Ordered Int) (O.Ordered Int)))
+    , allLatticeLaws (LBounded Partial Modular)          (Proxy :: Proxy (W.Wide Int))
+    , allLatticeLaws (LBounded Partial NonModular)       (Proxy :: Proxy (LO.Lexicographic (Set Bool) (Set Bool)))
+    , allLatticeLaws (LBounded Partial NonModular)       (Proxy :: Proxy (LO.Lexicographic M2 M2)) -- non distributive!
+
+    , allLatticeLaws (LHeyting Total   IsBoolean)        (Proxy :: Proxy All)
+    , allLatticeLaws (LHeyting Total   IsBoolean)        (Proxy :: Proxy Any)
+    , allLatticeLaws (LHeyting Partial IsBoolean)        (Proxy :: Proxy (Endo Bool)) -- note: it's partial!
+    , allLatticeLaws (LBounded Partial Modular)          (Proxy :: Proxy (Endo M3))
+
+    , allLatticeLaws (LHeyting Partial IsBoolean)        (Proxy :: Proxy (Int8 -> Bool))
+    , allLatticeLaws (LHeyting Partial IsBoolean)        (Proxy :: Proxy (Int8 -> M2))
+    , allLatticeLaws (LBounded Partial Modular)          (Proxy :: Proxy (Int8 -> M3))
+
+    , allLatticeLaws (LBoundedMeet Total Distributive)   (Proxy :: Proxy (D.Dropped (O.Ordered Int)))
+    , allLatticeLaws (LBounded     Total Distributive)   (Proxy :: Proxy (L.Levitated (O.Ordered Int)))
+    , allLatticeLaws (LBoundedJoin Total Distributive)   (Proxy :: Proxy (U.Lifted (O.Ordered Int)))
+    , allLatticeLaws (LNormal      Total Distributive )  (Proxy :: Proxy (Op.Op (O.Ordered Int)))
+
     , testProperty "Lexicographic M2 M2 contains M3" $ QC.property $
         isJust searchM3LexM2
+
     , monadLaws "Dropped" (Proxy1 :: Proxy1 D.Dropped)
     , monadLaws "Levitated" (Proxy1 :: Proxy1 L.Levitated)
     , monadLaws "Lexicographic" (Proxy1 :: Proxy1 (LO.Lexicographic Bool))
@@ -98,11 +129,11 @@ monadLaws :: forall (m :: * -> *). ( Monad m
           -> Proxy1 m
           -> TestTree
 monadLaws name _ = testGroup ("Monad laws: " <> name)
-    [ QC.testProperty "left identity" leftIdentityProp
-    , QC.testProperty "right identity" rightIdentityProp
-    , QC.testProperty "composition" compositionProp
-    , QC.testProperty "Applicative pure" pureProp
-    , QC.testProperty "Applicative ap" apProp
+    [ testProperty "left identity" leftIdentityProp
+    , testProperty "right identity" rightIdentityProp
+    , testProperty "composition" compositionProp
+    , testProperty "Applicative pure" pureProp
+    , testProperty "Applicative ap" apProp
     ]
   where
     leftIdentityProp :: Int -> Fun Int (m Int) -> Property
@@ -122,48 +153,145 @@ monadLaws name _ = testGroup ("Monad laws: " <> name)
        where f' = apply <$> f
 
 -------------------------------------------------------------------------------
--- Lattice distributive
+-- Partial ord laws
 -------------------------------------------------------------------------------
 
-data Distr
-    = Distributive
-    | Modular
-    | NonModular
+data IsTotal a where
+    Total :: Ord a          => IsTotal a
+    Partial :: PartialOrd a => IsTotal a
 
-latticeLaws
-    :: forall a. (Eq a, Show a, Arbitrary a,  Lattice a, PartialOrd a)
-    => String
-    -> Distr
+partialOrdLaws
+    :: forall a. (Eq a, Show a, Arbitrary a, PartialOrd a)
+    => IsTotal a
     -> Proxy a
     -> TestTree
-latticeLaws name distr _ = testGroup ("Lattice laws: " <> name) $
-    [ QC.testProperty "leq = joinLeq" joinLeqProp
-    , QC.testProperty "leq = meetLeq" meetLeqProp
-    , QC.testProperty "meet is lower bound" meetLower
-    , QC.testProperty "join is upper bound" joinUpper
-    , QC.testProperty "meet commutes" meetComm
-    , QC.testProperty "join commute" joinComm
-    , QC.testProperty "meet associative" meetAssoc
-    , QC.testProperty "join associative" joinAssoc
-    , QC.testProperty "absorbtion 1" meetAbsorb
-    , QC.testProperty "absorbtion 2" joinAbsorb
-    , QC.testProperty "meet idempontent" meetIdemp
-    , QC.testProperty "join idempontent" joinIdemp
-    , QC.testProperty "comparableDef" comparableDef
-    ] ++ case distr of
-        -- Not all lattices are distributive!
-        NonModular -> []
-        Modular    ->
-            [ modularProp'
-            ]
-        Distributive ->
-            [ modularProp'
-            , QC.testProperty "x ∧ (y ∨ z) = (x ∧ y) ∨ (x ∧ z)" distrProp
-            , QC.testProperty "x ∨ (y ∧ z) = (x ∨ y) ∧ (x ∨ z)" distr2Prop
+partialOrdLaws total _ = testGroup "PartialOrd" $
+    [ testProperty "reflexive" reflProp
+    , testProperty "anti-symmetric" antiSymProp
+    , testProperty "transitive" transitiveProp
+    ] ++ case total of
+        Partial -> []
+        Total ->
+            [ testProperty "total" totalProp
+            , testProperty "leq/compare agree" leqCompareProp
             ]
   where
-    modularProp' =  QC.testProperty "(y ∧ (x ∨ z)) ∨ z = (y ∨ z) ∧ (x ∨ z)" modularProp
+    reflProp :: a -> Property
+    reflProp x = QC.property $ leq x x
 
+    antiSymProp :: a -> a -> Property
+    antiSymProp x y
+        | leq x y && leq y x = label "same" $ x === y
+        | otherwise          = label "diff" $ x =/= y
+
+    transitiveProp :: a -> a -> a -> Property
+    transitiveProp x y z = case p of
+        []                -> label "non-related" $ QC.property True
+        ((x', _, z') : _) -> label "related" $ QC.property $ leq x' z'
+      where
+        p = [ (x', y', z')
+            | (x', y', z') <- [(x,y,z),(y,x,z),(z,y,x),(y,z,x),(z,x,y),(x,z,y)]
+            , leq x' y'
+            , leq y' z'
+            ]
+
+    totalProp :: a -> a -> Property
+    totalProp x y = QC.property $ leq x y || leq y x
+
+    leqCompareProp :: Ord a => a -> a -> Property
+    leqCompareProp x y = agree (leq x y) (leq y x) (compare x y)
+      where
+        agree True True = (=== EQ)
+        agree True False = (=== LT)
+        agree False True = (=== GT)
+        agree False False = discard
+
+-------------------------------------------------------------------------------
+-- Lattice
+-------------------------------------------------------------------------------
+
+-- | Lattice Kind
+data LKind a where
+    LNormal       :: Lattice a => IsTotal a -> Distr ->  LKind a
+    LBoundedMeet  :: BoundedMeetSemiLattice a => IsTotal a -> Distr -> LKind a
+    LBoundedJoin  :: BoundedJoinSemiLattice a => IsTotal a -> Distr -> LKind a
+    LBounded      :: BoundedLattice a => IsTotal a -> Distr -> LKind a
+    LHeyting      :: Heyting a => IsTotal a -> IsBoolean -> LKind a
+
+data Distr
+    = NonModular
+    | Modular
+    | Distributive
+  deriving (Eq, Ord)
+
+data IsBoolean
+    = NonBoolean
+    | IsBoolean
+  deriving (Eq, Ord)
+
+allLatticeLaws
+    :: forall a. (Eq a, Show a, Arbitrary a, Typeable a, PartialOrd a)
+    => LKind a
+    -> Proxy a
+    -> TestTree
+allLatticeLaws ki pr = case ki of
+    LNormal t d -> testGroup name $
+        partialOrdLaws t pr : allLatticeLaws' d pr
+    LBoundedMeet t d -> testGroup name $
+        partialOrdLaws t pr : allLatticeLaws' d pr ++
+        [ boundedMeetLaws pr ]
+    LBoundedJoin t d -> testGroup name $
+        partialOrdLaws t pr :  allLatticeLaws' d pr ++
+        [ boundedJoinLaws pr ]
+    LBounded t d -> testGroup name $
+        partialOrdLaws t pr : allLatticeLaws' d pr ++
+        [ boundedMeetLaws pr
+        , boundedJoinLaws pr
+        ]
+    LHeyting t b -> testGroup name $
+        partialOrdLaws t pr : allLatticeLaws' Distributive pr ++
+        [ boundedMeetLaws pr
+        , boundedJoinLaws pr
+        , heytingLaws pr
+        ] ++
+        [ booleanLaws pr | b >= IsBoolean ]
+  where
+    name = show (typeOf (undefined :: a))
+
+allLatticeLaws'
+    :: forall a. (Eq a, Show a, Arbitrary a, Lattice a, PartialOrd a)
+    => Distr
+    -> Proxy a
+    -> [TestTree]
+allLatticeLaws' distr pr =
+    [ latticeLaws pr ] ++
+    [ modularLaws pr | distr >= Modular ] ++
+    [ distributiveLaws pr | distr >= Distributive ]
+
+-------------------------------------------------------------------------------
+-- Lattice laws
+-------------------------------------------------------------------------------
+
+latticeLaws
+    :: forall a. (Eq a, Show a, Arbitrary a, Lattice a, PartialOrd a)
+    => Proxy a
+    -> TestTree
+latticeLaws _ = testGroup "Lattice"
+    [ testProperty "leq = joinLeq" joinLeqProp
+    , testProperty "leq = meetLeq" meetLeqProp
+    , testProperty "meet is lower bound" meetLower
+    , testProperty "join is upper bound" joinUpper
+    , testProperty "meet commutes" meetComm
+    , testProperty "join commute" joinComm
+    , testProperty "meet associative" meetAssoc
+    , testProperty "join associative" joinAssoc
+    , testProperty "absorbtion 1" meetAbsorb
+    , testProperty "absorbtion 2" joinAbsorb
+    , testProperty "meet idempontent" meetIdemp
+    , testProperty "join idempontent" joinIdemp
+    , testProperty "comparableDef" comparableDef
+    ]
+  where
     joinLeqProp :: a -> a -> Property
     joinLeqProp x y = leq x y === joinLeq x y
 
@@ -207,6 +335,36 @@ latticeLaws name distr _ = testGroup ("Lattice laws: " <> name) $
     comparableDef :: a -> a -> Property
     comparableDef x y = (leq x y || leq y x) === comparable x y
 
+-------------------------------------------------------------------------------
+-- Modular
+-------------------------------------------------------------------------------
+
+modularLaws
+    :: forall a. (Eq a, Show a, Arbitrary a, Lattice a, PartialOrd a)
+    => Proxy a
+    -> TestTree
+modularLaws _ = testGroup "Modular"
+    [ testProperty "(y ∧ (x ∨ z)) ∨ z = (y ∨ z) ∧ (x ∨ z)" modularProp
+    ]
+  where
+    modularProp :: a -> a -> a -> Property
+    modularProp x y z = lhs === rhs where
+        lhs = (y /\ (x \/ z)) \/ z
+        rhs = (y \/ z) /\ (x \/ z)
+
+-------------------------------------------------------------------------------
+-- Distributive
+-------------------------------------------------------------------------------
+
+distributiveLaws
+    :: forall a. (Eq a, Show a, Arbitrary a, Lattice a, PartialOrd a)
+    => Proxy a
+    -> TestTree
+distributiveLaws _ = testGroup "Distributive"
+    [ testProperty "x ∧ (y ∨ z) = (x ∧ y) ∨ (x ∧ z)" distrProp
+    , testProperty "x ∨ (y ∧ z) = (x ∨ y) ∧ (x ∨ z)" distr2Prop
+    ]
+  where
     distrProp :: a -> a -> a -> Property
     distrProp x y z = lhs === rhs where
         lhs = x /\ (y \/ z)
@@ -217,84 +375,167 @@ latticeLaws name distr _ = testGroup ("Lattice laws: " <> name) $
         lhs = x \/ (y /\ z)
         rhs = (x \/ y) /\ (x \/ z)
 
-    modularProp :: a -> a -> a -> Property
-    modularProp x y z = lhs === rhs where
-        lhs = (y /\ (x \/ z)) \/ z
-        rhs = (y \/ z) /\ (x \/ z)
-
 -------------------------------------------------------------------------------
--- PartialOrd <=> Ord; desirable
+-- Bounded lattice laws
 -------------------------------------------------------------------------------
 
--- | This aren't strictly required. But good too have, if possible.
-partialOrdLaws
-    :: forall a. (Eq a, Show a, Arbitrary a, PartialOrd a, Ord a)
-    => String
-    -> Proxy a
+boundedMeetLaws
+    :: forall a. (Eq a, Show a, Arbitrary a, BoundedMeetSemiLattice a)
+    => Proxy a
     -> TestTree
-partialOrdLaws name _ = testGroup ("Partial ord laws: " <> name) $
-    [ QC.testProperty "leq/compare are congruent" leqCompareProp
+boundedMeetLaws _ = testGroup "BoundedMeetSemiLattice"
+    [ testProperty "top /\\ x = x" identityLeftProp
+    , testProperty "x /\\ top = x" identityRightProp
+    , testProperty "top \\/ x = top" annihilationLeftProp
+    , testProperty "x \\/ top = top" annihilationRightProp
     ]
   where
-    leqCompareProp :: a -> a -> Property
-    leqCompareProp x y = agree (leq x y) (leq y x) (compare x y)
-      where
-        agree True True = (=== EQ)
-        agree True False = (=== LT)
-        agree False True = (=== GT)
-        agree False False = discard
+    identityLeftProp :: a -> Property
+    identityLeftProp x = lhs === rhs where
+        lhs = top /\ x
+        rhs = x
+
+    identityRightProp :: a -> Property
+    identityRightProp x = lhs === rhs where
+        lhs = x /\ top
+        rhs = x
+
+    annihilationLeftProp :: a -> Property
+    annihilationLeftProp x = lhs === rhs where
+        lhs = top \/ x
+        rhs = top
+
+    annihilationRightProp :: a -> Property
+    annihilationRightProp x = lhs === rhs where
+        lhs = x \/ top
+        rhs = top
+
+boundedJoinLaws
+    :: forall a. (Eq a, Show a, Arbitrary a, BoundedJoinSemiLattice a)
+    => Proxy a
+    -> TestTree
+boundedJoinLaws _ = testGroup "BoundedJoinSemiLattice"
+    [ testProperty "bottom \\/ x = x" identityLeftProp
+    , testProperty "x \\/ bottom = x" identityRightProp
+    , testProperty "bottom /\\ x = bottom" annihilationLeftProp
+    , testProperty "x /\\ bottom = bottom" annihilationRightProp
+    ]
+  where
+    identityLeftProp :: a -> Property
+    identityLeftProp x = lhs === rhs where
+        lhs = bottom \/ x
+        rhs = x
+
+    identityRightProp :: a -> Property
+    identityRightProp x = lhs === rhs where
+        lhs = x \/ bottom
+        rhs = x
+
+    annihilationLeftProp :: a -> Property
+    annihilationLeftProp x = lhs === rhs where
+        lhs = bottom /\ x
+        rhs = bottom
+
+    annihilationRightProp :: a -> Property
+    annihilationRightProp x = lhs === rhs where
+        lhs = x /\ bottom
+        rhs = bottom
+
+-------------------------------------------------------------------------------
+-- Heyting laws
+-------------------------------------------------------------------------------
+
+heytingLaws
+    :: forall a. (Eq a, Show a, Arbitrary a, Heyting a)
+    => Proxy a
+    -> TestTree
+heytingLaws _ = testGroup "Heyting"
+    [ testProperty "neg default" negDefaultProp
+    , testProperty "<=> default" equivDefaultProp
+    , testProperty "x ==> x = top" idIsTopProp
+    , testProperty "a /\\ (a ==> b) = a /\\ b" andDomainProp
+    , testProperty "b /\\ (a ==> b) = b" andCodomainProp
+    , testProperty "a ==> (b /\\ c) = (a ==> b) /\\ (a ==> c)" implDistrProp
+    , testProperty "de Morgan 1" deMorganProp1
+    , testProperty "weak de Morgan 2" deMorganProp2weak
+    ]
+  where
+    negDefaultProp :: a -> Property
+    negDefaultProp x = lhs === rhs where
+        lhs = neg x
+        rhs = x ==> bottom
+
+    equivDefaultProp :: a -> a -> Property
+    equivDefaultProp x y = lhs === rhs where
+        lhs = x <=> y
+        rhs = (x ==> y) /\ (y ==> x)
+
+    idIsTopProp :: a -> Property
+    idIsTopProp x = lhs === rhs where
+        lhs = x ==> x
+        rhs = top
+
+    andDomainProp :: a -> a -> Property
+    andDomainProp x y = lhs === rhs where
+        lhs = x /\ (x ==> y)
+        rhs = x /\ y
+
+    andCodomainProp :: a -> a -> Property
+    andCodomainProp x y = lhs === rhs where
+        lhs = y /\ (x ==> y)
+        rhs = y
+
+    implDistrProp :: a -> a -> a -> Property
+    implDistrProp x y z = lhs === rhs where
+        lhs = x ==> (y /\ z)
+        rhs = (x ==> y) /\ (x ==> z)
+
+    deMorganProp1 :: a -> a -> Property
+    deMorganProp1 x y = lhs === rhs where
+        lhs = neg (x \/ y)
+        rhs = neg x /\ neg y
+
+    deMorganProp2weak :: a -> a -> Property
+    deMorganProp2weak x y = lhs === rhs where
+        lhs = neg (x /\ y)
+        rhs = neg (neg (neg x \/ neg y))
+
+-------------------------------------------------------------------------------
+-- Boolean laws
+-------------------------------------------------------------------------------
+
+booleanLaws
+    :: forall a. (Eq a, Show a, Arbitrary a, Heyting a)
+    => Proxy a
+    -> TestTree
+booleanLaws _ = testGroup "Boolean"
+    [ testProperty "LEM: neg x \\/ x = top" lemProp
+    , testProperty "DN: neg (neg x) = x" dnProp
+    ]
+  where
+    lemProp :: a -> Property
+    lemProp x = lhs === rhs where
+        lhs = neg x \/ x
+        rhs = top
+
+    -- every element is regular, i.e. either of following equivalend conditions hold:
+    -- * neg (neg x) = x
+    -- * x = neg y, for some y in H -- I don't know example of this
+    dnProp :: a -> Property
+    dnProp x = lhs === rhs where
+        lhs = neg (neg x)
+        rhs = x
 
 -------------------------------------------------------------------------------
 -- Orphans
 -------------------------------------------------------------------------------
 
-instance Arbitrary a => Arbitrary (D.Dropped a) where
-  arbitrary = frequency [ (1, pure D.Top)
-                        , (9, D.Drop <$> arbitrary)
-                        ]
+instance (Finite a, Ord a) => Ord (Endo a) where
+    compare (Endo f) (Endo g) = compare f g
 
-instance Arbitrary a => Arbitrary (U.Lifted a) where
-  arbitrary = frequency [ (1, pure U.Bottom)
-                        , (9, U.Lift <$> arbitrary)
-                        ]
-
-instance Arbitrary a => Arbitrary (L.Levitated a) where
-  arbitrary = frequency [ (1, pure L.Top)
-                        , (1, pure L.Bottom)
-                        , (9, L.Levitate <$> arbitrary)
-                        ]
-
-instance Arbitrary a => Arbitrary (O.Ordered a) where
-  arbitrary = O.Ordered <$> arbitrary
-  shrink = map O.Ordered . shrink . O.getOrdered
-
-instance (Arbitrary a, Num a, Ord a) => Arbitrary (Div.Divisibility a) where
-  arbitrary = divisibility <$> arbitrary
-  shrink d = filter (<d) . map divisibility . shrink . Div.getDivisibility $ d
-
-divisibility :: (Ord a, Num a) => a -> Div.Divisibility a
-divisibility x | x < (-1)  = Div.Divisibility (abs x)
-               | x < 1     = Div.Divisibility 1
-               | otherwise = Div.Divisibility x
-
-
-instance Arbitrary a => Arbitrary (Op.Op a) where
-  arbitrary = Op.Op <$> arbitrary
-
-instance (Arbitrary k, Arbitrary v) => Arbitrary (LO.Lexicographic k v) where
-    arbitrary = uncurry LO.Lexicographic <$> arbitrary
-    shrink (LO.Lexicographic k v) = uncurry LO.Lexicographic <$> shrink (k, v)
-
-instance Arbitrary a => Arbitrary (W.Wide a) where
-    arbitrary = frequency
-        [ (1, pure W.Top)
-        , (1, pure W.Bottom)
-        , (9, W.Middle <$> arbitrary)
-        ]
-
-instance Arbitrary M2 where arbitrary = QC.arbitraryBoundedEnum
-instance Arbitrary M3 where arbitrary = QC.arbitraryBoundedEnum
-instance Arbitrary N5 where arbitrary = QC.arbitraryBoundedEnum
+instance (Finite a, Show a) => Show (Endo a) where
+    showsPrec d (Endo f) = showParen (d > 10) $
+        showString "Endo " . showsPrec 11 f
 
 -------------------------------------------------------------------------------
 -- Lexicographic M2 search

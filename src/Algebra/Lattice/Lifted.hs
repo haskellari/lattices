@@ -1,20 +1,15 @@
-{-# LANGUAGE CPP                #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveFoldable     #-}
 {-# LANGUAGE DeriveFunctor      #-}
 {-# LANGUAGE DeriveGeneric      #-}
 {-# LANGUAGE DeriveTraversable  #-}
 {-# LANGUAGE FlexibleContexts   #-}
-{-# LANGUAGE TypeOperators      #-}
-#if __GLASGOW_HASKELL__ < 709
-{-# LANGUAGE Trustworthy        #-}
-#else
 {-# LANGUAGE Safe               #-}
-#endif
+{-# LANGUAGE TypeOperators      #-}
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Lifted
--- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015 Oleg Grenrus
+-- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015-2019 Oleg Grenrus
 -- License     :  BSD-3-Clause (see the file LICENSE)
 --
 -- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
@@ -32,11 +27,14 @@ import Prelude.Compat
 import Algebra.Lattice
 import Algebra.PartialOrd
 
-import Control.DeepSeq
-import Control.Monad
-import Data.Data
-import Data.Hashable
-import GHC.Generics
+import Control.DeepSeq     (NFData (..))
+import Control.Monad       (ap)
+import Data.Data           (Data, Typeable)
+import Data.Hashable       (Hashable (..))
+import Data.Universe.Class (Finite (..), Universe (..))
+import GHC.Generics        (Generic, Generic1)
+
+import qualified Test.QuickCheck as QC
 
 --
 -- Lifted
@@ -47,9 +45,7 @@ import GHC.Generics
 data Lifted a = Bottom
               | Lift a
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
-#if __GLASGOW_HASKELL__ >= 706
            , Generic1
-#endif
            )
 
 instance Applicative Lifted where
@@ -98,3 +94,25 @@ retractLifted = foldLifted bottom id
 foldLifted :: b -> (a -> b) -> Lifted a -> b
 foldLifted _ f (Lift x) = f x
 foldLifted y _ Bottom   = y
+
+instance Universe a => Universe (Lifted a) where
+    universe = Bottom : map Lift universe
+instance Finite a => Finite (Lifted a) where
+    universeF = Bottom : map Lift universeF
+
+instance QC.Arbitrary a => QC.Arbitrary (Lifted a) where
+    arbitrary = QC.frequency
+        [ (1, pure Bottom)
+        , (9, Lift <$> QC.arbitrary)
+        ]
+    shrink Bottom   = []
+    shrink (Lift x) = Bottom : map Lift (QC.shrink x)
+
+instance QC.CoArbitrary a => QC.CoArbitrary (Lifted a) where
+    coarbitrary Bottom      = QC.variant (0 :: Int)
+    coarbitrary (Lift x) = QC.variant (1 :: Int) . QC.coarbitrary x
+
+instance QC.Function a => QC.Function (Lifted a) where
+    function = QC.functionMap fromLifted toLifted where
+        fromLifted = foldLifted Nothing Just
+        toLifted   = maybe Bottom Lift

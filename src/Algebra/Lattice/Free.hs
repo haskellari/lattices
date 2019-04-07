@@ -1,4 +1,5 @@
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE Safe       #-}
 
 ----------------------------------------------------------------------------
 -- |
@@ -21,7 +22,8 @@ import Prelude ()
 import Prelude.Compat
 
 import Algebra.Lattice
-import Data.Universe.Class
+
+import Data.Universe.Class (Finite (..), Universe (..))
 
 --
 -- Free lattices

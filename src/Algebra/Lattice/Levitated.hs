@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP                #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveFoldable     #-}
 {-# LANGUAGE DeriveFunctor      #-}
@@ -6,15 +5,11 @@
 {-# LANGUAGE DeriveTraversable  #-}
 {-# LANGUAGE FlexibleContexts   #-}
 {-# LANGUAGE TypeOperators      #-}
-#if __GLASGOW_HASKELL__ < 709
-{-# LANGUAGE Trustworthy        #-}
-#else
 {-# LANGUAGE Safe               #-}
-#endif
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Levitated
--- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015 Oleg Grenrus
+-- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015-2019 Oleg Grenrus
 -- License     :  BSD-3-Clause (see the file LICENSE)
 --
 -- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
@@ -32,11 +27,14 @@ import Prelude.Compat
 import Algebra.Lattice
 import Algebra.PartialOrd
 
-import Control.DeepSeq
-import Control.Monad
-import Data.Data
-import Data.Hashable
-import GHC.Generics
+import Control.DeepSeq     (NFData (..))
+import Control.Monad       (ap)
+import Data.Data           (Data, Typeable)
+import Data.Hashable       (Hashable (..))
+import Data.Universe.Class (Finite (..), Universe (..))
+import GHC.Generics        (Generic, Generic1)
+
+import qualified Test.QuickCheck as QC
 
 --
 -- Levitated
@@ -49,9 +47,7 @@ data Levitated a = Bottom
                  | Levitate a
                  | Top
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
-#if __GLASGOW_HASKELL__ >= 706
            , Generic1
-#endif
            )
 
 instance Applicative Levitated where
@@ -111,3 +107,34 @@ foldLevitated :: b -> (a -> b) -> b -> Levitated a -> b
 foldLevitated b _ _ Bottom       = b
 foldLevitated _ f _ (Levitate x) = f x
 foldLevitated _ _ t Top          = t
+
+instance Universe a => Universe (Levitated a) where
+    universe = Top : Bottom : map Levitate universe
+instance Finite a => Finite (Levitated a) where
+    universeF = Top : Bottom : map Levitate universeF
+
+instance QC.Arbitrary a => QC.Arbitrary (Levitated a) where
+    arbitrary = QC.frequency
+        [ (1, pure Top)
+        , (1, pure Bottom)
+        , (9, Levitate <$> QC.arbitrary)
+        ]
+
+    shrink Top          = []
+    shrink Bottom       = []
+    shrink (Levitate x) = Top : Bottom : map Levitate (QC.shrink x)
+
+instance QC.CoArbitrary a => QC.CoArbitrary (Levitated a) where
+    coarbitrary Top          = QC.variant (0 :: Int)
+    coarbitrary Bottom       = QC.variant (0 :: Int)
+    coarbitrary (Levitate x) = QC.variant (0 :: Int) . QC.coarbitrary x
+
+instance QC.Function a => QC.Function (Levitated a) where
+    function = QC.functionMap fromLevitated toLevitated where
+        fromLevitated Top          = Left True
+        fromLevitated Bottom       = Left False
+        fromLevitated (Levitate x) = Right x
+
+        toLevitated (Left True)  = Top
+        toLevitated (Left False) = Bottom
+        toLevitated (Right x)    = Levitate x

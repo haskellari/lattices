@@ -3,15 +3,15 @@
 {-# LANGUAGE Safe               #-}
 ----------------------------------------------------------------------------
 -- |
--- Module      :  Algebra.Lattice.M3
+-- Module      :  Algebra.Lattice.ZeroHalfOne
 -- Copyright   :  (C) 2019 Oleg Grenrus
 -- License     :  BSD-3-Clause (see the file LICENSE)
 --
 -- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
 --
 ----------------------------------------------------------------------------
-module Algebra.Lattice.M3 (
-    M3 (..),
+module Algebra.Lattice.ZeroHalfOne (
+    ZeroHalfOne (..),
     ) where
 
 import Prelude ()
@@ -25,65 +25,56 @@ import GHC.Generics        (Generic)
 
 import qualified Test.QuickCheck as QC
 
+import Algebra.Heyting
 import Algebra.Lattice
 import Algebra.PartialOrd
 
--- | \(M_3\), is smallest non-distributive, yet modular lattice.
+-- | The simplest Heyting algebra that is not already a Boolean algebra is the
+-- totally ordered set \(\{ 0, \frac{1}{2}, 1 \}\).
 --
--- <<m3.png>>
---
-data M3 = M3o | M3a | M3b | M3c | M3i
+data ZeroHalfOne = Zero | Half | One
   deriving (Eq, Ord, Read, Show, Enum, Bounded, Typeable, Data, Generic)
 
-instance PartialOrd M3 where
-    M3o `leq` _   = True
-    _   `leq` M3i = True
-    M3a `leq` M3a = True
-    M3b `leq` M3b = True
-    M3c `leq` M3c = True
-    _   `leq` _   = False
+instance PartialOrd ZeroHalfOne where
+    leq = (<=)
 
-instance Lattice M3 where
-    M3o \/ y   = y
-    M3i \/ _   = M3i
-    x   \/ M3o = x
-    _   \/ M3i = M3i
-    M3a \/ M3a = M3a
-    M3b \/ M3b = M3b
-    M3c \/ M3c = M3c
-    _   \/ _   = M3i
+instance Lattice ZeroHalfOne where
+    (\/) = max
+    (/\) = min
 
-    M3o /\ _   = M3o
-    M3i /\ y   = y
-    _   /\ M3o = M3o
-    x   /\ M3i = x
-    M3a /\ M3a = M3a
-    M3b /\ M3b = M3b
-    M3c /\ M3c = M3c
-    _   /\ _   = M3o
+instance BoundedJoinSemiLattice ZeroHalfOne where
+    bottom = Zero
 
-instance BoundedJoinSemiLattice M3 where
-    bottom = M3o
+instance BoundedMeetSemiLattice ZeroHalfOne where
+    top = One
 
-instance BoundedMeetSemiLattice M3 where
-    top = M3i
+-- | Not boolean: @'neg' 'Half' '\/' 'Half' = 'Half' /= 'One'@
+instance Heyting ZeroHalfOne where
+    Zero ==> _    = One
+    One  ==> x    = x
+    Half ==> Zero = Zero
+    Half ==> _    = One
 
-instance QC.Arbitrary M3 where
+    neg Zero = One
+    neg One  = Zero
+    neg Half = Zero
+
+instance QC.Arbitrary ZeroHalfOne where
     arbitrary = QC.arbitraryBoundedEnum
     shrink x | x == minBound = []
              | otherwise     = [minBound .. pred x]
 
-instance QC.CoArbitrary M3 where
+instance QC.CoArbitrary ZeroHalfOne where
     coarbitrary = QC.coarbitraryEnum
 
-instance QC.Function M3 where
+instance QC.Function ZeroHalfOne where
     function = QC.functionBoundedEnum
 
-instance Universe M3 where universe = [minBound .. maxBound]
-instance Finite M3
+instance Universe ZeroHalfOne where universe = [minBound .. maxBound]
+instance Finite ZeroHalfOne
 
-instance NFData M3 where
+instance NFData ZeroHalfOne where
     rnf x = x `seq` ()
 
-instance Hashable M3 where
+instance Hashable ZeroHalfOne where
     hashWithSalt salt = hashWithSalt salt . fromEnum

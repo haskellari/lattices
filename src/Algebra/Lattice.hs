@@ -1,24 +1,12 @@
-{-# LANGUAGE CPP                #-}
+{-# LANGUAGE ConstraintKinds    #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric      #-}
 {-# LANGUAGE FlexibleInstances  #-}
-{-# LANGUAGE ConstraintKinds    #-}
-#if __GLASGOW_HASKELL__ >= 707 && __GLASGOW_HASKELL__ < 709
-{-# OPTIONS_GHC -fno-warn-amp #-}
-#endif
-
-#define unordered_containers_SAFE MIN_VERSION_unordered_containers(0,2,6)
-#define semigroupoids_SAFE (!MIN_VERSION_semigroupoids(5,2,2) || __GLASGOW_HASKELL__ >= 802)
-
-#if __GLASGOW_HASKELL__ >= 710 && unordered_containers_SAFE && semigroupoids_SAFE
 {-# LANGUAGE Safe               #-}
-#else
-{-# LANGUAGE Trustworthy        #-}
-#endif
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice
--- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2016-2019 Oleg Grenrus
+-- Copyright   :  (C) 2010-2015 Maximilian Bolingbroke, 2015-2019 Oleg Grenrus
 -- License     :  BSD-3-Clause (see the file LICENSE)
 --
 -- Maintainer  :  Oleg Grenrus <oleg.grenrus@iki.fi>
@@ -41,6 +29,7 @@ module Algebra.Lattice (
     BoundedJoinSemiLattice(..), BoundedMeetSemiLattice(..),
     joins, meets,
     fromBool,
+    BoundedLattice,
 
     -- * Monoid wrappers
     Meet(..), Join(..),
@@ -55,29 +44,26 @@ import Prelude.Compat
 
 import qualified Algebra.PartialOrd as PO
 
-import Data.Universe.Class (Finite (..), Universe (..))
-
-import Control.Monad.Zip (MonadZip (..))
-import Data.Data         (Data, Typeable)
-import Data.Hashable     (Hashable (..))
-import Data.Proxy        (Proxy (..))
-import Data.Semigroup    (All (..), Any (..), Endo (..), Semigroup (..))
-import Data.Tagged       (Tagged (..))
-import Data.Void         (Void)
-import GHC.Generics      (Generic)
-
-import qualified Data.IntMap as IM
-import qualified Data.IntSet as IS
-import qualified Data.Map    as M
-import qualified Data.Set    as S
+import Control.Applicative     (Const (..))
+import Control.Monad.Zip       (MonadZip (..))
+import Data.Data               (Data, Typeable)
+import Data.Functor.Identity   (Identity (..))
+import Data.Hashable           (Hashable (..))
+import Data.Proxy              (Proxy (..))
+import Data.Semigroup          (All (..), Any (..), Endo (..), Semigroup (..))
+import Data.Semigroup.Foldable (Foldable1 (..))
+import Data.Tagged             (Tagged (..))
+import Data.Universe.Class     (Finite (..), Universe (..))
+import Data.Void               (Void)
+import GHC.Generics            (Generic)
 
 import qualified Data.HashMap.Lazy as HM
 import qualified Data.HashSet      as HS
+import qualified Data.IntMap       as IM
+import qualified Data.IntSet       as IS
+import qualified Data.Map          as M
+import qualified Data.Set          as S
 import qualified Test.QuickCheck   as QC
-
-import Control.Applicative     (Const (..))
-import Data.Functor.Identity   (Identity (..))
-import Data.Semigroup.Foldable (Foldable1 (..))
 
 infixr 6 /\ -- This comment needed because of CPP
 infixr 5 \/
@@ -160,7 +146,7 @@ joins1 =  getJoin . foldMap1 Join
 -- | A meet-semilattice with an identity element 'top' for '/\'.
 --
 -- /Laws/
--- 
+--
 -- @
 -- x '/\' 'top' ≡ x
 -- @
@@ -174,7 +160,7 @@ joins1 =  getJoin . foldMap1 Join
 --   ≡⟨ absorption ⟩
 -- 'top'
 -- @
--- 
+--
 class Lattice a => BoundedMeetSemiLattice a where
     top :: a
 
