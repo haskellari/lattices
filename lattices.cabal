@@ -46,7 +46,7 @@ library
     Algebra.Lattice
     Algebra.Lattice.Divisibility
     Algebra.Lattice.Dropped
-    Algebra.Lattice.Free
+    Algebra.Lattice.Free.Final
     Algebra.Lattice.Levitated
     Algebra.Lattice.Lexicographic
     Algebra.Lattice.Lifted
