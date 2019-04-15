@@ -1,11 +1,12 @@
-{-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveFoldable     #-}
-{-# LANGUAGE DeriveFunctor      #-}
-{-# LANGUAGE DeriveGeneric      #-}
-{-# LANGUAGE DeriveTraversable  #-}
-{-# LANGUAGE FlexibleContexts   #-}
-{-# LANGUAGE Safe               #-}
-{-# LANGUAGE TypeOperators      #-}
+{-# LANGUAGE DeriveDataTypeable  #-}
+{-# LANGUAGE DeriveFoldable      #-}
+{-# LANGUAGE DeriveFunctor       #-}
+{-# LANGUAGE DeriveGeneric       #-}
+{-# LANGUAGE DeriveTraversable   #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE Safe                #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators       #-}
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Dropped
@@ -27,12 +28,13 @@ import Prelude.Compat
 import Algebra.Lattice
 import Algebra.PartialOrd
 
-import Control.DeepSeq     (NFData (..))
-import Control.Monad       (ap)
-import Data.Data           (Data, Typeable)
-import Data.Hashable       (Hashable (..))
-import Data.Universe.Class (Finite (..), Universe (..))
-import GHC.Generics        (Generic, Generic1)
+import Control.DeepSeq       (NFData (..))
+import Control.Monad         (ap)
+import Data.Data             (Data, Typeable)
+import Data.Hashable         (Hashable (..))
+import Data.Universe.Class   (Finite (..), Universe (..))
+import Data.Universe.Helpers (Natural, Tagged, retag)
+import GHC.Generics          (Generic, Generic1)
 
 import qualified Test.QuickCheck as QC
 
@@ -99,6 +101,7 @@ instance Universe a => Universe (Dropped a) where
     universe = Top : map Drop universe
 instance Finite a => Finite (Dropped a) where
     universeF = Top : map Drop universeF
+    cardinality = fmap succ (retag (cardinality :: Tagged a Natural))
 
 instance QC.Arbitrary a => QC.Arbitrary (Dropped a) where
     arbitrary = QC.frequency

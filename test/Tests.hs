@@ -14,9 +14,12 @@ import Data.Int                 (Int8)
 import Data.Maybe               (isJust, listToMaybe)
 import Data.Semigroup           (All, Any, Endo (..), (<>))
 import Data.Typeable            (Typeable, typeOf)
+import Data.Universe.Helpers (Natural, Tagged (..))
+import Data.Universe.Class   (Finite (..), Universe (..))
 import Test.QuickCheck
        (Arbitrary (..), Property, discard, label, (=/=), (===))
 import Test.QuickCheck.Function
+import Data.List (nub, genericLength)
 import Test.Tasty
 import Test.Tasty.QuickCheck    (testProperty)
 
@@ -108,7 +111,22 @@ tests = testGroup "Tests"
     , monadLaws "Op" (Proxy1 :: Proxy1 Op.Op)
     , monadLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
     , monadLaws "Wide" (Proxy1 :: Proxy1 W.Wide)
+
+    , finiteLaws (Proxy :: Proxy M2)
+    , finiteLaws (Proxy :: Proxy M3)
+    , finiteLaws (Proxy :: Proxy N5)
+    , finiteLaws (Proxy :: Proxy ZeroHalfOne)
+
+    , finiteLaws (Proxy :: Proxy OInt8)
+    , finiteLaws (Proxy :: Proxy (Div.Divisibility Int8))
+    , finiteLaws (Proxy :: Proxy (W.Wide Int8))
+    , finiteLaws (Proxy :: Proxy (D.Dropped OInt8))
+    , finiteLaws (Proxy :: Proxy (L.Levitated OInt8))
+    , finiteLaws (Proxy :: Proxy (U.Lifted OInt8))
+    , finiteLaws (Proxy :: Proxy (LO.Lexicographic OInt8 OInt8))
     ]
+
+type OInt8 = O.Ordered Int8
 
 -------------------------------------------------------------------------------
 -- Monad laws
@@ -523,6 +541,42 @@ booleanLaws _ = testGroup "Boolean"
     dnProp x = lhs === rhs where
         lhs = neg (neg x)
         rhs = x
+
+-------------------------------------------------------------------------------
+-- Universe / Finite laws
+-------------------------------------------------------------------------------
+
+finiteLaws
+    :: forall a. (Eq a, Show a, Arbitrary a, Typeable a, Finite a)
+    => Proxy a
+    -> TestTree
+finiteLaws _ = testGroup name
+    [ testProperty "elem x universe" elemProp
+    , testProperty "length pfx = length (nub pfx)" prefixProp
+
+    , testProperty "elem x universeF" elemFProp
+    , testProperty "length (filter (== x) universeF) = 1" singleProp
+    , testProperty "cardinality = Tagged (genericLength universeF)" cardinalityProp
+    ]
+  where
+    name = show (typeOf (undefined :: a))
+
+    elemProp :: a -> Property
+    elemProp x = QC.property $ elem x universe
+
+    elemFProp :: a -> Property
+    elemFProp x = QC.property $ elem x universeF
+
+    prefixProp :: Int -> Property
+    prefixProp n =
+        let pfx = take n (universe :: [a])
+        in QC.counterexample (show pfx) $ length pfx === length (nub pfx)
+
+    singleProp :: a -> Property
+    singleProp x = length (filter (== x) universeF) === 1
+
+    cardinalityProp :: Property
+    cardinalityProp = cardinality === (Tagged (genericLength (universeF :: [a])) :: Tagged a Natural)
 
 -------------------------------------------------------------------------------
 -- Lexicographic M2 search

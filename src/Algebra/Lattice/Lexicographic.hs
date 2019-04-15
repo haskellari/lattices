@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE DeriveFoldable     #-}
 {-# LANGUAGE DeriveFunctor      #-}
 {-# LANGUAGE DeriveGeneric      #-}
@@ -26,10 +27,11 @@ import Algebra.Lattice
 import Algebra.PartialOrd
 
 import Control.DeepSeq     (NFData (..))
-import Control.Monad       (ap)
+import Control.Monad       (ap, liftM2)
 import Data.Data           (Data, Typeable)
 import Data.Hashable       (Hashable (..))
 import Data.Universe.Class (Finite (..), Universe (..))
+import Data.Universe.Helpers (Natural, Tagged, retag)
 import GHC.Generics        (Generic, Generic1)
 
 import qualified Test.QuickCheck as QC
@@ -123,6 +125,9 @@ instance (Universe k, Universe v) => Universe (Lexicographic k v) where
     universe = map (uncurry Lexicographic) universe
 instance (Finite k, Finite v) => Finite (Lexicographic k v) where
     universeF = map (uncurry Lexicographic) universeF
+    cardinality = liftM2 (*)
+        (retag (cardinality :: Tagged k Natural))
+        (retag (cardinality :: Tagged v Natural))
 
 instance (QC.Arbitrary k, QC.Arbitrary v) => QC.Arbitrary (Lexicographic k v) where
     arbitrary = uncurry Lexicographic <$> QC.arbitrary
