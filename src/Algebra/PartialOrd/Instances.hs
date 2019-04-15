@@ -22,9 +22,6 @@ import Data.Universe.Instances.Eq ()
 instance (PartialOrd v, Finite k) => PartialOrd (k -> v) where
     f `leq` g = all (\k -> f k `leq` g k) universeF
 
-instance (Finite a, Eq a) => Eq (Endo a) where
-    Endo f == Endo g = f == g
-
 instance (PartialOrd v, Finite v) => PartialOrd (Endo v) where
     Endo f `leq` Endo g = f `leq` g
 

@@ -115,7 +115,7 @@ instance QC.Function M2 where
     function = QC.functionBoundedEnum
 
 instance Universe M2 where universe = [minBound .. maxBound]
-instance Finite M2
+instance Finite M2 where cardinality = 4
 
 instance NFData M2 where
     rnf x = x `seq` ()

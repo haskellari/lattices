@@ -14,7 +14,6 @@ import Data.Int                 (Int8)
 import Data.Maybe               (isJust, listToMaybe)
 import Data.Semigroup           (All, Any, Endo (..), (<>))
 import Data.Typeable            (Typeable, typeOf)
-import Data.Universe.Class      (Finite)
 import Test.QuickCheck
        (Arbitrary (..), Property, discard, label, (=/=), (===))
 import Test.QuickCheck.Function
@@ -49,7 +48,6 @@ import Data.Map          (Map)
 import Data.Set          (Set)
 
 import Algebra.PartialOrd.Instances ()
-import Data.Universe.Instances.Base ()
 import Data.Universe.Instances.Eq ()
 import Data.Universe.Instances.Ord ()
 import Data.Universe.Instances.Show ()
@@ -525,17 +523,6 @@ booleanLaws _ = testGroup "Boolean"
     dnProp x = lhs === rhs where
         lhs = neg (neg x)
         rhs = x
-
--------------------------------------------------------------------------------
--- Orphans
--------------------------------------------------------------------------------
-
-instance (Finite a, Ord a) => Ord (Endo a) where
-    compare (Endo f) (Endo g) = compare f g
-
-instance (Finite a, Show a) => Show (Endo a) where
-    showsPrec d (Endo f) = showParen (d > 10) $
-        showString "Endo " . showsPrec 11 f
 
 -------------------------------------------------------------------------------
 -- Lexicographic M2 search

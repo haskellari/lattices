@@ -4,8 +4,8 @@
 {-# LANGUAGE DeriveGeneric      #-}
 {-# LANGUAGE DeriveTraversable  #-}
 {-# LANGUAGE FlexibleContexts   #-}
-{-# LANGUAGE TypeOperators      #-}
 {-# LANGUAGE Safe               #-}
+{-# LANGUAGE TypeOperators      #-}
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Lexicographic
@@ -30,7 +30,6 @@ import Control.Monad       (ap)
 import Data.Data           (Data, Typeable)
 import Data.Hashable       (Hashable (..))
 import Data.Universe.Class (Finite (..), Universe (..))
-import Data.Universe.Instances.Base ()
 import GHC.Generics        (Generic, Generic1)
 
 import qualified Test.QuickCheck as QC

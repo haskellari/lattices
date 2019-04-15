@@ -71,7 +71,7 @@ instance QC.Function ZeroHalfOne where
     function = QC.functionBoundedEnum
 
 instance Universe ZeroHalfOne where universe = [minBound .. maxBound]
-instance Finite ZeroHalfOne
+instance Finite ZeroHalfOne where cardinality = 3
 
 instance NFData ZeroHalfOne where
     rnf x = x `seq` ()

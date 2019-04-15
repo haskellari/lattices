@@ -85,7 +85,7 @@ instance QC.Function N5 where
     function = QC.functionBoundedEnum
 
 instance Universe N5 where universe = [minBound .. maxBound]
-instance Finite N5
+instance Finite N5 where cardinality = 5
 
 instance NFData N5 where
     rnf x = x `seq` ()

@@ -80,7 +80,7 @@ instance QC.Function M3 where
     function = QC.functionBoundedEnum
 
 instance Universe M3 where universe = [minBound .. maxBound]
-instance Finite M3
+instance Finite M3 where cardinality = 5
 
 instance NFData M3 where
     rnf x = x `seq` ()
