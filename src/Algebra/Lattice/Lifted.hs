@@ -5,6 +5,7 @@
 {-# LANGUAGE DeriveTraversable  #-}
 {-# LANGUAGE FlexibleContexts   #-}
 {-# LANGUAGE Safe               #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators      #-}
 ----------------------------------------------------------------------------
 -- |
@@ -32,6 +33,7 @@ import Control.Monad       (ap)
 import Data.Data           (Data, Typeable)
 import Data.Hashable       (Hashable (..))
 import Data.Universe.Class (Finite (..), Universe (..))
+import Data.Universe.Helpers (Natural, Tagged, retag)
 import GHC.Generics        (Generic, Generic1)
 
 import qualified Test.QuickCheck as QC
@@ -99,6 +101,7 @@ instance Universe a => Universe (Lifted a) where
     universe = Bottom : map Lift universe
 instance Finite a => Finite (Lifted a) where
     universeF = Bottom : map Lift universeF
+    cardinality = fmap succ (retag (cardinality :: Tagged a Natural))
 
 instance QC.Arbitrary a => QC.Arbitrary (Lifted a) where
     arbitrary = QC.frequency

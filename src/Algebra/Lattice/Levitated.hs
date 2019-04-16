@@ -5,6 +5,7 @@
 {-# LANGUAGE DeriveTraversable  #-}
 {-# LANGUAGE FlexibleContexts   #-}
 {-# LANGUAGE TypeOperators      #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE Safe               #-}
 ----------------------------------------------------------------------------
 -- |
@@ -31,6 +32,7 @@ import Control.DeepSeq     (NFData (..))
 import Control.Monad       (ap)
 import Data.Data           (Data, Typeable)
 import Data.Hashable       (Hashable (..))
+import Data.Universe.Helpers (Natural, Tagged, retag)
 import Data.Universe.Class (Finite (..), Universe (..))
 import GHC.Generics        (Generic, Generic1)
 
@@ -112,6 +114,7 @@ instance Universe a => Universe (Levitated a) where
     universe = Top : Bottom : map Levitate universe
 instance Finite a => Finite (Levitated a) where
     universeF = Top : Bottom : map Levitate universeF
+    cardinality = fmap (2 +) (retag (cardinality :: Tagged a Natural))
 
 instance QC.Arbitrary a => QC.Arbitrary (Levitated a) where
     arbitrary = QC.frequency
