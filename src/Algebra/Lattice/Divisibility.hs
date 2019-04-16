@@ -84,7 +84,7 @@ instance QC.CoArbitrary a => QC.CoArbitrary (Divisibility a) where
     coarbitrary = QC.coarbitrary . getDivisibility
 
 instance QC.Function a => QC.Function (Divisibility a) where
-    function = QC.functionMap Divisibility getDivisibility
+    function = QC.functionMap getDivisibility Divisibility
 
 divisibility :: (Ord a, Num a) => a -> Divisibility a
 divisibility x | x < (-1)  = Divisibility (abs x)
