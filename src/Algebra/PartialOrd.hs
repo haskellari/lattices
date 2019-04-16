@@ -24,7 +24,7 @@ import qualified Data.HashMap.Lazy as HM
 import qualified Data.HashSet      as HS
 import qualified Data.IntMap       as IM
 import qualified Data.IntSet       as IS
-import qualified Data.List         as L
+import qualified Data.List.Compat  as L
 import qualified Data.Map          as M
 import           Data.Monoid       (All (..), Any (..))
 import qualified Data.Set          as S
@@ -120,9 +120,9 @@ instance PartialOrd All where
 instance PartialOrd Void where
     leq _ _ = True
 
--- | @'leq' = 'Data.List.isInfixOf'@.
+-- | @'leq' = 'Data.List.isSequenceOf'@.
 instance Eq a => PartialOrd [a] where
-    leq = L.isInfixOf
+    leq = L.isSubsequenceOf
 
 instance Ord a => PartialOrd (S.Set a) where
     leq = S.isSubsetOf

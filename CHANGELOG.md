@@ -1,11 +1,14 @@
-# 2 (2019-xx-xx)
+# 2 (2019-04-17)
 
 - Reduce to three classes (from six): `Lattice`, `BoundedMeetSemiLattice`
   `BoundeJoinSemiLattice`.
   The latter two names are kept to help migration.
 - Remove `Algebra.Enumerable` module. Use `universe` package.
 - Drop GHC-7.4.3 support (broken `ConstraintKinds`)
-
+- Move `Algebra.Lattice.Free` to `Algebra.Lattice.Free.Final`
+- Add concrete syntax `Algebra.Lattice.Free` and `Algebra.Heyting.Free` using
+  LJT-proof search for `Eq` and `PartialOrd`
+- Change `PartialOrd [a]` to be `leq = isSubsequenceOf`
 
 # 1.7.1.1 (2019-07-05)
 

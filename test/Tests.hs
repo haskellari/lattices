@@ -90,6 +90,8 @@ tests = testGroup "Tests"
     , allLatticeLaws (LBounded Partial NonModular)       (Proxy :: Proxy (LO.Lexicographic (Set Bool) (Set Bool)))
     , allLatticeLaws (LBounded Partial NonModular)       (Proxy :: Proxy (LO.Lexicographic M2 M2)) -- non distributive!
 
+    , allLatticeLaws LNotLattice                         (Proxy :: Proxy String)
+
     , allLatticeLaws (LHeyting Total   IsBoolean)        (Proxy :: Proxy All)
     , allLatticeLaws (LHeyting Total   IsBoolean)        (Proxy :: Proxy Any)
     , allLatticeLaws (LHeyting Partial IsBoolean)        (Proxy :: Proxy (Endo Bool)) -- note: it's partial!
@@ -235,6 +237,7 @@ partialOrdLaws total _ = testGroup "PartialOrd" $
 
 -- | Lattice Kind
 data LKind a where
+    LNotLattice   :: LKind a
     LNormal       :: Lattice a => IsTotal a -> Distr ->  LKind a
     LBoundedMeet  :: BoundedMeetSemiLattice a => IsTotal a -> Distr -> LKind a
     LBoundedJoin  :: BoundedJoinSemiLattice a => IsTotal a -> Distr -> LKind a
@@ -259,6 +262,8 @@ allLatticeLaws
     -> Proxy a
     -> TestTree
 allLatticeLaws ki pr = case ki of
+    LNotLattice -> testGroup name $
+        [partialOrdLaws Partial pr]
     LNormal t d -> testGroup name $
         partialOrdLaws t pr : allLatticeLaws' d pr
     LBoundedMeet t d -> testGroup name $
