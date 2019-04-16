@@ -246,6 +246,7 @@ data Distr
 
 data IsBoolean
     = NonBoolean
+    | DeMorgan
     | IsBoolean
   deriving (Eq, Ord)
 
@@ -274,6 +275,7 @@ allLatticeLaws ki pr = case ki of
         , boundedJoinLaws pr
         , heytingLaws pr
         ] ++
+        [ deMorganLaws pr | b >= DeMorgan ] ++
         [ booleanLaws pr | b >= IsBoolean ]
   where
     name = show (typeOf (undefined :: a))
@@ -477,7 +479,6 @@ heytingLaws _ = testGroup "Heyting"
     , testProperty "b /\\ (a ==> b) = b" andCodomainProp
     , testProperty "a ==> (b /\\ c) = (a ==> b) /\\ (a ==> c)" implDistrProp
     , testProperty "de Morgan 1" deMorganProp1
-    -- , testProperty "de Morgan 2" deMorganProp2
     , testProperty "weak de Morgan 2" deMorganProp2weak
     ]
   where
@@ -516,15 +517,36 @@ heytingLaws _ = testGroup "Heyting"
         lhs = neg (x \/ y)
         rhs = neg x /\ neg y
 
+    deMorganProp2weak :: a -> a -> Property
+    deMorganProp2weak x y = lhs === rhs where
+        lhs = neg (x /\ y)
+        rhs = neg (neg (neg x \/ neg y))
+
+-------------------------------------------------------------------------------
+-- De morgan
+-------------------------------------------------------------------------------
+
+deMorganLaws
+    :: forall a. (Eq a, Show a, Arbitrary a, Heyting a)
+    => Proxy a
+    -> TestTree
+deMorganLaws _ = testGroup "de Morgan"
+    [ testProperty "de Morgan 2" deMorganProp2
+    , testProperty "DN: neg (neg x) = x" dnProp
+    ]
+  where
     deMorganProp2 :: a -> a -> Property
     deMorganProp2 x y = lhs === rhs where
         lhs = neg (x /\ y)
         rhs = neg x \/ neg y
 
-    deMorganProp2weak :: a -> a -> Property
-    deMorganProp2weak x y = lhs === rhs where
-        lhs = neg (x /\ y)
-        rhs = neg (neg (neg x \/ neg y))
+    -- every element is regular, i.e. either of following equivalend conditions hold:
+    -- * neg (neg x) = x
+    -- * x = neg y, for some y in H -- I don't know example of this
+    dnProp :: a -> Property
+    dnProp x = lhs === rhs where
+        lhs = neg (neg x)
+        rhs = x
 
 -------------------------------------------------------------------------------
 -- Boolean laws
@@ -536,21 +558,12 @@ booleanLaws
     -> TestTree
 booleanLaws _ = testGroup "Boolean"
     [ testProperty "LEM: neg x \\/ x = top" lemProp
-    , testProperty "DN: neg (neg x) = x" dnProp
     ]
   where
     lemProp :: a -> Property
     lemProp x = lhs === rhs where
         lhs = neg x \/ x
         rhs = top
-
-    -- every element is regular, i.e. either of following equivalend conditions hold:
-    -- * neg (neg x) = x
-    -- * x = neg y, for some y in H -- I don't know example of this
-    dnProp :: a -> Property
-    dnProp x = lhs === rhs where
-        lhs = neg (neg x)
-        rhs = x
 
 -------------------------------------------------------------------------------
 -- Universe / Finite laws

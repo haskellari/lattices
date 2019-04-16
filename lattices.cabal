@@ -21,7 +21,7 @@ extra-doc-files:
   wide.png
 
 tested-with:
-  GHC ==7.6.3 || ==7.8.4 || ==7.10.3 || ==8.0.2 || ==8.2.2 || ==8.4.4 || ==8.6.4 || == 8.8.1
+  GHC ==7.6.3 || ==7.8.4 || ==7.10.3 || ==8.0.2 || ==8.2.2 || ==8.4.4 || ==8.6.4 || ==8.8.1
 
 synopsis:
   Fine-grained library for constructing and manipulating lattices
