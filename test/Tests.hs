@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP                 #-}
 {-# LANGUAGE ConstraintKinds     #-}
+{-# LANGUAGE DeriveDataTypeable  #-}
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE GADTs               #-}
 {-# LANGUAGE KindSignatures      #-}
@@ -11,15 +12,15 @@ import Prelude.Compat
 
 import Control.Monad            (ap, guard)
 import Data.Int                 (Int8)
+import Data.List                (genericLength, nub)
 import Data.Maybe               (isJust, listToMaybe)
 import Data.Semigroup           (All, Any, Endo (..), (<>))
 import Data.Typeable            (Typeable, typeOf)
-import Data.Universe.Helpers (Natural, Tagged (..))
-import Data.Universe.Class   (Finite (..), Universe (..))
+import Data.Universe.Class      (Finite (..), Universe (..))
+import Data.Universe.Helpers    (Natural, Tagged (..))
 import Test.QuickCheck
        (Arbitrary (..), Property, discard, label, (=/=), (===))
 import Test.QuickCheck.Function
-import Data.List (nub, genericLength)
 import Test.Tasty
 import Test.Tasty.QuickCheck    (testProperty)
 
@@ -34,8 +35,10 @@ import Algebra.Lattice.M3          (M3 (..))
 import Algebra.Lattice.N5          (N5 (..))
 import Algebra.Lattice.ZeroHalfOne (ZeroHalfOne (..))
 
+import qualified Algebra.Heyting.Free          as HF
 import qualified Algebra.Lattice.Divisibility  as Div
 import qualified Algebra.Lattice.Dropped       as D
+import qualified Algebra.Lattice.Free          as F
 import qualified Algebra.Lattice.Levitated     as L
 import qualified Algebra.Lattice.Lexicographic as LO
 import qualified Algebra.Lattice.Lifted        as U
@@ -71,7 +74,7 @@ tests = testGroup "Tests"
     , allLatticeLaws (LBounded Partial NonModular)       (Proxy :: Proxy N5)
     , allLatticeLaws (LHeyting Total IsBoolean)          (Proxy :: Proxy ())
     , allLatticeLaws (LHeyting Total IsBoolean)          (Proxy :: Proxy Bool)
-    , allLatticeLaws (LHeyting Total NonBoolean)         (Proxy :: Proxy ZeroHalfOne)
+    , allLatticeLaws (LHeyting Total DeMorgan)           (Proxy :: Proxy ZeroHalfOne)
     , allLatticeLaws (LNormal Partial Distributive)      (Proxy :: Proxy (Map Int (O.Ordered Int)))
     , allLatticeLaws (LNormal Partial Distributive)      (Proxy :: Proxy (IntMap (O.Ordered Int)))
     , allLatticeLaws (LNormal Partial Distributive)      (Proxy :: Proxy (HashMap Int (O.Ordered Int)))
@@ -80,7 +83,7 @@ tests = testGroup "Tests"
     , allLatticeLaws (LBoundedJoin Partial Distributive) (Proxy :: Proxy (Set Int))
     , allLatticeLaws (LBoundedJoin Partial Distributive) (Proxy :: Proxy IntSet)
     , allLatticeLaws (LBoundedJoin Partial Distributive) (Proxy :: Proxy (HashSet Int))
-    , allLatticeLaws (LHeyting Total NonBoolean)         (Proxy :: Proxy (O.Ordered Int))
+    , allLatticeLaws (LHeyting Total DeMorgan)           (Proxy :: Proxy (O.Ordered Int8))
     , allLatticeLaws (LBoundedJoin Partial Distributive) (Proxy :: Proxy (Div.Divisibility Int))
     , allLatticeLaws (LNormal Total Distributive)        (Proxy :: Proxy (LO.Lexicographic (O.Ordered Int) (O.Ordered Int)))
     , allLatticeLaws (LBounded Partial Modular)          (Proxy :: Proxy (W.Wide Int))
@@ -95,6 +98,9 @@ tests = testGroup "Tests"
     , allLatticeLaws (LHeyting Partial IsBoolean)        (Proxy :: Proxy (Int8 -> Bool))
     , allLatticeLaws (LHeyting Partial IsBoolean)        (Proxy :: Proxy (Int8 -> M2))
     , allLatticeLaws (LBounded Partial Modular)          (Proxy :: Proxy (Int8 -> M3))
+
+    , allLatticeLaws (LNormal  Partial Distributive)     (Proxy :: Proxy (F.Free Int8))
+    , allLatticeLaws (LHeyting Partial NonBoolean)       (Proxy :: Proxy (HF.Free Var))
 
     , allLatticeLaws (LBoundedMeet Total Distributive)   (Proxy :: Proxy (D.Dropped (O.Ordered Int)))
     , allLatticeLaws (LBounded     Total Distributive)   (Proxy :: Proxy (L.Levitated (O.Ordered Int)))
@@ -111,6 +117,7 @@ tests = testGroup "Tests"
     , monadLaws "Op" (Proxy1 :: Proxy1 Op.Op)
     , monadLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
     , monadLaws "Wide" (Proxy1 :: Proxy1 W.Wide)
+    , monadLaws "Heyting.Free" (Proxy1 :: Proxy1 HF.Free)
 
     , finiteLaws (Proxy :: Proxy M2)
     , finiteLaws (Proxy :: Proxy M3)
@@ -242,6 +249,7 @@ data Distr
 
 data IsBoolean
     = NonBoolean
+    | DeMorgan
     | IsBoolean
   deriving (Eq, Ord)
 
@@ -270,6 +278,7 @@ allLatticeLaws ki pr = case ki of
         , boundedJoinLaws pr
         , heytingLaws pr
         ] ++
+        [ deMorganLaws pr | b >= DeMorgan ] ++
         [ booleanLaws pr | b >= IsBoolean ]
   where
     name = show (typeOf (undefined :: a))
@@ -517,6 +526,23 @@ heytingLaws _ = testGroup "Heyting"
         rhs = neg (neg (neg x \/ neg y))
 
 -------------------------------------------------------------------------------
+-- De morgan
+-------------------------------------------------------------------------------
+
+deMorganLaws
+    :: forall a. (Eq a, Show a, Arbitrary a, Heyting a)
+    => Proxy a
+    -> TestTree
+deMorganLaws _ = testGroup "de Morgan"
+    [ testProperty "de Morgan 2" deMorganProp2
+    ]
+  where
+    deMorganProp2 :: a -> a -> Property
+    deMorganProp2 x y = lhs === rhs where
+        lhs = neg (x /\ y)
+        rhs = neg x \/ neg y
+
+-------------------------------------------------------------------------------
 -- Boolean laws
 -------------------------------------------------------------------------------
 
@@ -625,3 +651,17 @@ searchM3LexM2 = searchM3 xs
   where
     xs = [ LO.Lexicographic x y | x <- ys, y <- ys ]
     ys = [minBound .. maxBound]
+
+-------------------------------------------------------------------------------
+-- Variable (for Free)
+-------------------------------------------------------------------------------
+
+-- | The less variables we have, the quicker tests will be :)
+data Var = A | B | C | D
+  deriving (Eq, Ord, Show, Enum, Bounded, Typeable)
+
+instance Arbitrary Var where
+    arbitrary = QC.arbitraryBoundedEnum
+
+    shrink A = []
+    shrink x = [ minBound .. pred x ]

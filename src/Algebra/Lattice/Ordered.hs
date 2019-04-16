@@ -71,6 +71,10 @@ instance (Ord a, Bounded a) => BoundedJoinSemiLattice (Ordered a) where
 instance (Ord a, Bounded a) => BoundedMeetSemiLattice (Ordered a) where
   top = Ordered maxBound
 
+-- | This is interesting logic, as it satisfies both de Morgan laws;
+-- but isn't Boolean: i.e. law of exluded middle doesn't hold.
+--
+-- Negation "smashes" value into 'minBound' or 'maxBound'.
 instance (Ord a, Bounded a) => Heyting (Ordered a) where
     x ==> y | x > y     = y
             | otherwise = top
@@ -87,7 +91,7 @@ instance Finite a => Finite (Ordered a) where
 
 instance QC.Arbitrary a => QC.Arbitrary (Ordered a) where
     arbitrary = Ordered <$> QC.arbitrary
-    shrink    = QC.shrinkMap getOrdered Ordered
+    shrink    = QC.shrinkMap Ordered getOrdered
 
 instance QC.CoArbitrary a => QC.CoArbitrary (Ordered a) where
     coarbitrary = QC.coarbitrary . getOrdered
