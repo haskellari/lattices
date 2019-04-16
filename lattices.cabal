@@ -49,6 +49,7 @@ library
     Algebra.Lattice.Free.Final
     Algebra.Lattice.Levitated
     Algebra.Lattice.Lexicographic
+    Algebra.Lattice.Fuzzy
     Algebra.Lattice.Lifted
     Algebra.Lattice.M2
     Algebra.Lattice.M3

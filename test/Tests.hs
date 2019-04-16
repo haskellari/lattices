@@ -43,6 +43,7 @@ import qualified Algebra.Lattice.Lifted        as U
 import qualified Algebra.Lattice.Op            as Op
 import qualified Algebra.Lattice.Ordered       as O
 import qualified Algebra.Lattice.Wide          as W
+import qualified Algebra.Lattice.Fuzzy          as F
 
 import Data.HashMap.Lazy (HashMap)
 import Data.HashSet      (HashSet)
@@ -92,6 +93,8 @@ tests = testGroup "Tests"
     , allLatticeLaws (LHeyting Total   IsBoolean)        (Proxy :: Proxy Any)
     , allLatticeLaws (LHeyting Partial IsBoolean)        (Proxy :: Proxy (Endo Bool)) -- note: it's partial!
     , allLatticeLaws (LBounded Partial Modular)          (Proxy :: Proxy (Endo M3))
+
+    , allLatticeLaws (LHeyting Partial IsBoolean)        (Proxy :: Proxy (F.Fuzzy Rational))
 
     , allLatticeLaws (LHeyting Partial IsBoolean)        (Proxy :: Proxy (Int8 -> Bool))
     , allLatticeLaws (LHeyting Partial IsBoolean)        (Proxy :: Proxy (Int8 -> M2))
