@@ -11,15 +11,15 @@ import Prelude.Compat
 
 import Control.Monad            (ap, guard)
 import Data.Int                 (Int8)
+import Data.List                (genericLength, nub)
 import Data.Maybe               (isJust, listToMaybe)
 import Data.Semigroup           (All, Any, Endo (..), (<>))
 import Data.Typeable            (Typeable, typeOf)
-import Data.Universe.Helpers (Natural, Tagged (..))
-import Data.Universe.Class   (Finite (..), Universe (..))
+import Data.Universe.Class      (Finite (..), Universe (..))
+import Data.Universe.Helpers    (Natural, Tagged (..))
 import Test.QuickCheck
        (Arbitrary (..), Property, discard, label, (=/=), (===))
 import Test.QuickCheck.Function
-import Data.List (nub, genericLength)
 import Test.Tasty
 import Test.Tasty.QuickCheck    (testProperty)
 
@@ -34,6 +34,7 @@ import Algebra.Lattice.M3          (M3 (..))
 import Algebra.Lattice.N5          (N5 (..))
 import Algebra.Lattice.ZeroHalfOne (ZeroHalfOne (..))
 
+import qualified Algebra.Heyting.Free          as HF
 import qualified Algebra.Lattice.Divisibility  as Div
 import qualified Algebra.Lattice.Dropped       as D
 import qualified Algebra.Lattice.Levitated     as L
@@ -96,6 +97,8 @@ tests = testGroup "Tests"
     , allLatticeLaws (LHeyting Partial IsBoolean)        (Proxy :: Proxy (Int8 -> M2))
     , allLatticeLaws (LBounded Partial Modular)          (Proxy :: Proxy (Int8 -> M3))
 
+    , allLatticeLaws (LHeyting Partial NonBoolean)       (Proxy :: Proxy (HF.Free Var))
+
     , allLatticeLaws (LBoundedMeet Total Distributive)   (Proxy :: Proxy (D.Dropped (O.Ordered Int)))
     , allLatticeLaws (LBounded     Total Distributive)   (Proxy :: Proxy (L.Levitated (O.Ordered Int)))
     , allLatticeLaws (LBoundedJoin Total Distributive)   (Proxy :: Proxy (U.Lifted (O.Ordered Int)))
@@ -111,6 +114,7 @@ tests = testGroup "Tests"
     , monadLaws "Op" (Proxy1 :: Proxy1 Op.Op)
     , monadLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
     , monadLaws "Wide" (Proxy1 :: Proxy1 W.Wide)
+    , monadLaws "Heyting.Free" (Proxy1 :: Proxy1 HF.Free)
 
     , finiteLaws (Proxy :: Proxy M2)
     , finiteLaws (Proxy :: Proxy M3)
@@ -473,6 +477,7 @@ heytingLaws _ = testGroup "Heyting"
     , testProperty "b /\\ (a ==> b) = b" andCodomainProp
     , testProperty "a ==> (b /\\ c) = (a ==> b) /\\ (a ==> c)" implDistrProp
     , testProperty "de Morgan 1" deMorganProp1
+    -- , testProperty "de Morgan 2" deMorganProp2
     , testProperty "weak de Morgan 2" deMorganProp2weak
     ]
   where
@@ -510,6 +515,11 @@ heytingLaws _ = testGroup "Heyting"
     deMorganProp1 x y = lhs === rhs where
         lhs = neg (x \/ y)
         rhs = neg x /\ neg y
+
+    deMorganProp2 :: a -> a -> Property
+    deMorganProp2 x y = lhs === rhs where
+        lhs = neg (x /\ y)
+        rhs = neg x \/ neg y
 
     deMorganProp2weak :: a -> a -> Property
     deMorganProp2weak x y = lhs === rhs where
@@ -625,3 +635,17 @@ searchM3LexM2 = searchM3 xs
   where
     xs = [ LO.Lexicographic x y | x <- ys, y <- ys ]
     ys = [minBound .. maxBound]
+
+-------------------------------------------------------------------------------
+-- Variable (for Free)
+-------------------------------------------------------------------------------
+
+-- | The less variables we have, the quicker tests will be :)
+data Var = A | B | C | D
+  deriving (Eq, Ord, Show, Enum, Bounded)
+
+instance Arbitrary Var where
+    arbitrary = QC.arbitraryBoundedEnum
+
+    shrink A = []
+    shrink x = [ minBound .. pred x ]
