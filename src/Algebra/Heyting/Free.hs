@@ -10,6 +10,7 @@ module Algebra.Heyting.Free (
     liftFree,
     substFree,
     retractFree,
+    toExpr,
     ) where
 
 import Prelude ()
@@ -32,6 +33,27 @@ import qualified Test.QuickCheck           as QC
 -- Free
 -------------------------------------------------------------------------------
 
+-- | Free Heyting algebra.
+--
+-- Note: `Eq` and `PartialOrd` instances aren't structural.
+--
+-- >>> Top == (Var 'x' ==> Var 'x')
+-- True
+--
+-- >>> Var 'x' == Var 'y'
+-- False
+--
+-- You can test for taulogogies:
+--
+-- >>> leq Top $ (Var 'A' /\ Var 'B' ==> Var 'C') <=>  (Var 'A' ==> Var 'B' ==> Var 'C')
+-- True
+--
+-- >>> leq Top $ (Var 'A' /\ neg (Var 'A')) <=> Bottom
+-- True
+--
+-- >>> leq Top $ (Var 'A' \/ neg (Var 'A')) <=> Top
+-- False
+--
 data Free a
     = Var a
     | Bottom
@@ -66,13 +88,13 @@ retractFree f = go where
     go (x :\/: y) = go x \/ go y
     go (x :=>: y) = go x ==> go y
 
-toE :: Free a -> E.Expr a
-toE (Var a)    = E.Var a
-toE Bottom     = E.Bottom
-toE Top        = E.Top
-toE (x :/\: y) = toE x E.:/\: toE y
-toE (x :\/: y) = toE x E.:\/: toE y
-toE (x :=>: y) = toE x E.:=>: toE y
+toExpr :: Free a -> E.Expr a
+toExpr (Var a)    = E.Var a
+toExpr Bottom     = E.Bottom
+toExpr Top        = E.Top
+toExpr (x :/\: y) = toExpr x E.:/\: toExpr y
+toExpr (x :\/: y) = toExpr x E.:\/: toExpr y
+toExpr (x :=>: y) = toExpr x E.:=>: toExpr y
 
 -------------------------------------------------------------------------------
 -- Monad
@@ -118,10 +140,10 @@ instance Heyting (Free a) where
     x      ==> y   = x :=>: y
 
 instance Ord a => Eq (Free a) where
-    x == y = E.proofSearch (toE (x <=> y))
+    x == y = E.proofSearch (toExpr (x <=> y))
 
 instance Ord a => PartialOrd (Free a) where
-    leq x y = E.proofSearch (toE (x ==> y))
+    leq x y = E.proofSearch (toExpr (x ==> y))
 
 -------------------------------------------------------------------------------
 -- Other instances

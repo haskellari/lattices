@@ -10,12 +10,12 @@ module Algebra.Lattice.Free (
     liftFree,
     substFree,
     retractFree,
+    toExpr,
     ) where
 
 import Prelude ()
 import Prelude.Compat
 
-import Algebra.Heyting
 import Algebra.Lattice
 import Algebra.PartialOrd
 
@@ -33,6 +33,35 @@ import qualified Test.QuickCheck           as QC
 -------------------------------------------------------------------------------
 
 -- | Free distributive lattice.
+--
+-- `Eq` and `PartialOrd` instances aren't structural.
+--
+-- >>> (Var 'x' /\ Var 'y') == (Var 'y' /\ Var 'x' /\ Var 'x')
+-- True
+--
+-- >>> Var 'x' == Var 'y'
+-- False
+--
+-- This is /distributive/ lattice.
+--
+-- >>> import Algebra.Lattice.M3 -- non distributive lattice
+-- >>> let x = M3a; y = M3b; z = M3c
+-- >>> let lhs = Var x \/ (Var y /\ Var z)
+-- >>> let rhs = (Var x \/ Var y) /\ (Var x \/ Var z)
+--
+-- 'Free' is distributive so 
+--
+-- >>> lhs == rhs
+-- True
+--
+-- but when retracted, values are inequal
+--
+-- >>> retractFree id lhs == retractFree id rhs
+-- False
+--
+-- >>> (retractFree id lhs, retractFree id rhs)
+-- (M3a,M3i)
+--
 data Free a
     = Var a
     | Free a :/\: Free a
@@ -51,16 +80,16 @@ substFree z k = go z where
     go (x :/\: y) = go x /\ go y
     go (x :\/: y) = go x \/ go y
 
-retractFree :: Heyting b => (a -> b) -> Free a -> b
+retractFree :: Lattice b => (a -> b) -> Free a -> b
 retractFree f = go where
     go (Var x)    = f x
     go (x :/\: y) = go x /\ go y
     go (x :\/: y) = go x \/ go y
 
-toE :: Free a -> E.Expr a
-toE (Var a)    = E.Var a
-toE (x :/\: y) = toE x E.:/\: toE y
-toE (x :\/: y) = toE x E.:\/: toE y
+toExpr :: Free a -> E.Expr a
+toExpr (Var a)    = E.Var a
+toExpr (x :/\: y) = toExpr x E.:/\: toExpr y
+toExpr (x :\/: y) = toExpr x E.:\/: toExpr y
 
 -------------------------------------------------------------------------------
 -- Monad
@@ -86,7 +115,7 @@ instance Ord a => Eq (Free a) where
     (==) = partialOrdEq
 
 instance Ord a => PartialOrd (Free a) where
-    leq x y = E.proofSearch (toE x E.:=>: toE y)
+    leq x y = E.proofSearch (toExpr x E.:=>: toExpr y)
 
 -------------------------------------------------------------------------------
 -- Other instances
