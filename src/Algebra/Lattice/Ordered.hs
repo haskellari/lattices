@@ -42,7 +42,7 @@ import qualified Test.QuickCheck as QC
 --
 
 -- | A total order gives rise to a lattice. Join is
--- max, meet is min.
+-- 'max', meet is 'min'.
 newtype Ordered a = Ordered { getOrdered :: a }
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
            , Generic1

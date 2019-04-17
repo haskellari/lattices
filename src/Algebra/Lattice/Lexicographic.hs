@@ -49,9 +49,9 @@ import qualified Test.QuickCheck as QC
 --
 -- An application of this type is versioning.  For example, a
 -- Last-Writer-Wins register would look like
--- 'Lexicographc (Ordered Timestamp) v' where the lattice
+-- @'Lexicographic' ('Algebra.Lattice.Ordered.Ordered' Timestamp) v@ where the lattice
 -- structure handles the, presumably rare, case of matching
--- 'Timestamps'.  Typically this is done in an arbitary, but
+-- @Timestamp@s.  Typically this is done in an arbitary, but
 -- deterministic manner.
 data Lexicographic k v = Lexicographic !k !v
   deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable

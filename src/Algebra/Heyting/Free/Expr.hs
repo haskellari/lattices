@@ -61,6 +61,10 @@ instance Monad Expr where
 -- LJT proof search
 -------------------------------------------------------------------------------
 
+-- | Decide whether @x :: 'Expr' a@ is provable.
+--
+-- /Note:/ this doesn't construct a proof term, but merely returns a 'Bool'.
+--
 proofSearch :: forall a. Ord a => Expr a -> Bool
 proofSearch tyGoal = evalState (emptyCtx |- fmap R tyGoal) 0
   where
