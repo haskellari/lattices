@@ -8,6 +8,7 @@
 module Algebra.Lattice.Free (
     Free (..),
     liftFree,
+    lowerFree,
     substFree,
     retractFree,
     toExpr,
@@ -56,10 +57,10 @@ import qualified Test.QuickCheck           as QC
 --
 -- but when retracted, values are inequal
 --
--- >>> retractFree id lhs == retractFree id rhs
+-- >>> retractFree lhs == retractFree rhs
 -- False
 --
--- >>> (retractFree id lhs, retractFree id rhs)
+-- >>> (retractFree lhs, retractFree rhs)
 -- (M3a,M3i)
 --
 data Free a
@@ -74,14 +75,17 @@ infixr 5 :\/:
 liftFree :: a -> Free a
 liftFree = Var
 
+retractFree :: Lattice a => Free a -> a
+retractFree = lowerFree id
+
 substFree :: Free a -> (a -> Free b) -> Free b
 substFree z k = go z where
     go (Var x)    = k x
     go (x :/\: y) = go x /\ go y
     go (x :\/: y) = go x \/ go y
 
-retractFree :: Lattice b => (a -> b) -> Free a -> b
-retractFree f = go where
+lowerFree :: Lattice b => (a -> b) -> Free a -> b
+lowerFree f = go where
     go (Var x)    = f x
     go (x :/\: y) = go x /\ go y
     go (x :\/: y) = go x \/ go y

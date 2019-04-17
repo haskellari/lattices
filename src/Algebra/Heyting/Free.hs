@@ -8,8 +8,9 @@
 module Algebra.Heyting.Free (
     Free (..),
     liftFree,
-    substFree,
+    lowerFree,
     retractFree,
+    substFree,
     toExpr,
     ) where
 
@@ -79,8 +80,11 @@ substFree z k = go z where
     go (x :\/: y) = go x \/ go y
     go (x :=>: y) = go x ==> go y
 
-retractFree :: Heyting b => (a -> b) -> Free a -> b
-retractFree f = go where
+retractFree :: Heyting a => Free a -> a
+retractFree = lowerFree id
+
+lowerFree :: Heyting b => (a -> b) -> Free a -> b
+lowerFree f = go where
     go (Var x)    = f x
     go Bottom     = bottom
     go Top        = top
