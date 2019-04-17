@@ -154,12 +154,15 @@ instance QC.Arbitrary a => QC.Arbitrary (Free a) where
         arb n | n <= 0    = prim
               | otherwise = QC.oneof (prim : compound)
           where
-            arb' = arb (intLog2 (max 1 n))
+            arb' = arb (sc n)
+            arb'' = arb (sc (sc n)) -- make domains be smaller.
+
+            sc = intLog2 . max 1
 
             compound =
                 [ liftA2 (:/\:) arb' arb'
                 , liftA2 (:\/:) arb' arb'
-                , liftA2 (:=>:) arb' arb'
+                , liftA2 (:=>:) arb'' arb'
                 ]
 
         prim = QC.frequency
