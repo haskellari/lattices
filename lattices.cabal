@@ -56,6 +56,7 @@ library
     Algebra.Lattice.N5
     Algebra.Lattice.Op
     Algebra.Lattice.Ordered
+    Algebra.Lattice.Unicode
     Algebra.Lattice.Wide
     Algebra.Lattice.ZeroHalfOne
 

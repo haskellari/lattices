@@ -476,7 +476,7 @@ boundedJoinLaws _ = testGroup "BoundedJoinSemiLattice"
 -------------------------------------------------------------------------------
 
 heytingLaws
-    :: forall a. (Eq a, Show a, Arbitrary a, Heyting a)
+    :: forall a. (Eq a, Show a, Arbitrary a, Heyting a, Typeable a)
     => Proxy a
     -> TestTree
 heytingLaws _ = testGroup "Heyting"
@@ -516,7 +516,14 @@ heytingLaws _ = testGroup "Heyting"
         rhs = y
 
     implDistrProp :: a -> a -> a -> Property
-    implDistrProp x y z = lhs === rhs where
+    implDistrProp x y z
+        | typeOf (undefined :: a) == typeOf (undefined :: HF.Free Var)
+            = QC.mapSize (min 16) $ implDistrProp' x y z
+        | otherwise
+            = implDistrProp' x y z
+
+    implDistrProp' :: a -> a -> a -> Property
+    implDistrProp' x y z = lhs === rhs where
         lhs = x ==> (y /\ z)
         rhs = (x ==> y) /\ (x ==> z)
 

@@ -8,8 +8,9 @@
 module Algebra.Heyting.Free (
     Free (..),
     liftFree,
-    substFree,
+    lowerFree,
     retractFree,
+    substFree,
     toExpr,
     ) where
 
@@ -79,8 +80,11 @@ substFree z k = go z where
     go (x :\/: y) = go x \/ go y
     go (x :=>: y) = go x ==> go y
 
-retractFree :: Heyting b => (a -> b) -> Free a -> b
-retractFree f = go where
+retractFree :: Heyting a => Free a -> a
+retractFree = lowerFree id
+
+lowerFree :: Heyting b => (a -> b) -> Free a -> b
+lowerFree f = go where
     go (Var x)    = f x
     go Bottom     = bottom
     go Top        = top
@@ -154,12 +158,15 @@ instance QC.Arbitrary a => QC.Arbitrary (Free a) where
         arb n | n <= 0    = prim
               | otherwise = QC.oneof (prim : compound)
           where
-            arb' = arb (intLog2 (max 1 n))
+            arb' = arb (sc n)
+            arb'' = arb (sc (sc n)) -- make domains be smaller.
+
+            sc = intLog2 . max 1
 
             compound =
                 [ liftA2 (:/\:) arb' arb'
                 , liftA2 (:\/:) arb' arb'
-                , liftA2 (:=>:) arb' arb'
+                , liftA2 (:=>:) arb'' arb'
                 ]
 
         prim = QC.frequency
