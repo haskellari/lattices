@@ -4,16 +4,17 @@ version:            2
 category:           Math
 license:            BSD3
 license-file:       LICENSE
-author:             Maximilian Bolingbroke <batterseapower@hotmail.com>
+author:
+  Maximilian Bolingbroke <batterseapower@hotmail.com>, Oleg Grenrus <oleg.grenrus@iki.fi>
+
 maintainer:         Oleg Grenrus <oleg.grenrus@iki.fi>
 homepage:           http://github.com/phadej/lattices/
 bug-reports:        http://github.com/phadej/lattices/issues
-copyright:          (C) 2010-2015 Maximilian Bolingbroke
-build-type:         Simple
-extra-source-files:
-  README.md
-  CHANGELOG.md
+copyright:
+  (C) 2010-2015 Maximilian Bolingbroke, 2016-2019 Oleg Grenrus
 
+build-type:         Simple
+extra-source-files: CHANGELOG.md
 extra-doc-files:
   m2.png
   m3.png
@@ -85,12 +86,10 @@ library
     , unordered-containers        >=0.2.8.0  && <0.3
 
   if !impl(ghc >=8.0)
-    build-depends: semigroups >=0.18.3 && <0.19
+    build-depends: semigroups >=0.18.5 && <0.19
 
   if !impl(ghc >=7.10)
-    build-depends:
-        transformers  >=0.3 && <0.6
-      , void          >=0.7 && <0.8
+    build-depends: void >=0.7.2 && <0.8
 
   if impl(ghc >=7.4 && <7.5)
     build-depends: ghc-prim
