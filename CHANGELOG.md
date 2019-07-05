@@ -1,3 +1,7 @@
+# 2.0.1 (2019-07-22)
+
+- Add `(PartialOrd a, PartialOrd b) => PartialOrd (Either a b)` instance
+
 # 2 (2019-04-17)
 
 - Reduce to three classes (from six): `Lattice`, `BoundedMeetSemiLattice`
