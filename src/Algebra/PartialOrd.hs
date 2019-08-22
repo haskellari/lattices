@@ -84,7 +84,9 @@ import           Data.Void         (Void)
 class Eq a => PartialOrd a where
     -- | The relation that induces the partial ordering
     leq :: a -> a -> Bool
-
+    {-# INLINE leq #-}
+    default leq :: Ord a => a -> a -> Bool
+    leq = (<=)
     -- | Whether two elements are ordered with respect to the relation. A
     -- default implementation is given by
     --
