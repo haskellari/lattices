@@ -1,4 +1,5 @@
 {-# LANGUAGE Safe #-}
+{-# LANGUAGE DefaultSignatures #-}
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.PartialOrd
