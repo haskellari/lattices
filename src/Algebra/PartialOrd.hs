@@ -25,9 +25,9 @@ import qualified Data.HashSet      as HS
 import qualified Data.IntMap       as IM
 import qualified Data.IntSet       as IS
 import qualified Data.List.Compat  as L
-import qualified Data.Map          as M
+import qualified Data.Map          as Map
 import           Data.Monoid       (All (..), Any (..))
-import qualified Data.Set          as S
+import qualified Data.Set          as Set
 import           Data.Void         (Void)
 
 -- | A partial ordering on sets
@@ -124,8 +124,8 @@ instance PartialOrd Void where
 instance Eq a => PartialOrd [a] where
     leq = L.isSubsequenceOf
 
-instance Ord a => PartialOrd (S.Set a) where
-    leq = S.isSubsetOf
+instance Ord a => PartialOrd (Set.Set a) where
+    leq = Set.isSubsetOf
 
 instance PartialOrd IS.IntSet where
     leq = IS.isSubsetOf
@@ -133,8 +133,8 @@ instance PartialOrd IS.IntSet where
 instance (Eq k, Hashable k) => PartialOrd (HS.HashSet k) where
     leq a b = HS.null (HS.difference a b)
 
-instance (Ord k, PartialOrd v) => PartialOrd (M.Map k v) where
-    leq = M.isSubmapOfBy leq
+instance (Ord k, PartialOrd v) => PartialOrd (Map.Map k v) where
+    leq = Map.isSubmapOfBy leq
 
 instance PartialOrd v => PartialOrd (IM.IntMap v) where
     leq = IM.isSubmapOfBy leq

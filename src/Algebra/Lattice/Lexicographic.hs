@@ -1,12 +1,12 @@
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveDataTypeable  #-}
+{-# LANGUAGE DeriveFoldable      #-}
+{-# LANGUAGE DeriveFunctor       #-}
+{-# LANGUAGE DeriveGeneric       #-}
+{-# LANGUAGE DeriveTraversable   #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE Safe                #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE DeriveFoldable     #-}
-{-# LANGUAGE DeriveFunctor      #-}
-{-# LANGUAGE DeriveGeneric      #-}
-{-# LANGUAGE DeriveTraversable  #-}
-{-# LANGUAGE FlexibleContexts   #-}
-{-# LANGUAGE Safe               #-}
-{-# LANGUAGE TypeOperators      #-}
+{-# LANGUAGE TypeOperators       #-}
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Lexicographic
@@ -26,13 +26,13 @@ import Prelude.Compat
 import Algebra.Lattice
 import Algebra.PartialOrd
 
-import Control.DeepSeq     (NFData (..))
-import Control.Monad       (ap, liftM2)
-import Data.Data           (Data, Typeable)
-import Data.Hashable       (Hashable (..))
-import Data.Universe.Class (Finite (..), Universe (..))
+import Control.DeepSeq       (NFData (..))
+import Control.Monad         (ap, liftM2)
+import Data.Data             (Data, Typeable)
+import Data.Hashable         (Hashable (..))
+import Data.Universe.Class   (Finite (..), Universe (..))
 import Data.Universe.Helpers (Natural, Tagged, retag)
-import GHC.Generics        (Generic, Generic1)
+import GHC.Generics          (Generic, Generic1)
 
 import qualified Test.QuickCheck as QC
 

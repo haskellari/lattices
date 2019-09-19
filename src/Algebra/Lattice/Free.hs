@@ -50,7 +50,7 @@ import qualified Test.QuickCheck           as QC
 -- >>> let lhs = Var x \/ (Var y /\ Var z)
 -- >>> let rhs = (Var x \/ Var y) /\ (Var x \/ Var z)
 --
--- 'Free' is distributive so 
+-- 'Free' is distributive so
 --
 -- >>> lhs == rhs
 -- True
