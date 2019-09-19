@@ -61,8 +61,8 @@ import qualified Data.HashMap.Lazy as HM
 import qualified Data.HashSet      as HS
 import qualified Data.IntMap       as IM
 import qualified Data.IntSet       as IS
-import qualified Data.Map          as M
-import qualified Data.Set          as S
+import qualified Data.Map          as Map
+import qualified Data.Set          as Set
 import qualified Test.QuickCheck   as QC
 
 infixr 6 /\ -- This comment needed because of CPP
@@ -183,15 +183,15 @@ fromBool False = bottom
 -- Sets
 --
 
-instance Ord a => Lattice (S.Set a) where
-    (\/) = S.union
-    (/\) = S.intersection
+instance Ord a => Lattice (Set.Set a) where
+    (\/) = Set.union
+    (/\) = Set.intersection
 
-instance Ord a => BoundedJoinSemiLattice (S.Set a) where
-    bottom = S.empty
+instance Ord a => BoundedJoinSemiLattice (Set.Set a) where
+    bottom = Set.empty
 
-instance (Ord a, Finite a) => BoundedMeetSemiLattice (S.Set a) where
-    top = S.fromList universeF
+instance (Ord a, Finite a) => BoundedMeetSemiLattice (Set.Set a) where
+    top = Set.fromList universeF
 
 --
 -- IntSets
@@ -223,15 +223,15 @@ instance (Eq a, Hashable a, Finite a) => BoundedMeetSemiLattice (HS.HashSet a) w
 -- Maps
 --
 
-instance (Ord k, Lattice v) => Lattice (M.Map k v) where
-    (\/) = M.unionWith (\/)
-    (/\) = M.intersectionWith (/\)
+instance (Ord k, Lattice v) => Lattice (Map.Map k v) where
+    (\/) = Map.unionWith (\/)
+    (/\) = Map.intersectionWith (/\)
 
-instance (Ord k, Lattice v) => BoundedJoinSemiLattice (M.Map k v) where
-    bottom = M.empty
+instance (Ord k, Lattice v) => BoundedJoinSemiLattice (Map.Map k v) where
+    bottom = Map.empty
 
-instance (Ord k, Finite k, BoundedMeetSemiLattice v) => BoundedMeetSemiLattice (M.Map k v) where
-    top = M.fromList (universeF `zip` repeat top)
+instance (Ord k, Finite k, BoundedMeetSemiLattice v) => BoundedMeetSemiLattice (Map.Map k v) where
+    top = Map.fromList (universeF `zip` repeat top)
 
 --
 -- IntMaps

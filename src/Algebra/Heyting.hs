@@ -24,7 +24,7 @@ import Data.Tagged           (Tagged (..))
 import Data.Universe.Class   (Finite (..))
 
 import qualified Data.HashSet as HS
-import qualified Data.Set     as S
+import qualified Data.Set     as Set
 
 -- | A Heyting algebra is a bounded lattice equipped with a
 -- binary operation \(a \to b\) of implication.
@@ -128,15 +128,15 @@ instance Heyting a => Heyting (Const a b) where
 -- Sets
 -------------------------------------------------------------------------------
 
-instance (Ord a, Finite a) => Heyting (S.Set a) where
-    x ==> y = S.union (neg x) y
+instance (Ord a, Finite a) => Heyting (Set.Set a) where
+    x ==> y = Set.union (neg x) y
 
-    neg xs = S.fromList [ x | x <- universeF, S.notMember x xs]
+    neg xs = Set.fromList [ x | x <- universeF, Set.notMember x xs]
 
-    x <=> y = S.fromList
+    x <=> y = Set.fromList
         [ z
         | z <- universeF
-        , S.member z x <=> S.member z y
+        , Set.member z x <=> Set.member z y
         ]
 
 instance (Eq a, Hashable a, Finite a) => Heyting (HS.HashSet a) where

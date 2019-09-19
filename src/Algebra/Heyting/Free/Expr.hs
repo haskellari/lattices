@@ -49,7 +49,7 @@ instance Applicative Expr where
 
 instance Monad Expr where
     return = pure
-    
+
     Var x      >>= k = k x
     Bottom     >>= _ = Bottom
     Top        >>= _ = Top

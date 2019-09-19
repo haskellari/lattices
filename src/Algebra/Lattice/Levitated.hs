@@ -1,12 +1,12 @@
-{-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveFoldable     #-}
-{-# LANGUAGE DeriveFunctor      #-}
-{-# LANGUAGE DeriveGeneric      #-}
-{-# LANGUAGE DeriveTraversable  #-}
-{-# LANGUAGE FlexibleContexts   #-}
-{-# LANGUAGE TypeOperators      #-}
+{-# LANGUAGE DeriveDataTypeable  #-}
+{-# LANGUAGE DeriveFoldable      #-}
+{-# LANGUAGE DeriveFunctor       #-}
+{-# LANGUAGE DeriveGeneric       #-}
+{-# LANGUAGE DeriveTraversable   #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE Safe                #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE Safe               #-}
+{-# LANGUAGE TypeOperators       #-}
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Algebra.Lattice.Levitated
@@ -28,13 +28,13 @@ import Prelude.Compat
 import Algebra.Lattice
 import Algebra.PartialOrd
 
-import Control.DeepSeq     (NFData (..))
-import Control.Monad       (ap)
-import Data.Data           (Data, Typeable)
-import Data.Hashable       (Hashable (..))
+import Control.DeepSeq       (NFData (..))
+import Control.Monad         (ap)
+import Data.Data             (Data, Typeable)
+import Data.Hashable         (Hashable (..))
+import Data.Universe.Class   (Finite (..), Universe (..))
 import Data.Universe.Helpers (Natural, Tagged, retag)
-import Data.Universe.Class (Finite (..), Universe (..))
-import GHC.Generics        (Generic, Generic1)
+import GHC.Generics          (Generic, Generic1)
 
 import qualified Test.QuickCheck as QC
 
