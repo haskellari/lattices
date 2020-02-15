@@ -90,7 +90,7 @@ instance (Lattice a, BoundedMeetSemiLattice b) => BoundedMeetSemiLattice (Stacke
     top = Upper top
 
 instance (Universe a, Universe b) => Universe (Stacked a b) where
-    universe = (Lower <$> universe) <> (Upper <$> universe)
+    universe = (Lower <$> universe) ++ (Upper <$> universe)
 
 instance (Finite a, Finite b) => Finite (Stacked a b)
 
