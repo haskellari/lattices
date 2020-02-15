@@ -302,6 +302,44 @@ instance (BoundedMeetSemiLattice a, BoundedMeetSemiLattice b) => BoundedMeetSemi
     top = (top, top)
 
 --
+-- Either (coproduct)
+--
+
+instance (Lattice a, Lattice b) => Lattice (Either a b) where
+    Right y1 \/ Right y2 = Right (y1 \/ y2)
+    Left x1 \/ Left x2 = Left (x1 \/ x2)
+    r@(Right _) \/ _ = r
+    _ \/ r@(Right _) = r
+    Left x1 /\ Left x2 = Left (x1 /\ x2)
+    Right x1 /\ Right x2 = Right (x1 /\ x2)
+    l@(Left _) /\ _ = l
+    _ /\ l@(Left _) = l
+
+instance (BoundedJoinSemiLattice a, Lattice b) => BoundedJoinSemiLattice (Either a b) where
+    bottom = Left bottom
+
+instance (Lattice a, BoundedMeetSemiLattice b) => BoundedMeetSemiLattice (Either a b) where
+    top = Right top
+
+--
+-- Maybe
+-- 
+
+instance Lattice a => Lattice (Maybe a) where
+    Just a \/ Just b = Just (a \/ b)
+    j@(Just _) \/ _ = j
+    _ \/ j@(Just _) = j
+    _ \/ _ = Nothing
+    Just a /\ Just b = Just (a /\ b)
+    _ /\ _ = Nothing
+
+instance Lattice a => BoundedJoinSemiLattice (Maybe a) where
+  bottom = Nothing
+
+instance BoundedMeetSemiLattice a => BoundedMeetSemiLattice (Maybe a) where
+  top = Just top
+
+--
 -- Bools
 --
 
