@@ -20,6 +20,7 @@ module Algebra.Lattice.Dropped (
     Dropped(..)
   , retractDropped
   , foldDropped
+  , nothingOnTopOfJust
   ) where
 
 import Prelude ()
@@ -102,6 +103,10 @@ instance Universe a => Universe (Dropped a) where
 instance Finite a => Finite (Dropped a) where
     universeF = Top : map Drop universeF
     cardinality = fmap succ (retag (cardinality :: Tagged a Natural))
+
+nothingOnTopOfJust :: Maybe a -> Dropped a
+nothingOnTopOfJust Nothing = Top
+nothingOnTopOfJust (Just a) = Drop a
 
 instance QC.Arbitrary a => QC.Arbitrary (Dropped a) where
     arbitrary = QC.frequency
