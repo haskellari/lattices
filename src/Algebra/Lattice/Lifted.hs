@@ -20,7 +20,6 @@ module Algebra.Lattice.Lifted (
     Lifted(..)
   , retractLifted
   , foldLifted
-  , justOnTopOfNothing
   ) where
 
 import Prelude ()
@@ -103,10 +102,6 @@ instance Universe a => Universe (Lifted a) where
 instance Finite a => Finite (Lifted a) where
     universeF = Bottom : map Lift universeF
     cardinality = fmap succ (retag (cardinality :: Tagged a Natural))
-
-justOnTopOfNothing :: Maybe a -> Lifted a
-justOnTopOfNothing Nothing = Bottom
-justOnTopOfNothing (Just a) = Lift a
 
 instance QC.Arbitrary a => QC.Arbitrary (Lifted a) where
     arbitrary = QC.frequency

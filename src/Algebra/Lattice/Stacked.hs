@@ -9,8 +9,7 @@
 {-# LANGUAGE TypeOperators       #-}
 module Algebra.Lattice.Stacked (
     Stacked(..)
-  , leftOnTopOfRight
-  , rightOnTopOfLeft
+  , foldStacked
   ) where
 
 import Prelude ()
@@ -25,6 +24,7 @@ import Data.Data             (Data, Typeable)
 import Data.Hashable         (Hashable (..))
 import Data.Universe.Class   (Finite (..), Universe (..))
 import GHC.Generics          (Generic, Generic1)
+import Data.Universe.Helpers ((+++))
 
 import qualified Test.QuickCheck as QC
 
@@ -39,15 +39,9 @@ data Stacked a b = Lower a
             , Generic1
             )
 
--- | Converts @Either@ to @Stacked@ assuming @Either@'s left on top of right
-leftOnTopOfRight :: Either l r -> Stacked r l 
-leftOnTopOfRight (Left l) = Upper l
-leftOnTopOfRight (Right r) = Lower r
-
--- | Converts @Either@ to @Stacked@ assuming @Either@'s right on top of left
-rightOnTopOfLeft :: Either l r -> Stacked l r 
-rightOnTopOfLeft (Left l) = Lower l
-rightOnTopOfLeft (Right r) = Upper r
+foldStacked :: (l -> r) -> (u -> r) -> Stacked l u -> r
+foldStacked f _ (Lower l) = f l
+foldStacked _ f (Upper u) = f u
 
 instance Applicative (Stacked a) where
     pure = Upper
@@ -90,9 +84,10 @@ instance (Lattice a, BoundedMeetSemiLattice b) => BoundedMeetSemiLattice (Stacke
     top = Upper top
 
 instance (Universe a, Universe b) => Universe (Stacked a b) where
-    universe = (Lower <$> universe) ++ (Upper <$> universe)
+    universe = (Lower <$> universe) +++ (Upper <$> universe)
 
-instance (Finite a, Finite b) => Finite (Stacked a b)
+instance (Finite a, Finite b) => Finite (Stacked a b) where
+    universeF = (Lower <$> universe) ++ (Upper <$> universe)
 
 instance (QC.Arbitrary a, QC.Arbitrary b) => QC.Arbitrary (Stacked a b) where
     arbitrary = QC.oneof [Upper <$> QC.arbitrary, Lower <$> QC.arbitrary]
