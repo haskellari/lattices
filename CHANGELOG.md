@@ -1,3 +1,8 @@
+# 2.0.2 (2020-02-18)
+
+- Add `Algebra.Lattice.Stacked`
+  [#99](https://github.com/phadej/lattices/pull/99)
+
 # 2.0.1 (2019-07-22)
 
 - Add `(PartialOrd a, PartialOrd b) => PartialOrd (Either a b)` instance
