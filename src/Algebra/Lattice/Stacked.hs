@@ -19,12 +19,12 @@ import Algebra.Lattice
 import Algebra.PartialOrd
 
 import Control.DeepSeq       (NFData (..))
-import Control.Monad         (ap)
+import Control.Monad         (ap, liftM2)
 import Data.Data             (Data, Typeable)
 import Data.Hashable         (Hashable (..))
 import Data.Universe.Class   (Finite (..), Universe (..))
+import Data.Universe.Helpers (Natural, Tagged, retag, (+++))
 import GHC.Generics          (Generic, Generic1)
-import Data.Universe.Helpers ((+++))
 
 import qualified Test.QuickCheck as QC
 
@@ -90,6 +90,9 @@ instance (Universe a, Universe b) => Universe (Stacked a b) where
 
 instance (Finite a, Finite b) => Finite (Stacked a b) where
     universeF = (Lower <$> universe) ++ (Upper <$> universe)
+    cardinality = liftM2 (+)
+        (retag (cardinality :: Tagged a Natural))
+        (retag (cardinality :: Tagged b Natural))
 
 instance (QC.Arbitrary a, QC.Arbitrary b) => QC.Arbitrary (Stacked a b) where
     arbitrary = QC.oneof [Upper <$> QC.arbitrary, Lower <$> QC.arbitrary]
