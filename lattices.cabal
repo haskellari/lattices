@@ -65,6 +65,7 @@ library
     Algebra.Lattice.Op
     Algebra.Lattice.Ordered
     Algebra.Lattice.Stacked
+    Algebra.Lattice.Replicated
     Algebra.Lattice.Unicode
     Algebra.Lattice.Wide
     Algebra.Lattice.ZeroHalfOne

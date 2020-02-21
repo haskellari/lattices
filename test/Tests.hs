@@ -45,6 +45,7 @@ import qualified Algebra.Lattice.Lifted        as U
 import qualified Algebra.Lattice.Op            as Op
 import qualified Algebra.Lattice.Ordered       as O
 import qualified Algebra.Lattice.Stacked       as S
+import qualified Algebra.Lattice.Replicated    as R
 import qualified Algebra.Lattice.Wide          as W
 
 import Data.HashMap.Lazy (HashMap)
@@ -92,6 +93,8 @@ tests = testGroup "Tests"
     , allLatticeLaws (LBounded Partial NonModular)       (Proxy :: Proxy (LO.Lexicographic M2 M2)) -- non distributive!
     , allLatticeLaws (LBounded Partial Distributive)     (Proxy :: Proxy (S.Stacked M2 M2))
     , allLatticeLaws (LBounded Partial NonModular)       (Proxy :: Proxy (S.Stacked M3 N5)) -- non modular, though it takes QC time to find
+    , allLatticeLaws (LBounded Partial Distributive)     (Proxy :: Proxy (R.Replicated M2 M2)) -- TODO
+    , allLatticeLaws (LBounded Partial NonModular)       (Proxy :: Proxy (R.Replicated M3 N5)) -- TODO
 
     , allLatticeLaws LNotLattice                         (Proxy :: Proxy String)
 
@@ -138,6 +141,7 @@ tests = testGroup "Tests"
     , finiteLaws (Proxy :: Proxy (U.Lifted OInt8))
     , finiteLaws (Proxy :: Proxy (LO.Lexicographic OInt8 OInt8))
     , finiteLaws (Proxy :: Proxy (S.Stacked OInt8 OInt8))
+    , finiteLaws (Proxy :: Proxy (R.Replicated OInt8 OInt8))
     ]
 
 type OInt8 = O.Ordered Int8
