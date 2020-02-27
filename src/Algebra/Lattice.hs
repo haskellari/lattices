@@ -81,7 +81,7 @@ infixr 5 \/
 -- x '/\' (y '/\' z) ≡ (x '/\' y) '/\' z
 -- @
 --
--- /Commputativity/
+-- /Commutativity/
 --
 -- @
 -- x '\/' y ≡ y '\/' x
