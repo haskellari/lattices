@@ -18,11 +18,11 @@ import Algebra.Lattice
 import Algebra.PartialOrd
 
 import Control.DeepSeq       (NFData (..))
-import Control.Monad         (ap, liftM2)
+import Control.Monad         (liftM2)
 import Data.Data             (Data, Typeable)
 import Data.Hashable         (Hashable (..))
 import Data.Universe.Class   (Finite (..), Universe (..))
-import Data.Universe.Helpers (Natural, Tagged, retag, (+++))
+import Data.Universe.Helpers (Natural, Tagged, retag, (+*+))
 import GHC.Generics          (Generic, Generic1)
 
 import qualified Test.QuickCheck as QC
@@ -39,7 +39,7 @@ data Replicated a b = Replicated a b
             )
 
 instance (NFData a, NFData b) => NFData (Replicated a b) where
-    rnf (Replicated a b) = rnf (rnf a, rnf b) -- TODO
+    rnf (Replicated a b) = rnf a `seq` rnf b
 
 instance (Hashable a, Hashable b) => Hashable (Replicated a b)
 
@@ -57,11 +57,14 @@ instance (BoundedMeetSemiLattice a, BoundedMeetSemiLattice b) => BoundedMeetSemi
     top = Replicated top top
 
 instance (Universe a, Universe b) => Universe (Replicated a b) where
-    universe = [Replicated a b | a <- universe, b <- universe]
+    universe = (uncurry Replicated) <$> universe +*+ universe
 
 instance (Finite a, Finite b) => Finite (Replicated a b) where
-    -- ?
+    universeF = [Replicated a b | a <- universeF, b <- universeF]
+    cardinality = liftM2 (*)
+        (retag (cardinality :: Tagged a Natural))
+        (retag (cardinality :: Tagged b Natural))
 
 instance (QC.Arbitrary a, QC.Arbitrary b) => QC.Arbitrary (Replicated a b) where
     arbitrary = Replicated <$> QC.arbitrary <*> QC.arbitrary
-    shrink (Replicated a b) = Replicated <$> QC.shrink a <*> QC.shrink b
+    shrink (Replicated a b) = uncurry Replicated <$> QC.shrink (a, b)
