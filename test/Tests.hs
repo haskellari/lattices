@@ -181,6 +181,7 @@ monadLaws name _ = testGroup ("Monad laws: " <> name)
     apProp :: m (Fun Int Int) -> m Int -> Property
     apProp f x = (f' <*> x) === ap f' x
        where f' = apply <$> f
+{-# NOINLINE monadLaws #-}
 
 -------------------------------------------------------------------------------
 -- Partial ord laws
@@ -235,6 +236,7 @@ partialOrdLaws total _ = testGroup "PartialOrd" $
         agree True False = (=== LT)
         agree False True = (=== GT)
         agree False False = discard
+{-# NOINLINE partialOrdLaws #-}
 
 -------------------------------------------------------------------------------
 -- Lattice
@@ -292,6 +294,7 @@ allLatticeLaws ki pr = case ki of
         [ booleanLaws pr | b >= IsBoolean ]
   where
     name = show (typeOf (undefined :: a))
+{-# NOINLINE allLatticeLaws #-}
 
 allLatticeLaws'
     :: forall a. (Eq a, Show a, Arbitrary a, Lattice a, PartialOrd a)
@@ -369,6 +372,7 @@ latticeLaws _ = testGroup "Lattice"
 
     comparableDef :: a -> a -> Property
     comparableDef x y = (leq x y || leq y x) === comparable x y
+{-# NOINLINE latticeLaws #-}
 
 -------------------------------------------------------------------------------
 -- Modular
@@ -386,6 +390,7 @@ modularLaws _ = testGroup "Modular"
     modularProp x y z = lhs === rhs where
         lhs = (y /\ (x \/ z)) \/ z
         rhs = (y \/ z) /\ (x \/ z)
+{-# NOINLINE modularLaws #-}
 
 -------------------------------------------------------------------------------
 -- Distributive
@@ -409,6 +414,7 @@ distributiveLaws _ = testGroup "Distributive"
     distr2Prop x y z = lhs === rhs where
         lhs = x \/ (y /\ z)
         rhs = (x \/ y) /\ (x \/ z)
+{-# NOINLINE distributiveLaws #-}
 
 -------------------------------------------------------------------------------
 -- Bounded lattice laws
@@ -444,6 +450,7 @@ boundedMeetLaws _ = testGroup "BoundedMeetSemiLattice"
     annihilationRightProp x = lhs === rhs where
         lhs = x \/ top
         rhs = top
+{-# NOINLINE boundedMeetLaws #-}
 
 boundedJoinLaws
     :: forall a. (Eq a, Show a, Arbitrary a, BoundedJoinSemiLattice a)
@@ -475,6 +482,7 @@ boundedJoinLaws _ = testGroup "BoundedJoinSemiLattice"
     annihilationRightProp x = lhs === rhs where
         lhs = x /\ bottom
         rhs = bottom
+{-# NOINLINE boundedJoinLaws #-}
 
 -------------------------------------------------------------------------------
 -- Heyting laws
@@ -541,6 +549,7 @@ heytingLaws _ = testGroup "Heyting"
     deMorganProp2weak x y = lhs === rhs where
         lhs = neg (x /\ y)
         rhs = neg (neg (neg x \/ neg y))
+{-# NOINLINE heytingLaws #-}
 
 -------------------------------------------------------------------------------
 -- De morgan
@@ -558,6 +567,7 @@ deMorganLaws _ = testGroup "de Morgan"
     deMorganProp2 x y = lhs === rhs where
         lhs = neg (x /\ y)
         rhs = neg x \/ neg y
+{-# NOINLINE deMorganLaws #-}
 
 -------------------------------------------------------------------------------
 -- Boolean laws
@@ -584,6 +594,7 @@ booleanLaws _ = testGroup "Boolean"
     dnProp x = lhs === rhs where
         lhs = neg (neg x)
         rhs = x
+{-# NOINLINE booleanLaws #-}
 
 -------------------------------------------------------------------------------
 -- Universe / Finite laws
@@ -620,6 +631,7 @@ finiteLaws _ = testGroup name
 
     cardinalityProp :: Property
     cardinalityProp = cardinality === (Tagged (genericLength (universeF :: [a])) :: Tagged a Natural)
+{-# NOINLINE finiteLaws #-}
 
 -------------------------------------------------------------------------------
 -- Lexicographic M2 search
