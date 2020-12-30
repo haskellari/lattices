@@ -29,6 +29,9 @@ import Math.NumberTheory.Logarithms (intLog2)
 import qualified Algebra.Heyting.Free.Expr as E
 import qualified Test.QuickCheck           as QC
 
+-- $setup
+-- >>> import Algebra.Lattice
+
 -------------------------------------------------------------------------------
 -- Free
 -------------------------------------------------------------------------------

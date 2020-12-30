@@ -1,2 +1,3 @@
 branches: master
-doctest: <8.10
+doctest:  True
+docspec:  True
