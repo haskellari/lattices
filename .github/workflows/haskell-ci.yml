@@ -8,9 +8,9 @@
 #
 # For more information, see https://github.com/haskell-CI/haskell-ci
 #
-# version: 0.11.20201230
+# version: 0.11.20210220
 #
-# REGENDATA ("0.11.20201230",["github","--config=cabal.haskell-ci","lattices.cabal"])
+# REGENDATA ("0.11.20210220",["github","--config=cabal.haskell-ci","lattices.cabal"])
 #
 name: Haskell-CI
 on:
@@ -22,7 +22,7 @@ on:
       - master
 jobs:
   linux:
-    name: Haskell-CI Linux - GHC ${{ matrix.ghc }}
+    name: Haskell-CI - Linux - GHC ${{ matrix.ghc }}
     runs-on: ubuntu-18.04
     container:
       image: buildpack-deps:bionic
@@ -30,7 +30,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - ghc: 8.10.1
+          - ghc: 9.0.1
+            allow-failure: false
+          - ghc: 8.10.4
             allow-failure: false
           - ghc: 8.8.3
             allow-failure: false
@@ -74,6 +76,7 @@ jobs:
           echo "HCNUMVER=$HCNUMVER" >> $GITHUB_ENV
           echo "ARG_TESTS=--enable-tests" >> $GITHUB_ENV
           echo "ARG_BENCH=--enable-benchmarks" >> $GITHUB_ENV
+          echo "HEADHACKAGE=false" >> $GITHUB_ENV
           echo "ARG_COMPILER=--ghc --with-compiler=/opt/ghc/$GHC_VERSION/bin/ghc" >> $GITHUB_ENV
           echo "GHCJSARITH=0" >> $GITHUB_ENV
         env:
@@ -112,7 +115,7 @@ jobs:
       - name: cache (tools)
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-${{ matrix.ghc }}-tools-ec34c04f
+          key: ${{ runner.os }}-${{ matrix.ghc }}-tools-7e5c568c
           path: ~/.haskell-ci-tools
       - name: install cabal-plan
         run: |
@@ -126,24 +129,28 @@ jobs:
       - name: install cabal-docspec
         run: |
           mkdir -p $HOME/.cabal/bin
-          curl -sL https://github.com/phadej/cabal-extras/releases/download/cabal-docspec-0.0.0.20201230.1/cabal-docspec-0.0.0.20201230.1.xz > cabal-docspec.xz
-          echo '18caf4f361fadd978782f08e78f42d21d4f177567419055ffccae19b8214852d  cabal-docspec.xz' | sha256sum -c -
+          curl -sL https://github.com/phadej/cabal-extras/releases/download/cabal-docspec-0.0.0.20210111/cabal-docspec-0.0.0.20210111.xz > cabal-docspec.xz
+          echo '0829bd034fba901cbcfe491d98ed8b28fd54f9cb5c91fa8e1ac62dc4413c9562  cabal-docspec.xz' | sha256sum -c -
           xz -d < cabal-docspec.xz > $HOME/.cabal/bin/cabal-docspec
           rm -f cabal-docspec.xz
           chmod a+x $HOME/.cabal/bin/cabal-docspec
           cabal-docspec --version
       - name: install doctest
         run: |
-          if [ $((HCNUMVER >= 80000)) -ne 0 ] ; then $CABAL --store-dir=$HOME/.haskell-ci-tools/store v2-install $ARG_COMPILER --ignore-project -j2 doctest --constraint='doctest ^>=0.17' ; fi
-          if [ $((HCNUMVER >= 80000)) -ne 0 ] ; then doctest --version ; fi
+          if [ $((HCNUMVER >= 80000 && HCNUMVER < 90000)) -ne 0 ] ; then $CABAL --store-dir=$HOME/.haskell-ci-tools/store v2-install $ARG_COMPILER --ignore-project -j2 doctest --constraint='doctest ^>=0.17' ; fi
+          if [ $((HCNUMVER >= 80000 && HCNUMVER < 90000)) -ne 0 ] ; then doctest --version ; fi
       - name: checkout
         uses: actions/checkout@v2
         with:
           path: source
+      - name: initial cabal.project for sdist
+        run: |
+          touch cabal.project
+          echo "packages: $GITHUB_WORKSPACE/source/." >> cabal.project
+          cat cabal.project
       - name: sdist
         run: |
           mkdir -p sdist
-          cd source || false
           $CABAL sdist all --output-dir $GITHUB_WORKSPACE/sdist
       - name: unpack
         run: |
@@ -188,8 +195,8 @@ jobs:
           $CABAL v2-test $ARG_COMPILER $ARG_TESTS $ARG_BENCH all --test-show-details=direct
       - name: doctest
         run: |
-          if [ $((HCNUMVER >= 80000)) -ne 0 ] ; then cd ${PKGDIR_lattices} || false ; fi
-          if [ $((HCNUMVER >= 80000)) -ne 0 ] ; then doctest  src ; fi
+          if [ $((HCNUMVER >= 80000 && HCNUMVER < 90000)) -ne 0 ] ; then cd ${PKGDIR_lattices} || false ; fi
+          if [ $((HCNUMVER >= 80000 && HCNUMVER < 90000)) -ne 0 ] ; then doctest  src ; fi
       - name: docspec
         run: |
           $CABAL v2-build $ARG_COMPILER $ARG_TESTS $ARG_BENCH all
