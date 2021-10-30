@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP             #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE Safe            #-}
 ----------------------------------------------------------------------------
@@ -25,6 +26,14 @@ import Data.Universe.Class   (Finite (..))
 
 import qualified Data.HashSet as HS
 import qualified Data.Set     as Set
+
+#if MIN_VERSION_base(4,16,0)
+import Data.Tuple (Solo (..))
+#elif MIN_VERSION_base(4,15,0)
+import GHC.Tuple (Solo (..))
+#else
+import Data.Tuple.Solo (Solo (..))
+#endif
 
 -- | A Heyting algebra is a bounded lattice equipped with a
 -- binary operation \(a \to b\) of implication.
@@ -101,7 +110,7 @@ instance Heyting a => Heyting (Endo a) where
     Endo a <=> Endo b = Endo (a <=> b)
 
 -------------------------------------------------------------------------------
--- Proxy, Tagged, Const, Identity
+-- Proxy, Tagged, Const, Identity, Solo
 -------------------------------------------------------------------------------
 
 instance Heyting (Proxy a) where
@@ -123,6 +132,12 @@ instance Heyting a => Heyting (Const a b) where
     Const a ==> Const b = Const (a ==> b)
     neg (Const a)       = Const (neg a)
     Const a <=> Const b = Const (a <=> b)
+
+-- | @since 2.0.3
+instance Heyting a => Heyting (Solo a) where
+    Solo a ==> Solo b = Solo (a ==> b)
+    neg (Solo a)      = Solo (neg a)
+    Solo a <=> Solo b = Solo (a <=> b)
 
 -------------------------------------------------------------------------------
 -- Sets

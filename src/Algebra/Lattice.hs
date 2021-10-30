@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP                #-}
 {-# LANGUAGE ConstraintKinds    #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric      #-}
@@ -64,6 +65,14 @@ import qualified Data.IntSet       as IS
 import qualified Data.Map          as Map
 import qualified Data.Set          as Set
 import qualified Test.QuickCheck   as QC
+
+#if MIN_VERSION_base(4,16,0)
+import Data.Tuple (Solo (..))
+#elif MIN_VERSION_base(4,15,0)
+import GHC.Tuple (Solo (..))
+#else
+import Data.Tuple.Solo (Solo (..))
+#endif
 
 infixr 6 /\ -- This comment needed because of CPP
 infixr 5 \/
@@ -487,6 +496,23 @@ instance Lattice QC.Property where
 
 instance BoundedJoinSemiLattice QC.Property where bottom = QC.property False
 instance BoundedMeetSemiLattice QC.Property where top = QC.property True
+
+-------------------------------------------------------------------------------
+-- OneTuple
+-------------------------------------------------------------------------------
+
+-- | @since 2.0.3
+instance Lattice a => Lattice (Solo a) where
+  Solo a \/ Solo b = Solo (a \/ b)
+  Solo a /\ Solo b = Solo (a /\ b)
+
+-- | @since 2.0.3
+instance BoundedMeetSemiLattice a => BoundedMeetSemiLattice (Solo a) where
+  top = Solo top
+
+-- | @since 2.0.3
+instance BoundedJoinSemiLattice a => BoundedJoinSemiLattice (Solo a) where
+  bottom = Solo bottom
 
 -------------------------------------------------------------------------------
 -- Theorems
