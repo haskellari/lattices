@@ -1,3 +1,7 @@
+# 2.0.3 (2021-10-30)
+
+- Add instances for `Solo`
+
 # 2.0.2 (2020-02-18)
 
 - Add `Algebra.Lattice.Stacked`
