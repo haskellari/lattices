@@ -1,3 +1,6 @@
 branches: master
 doctest:  <9.0
 docspec:  True
+
+constraint-set transformers-0.6
+  constraints: transformers ^>=0.6

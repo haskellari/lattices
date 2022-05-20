@@ -8,9 +8,9 @@
 #
 # For more information, see https://github.com/haskell-CI/haskell-ci
 #
-# version: 0.13.20211111
+# version: 0.14.3
 #
-# REGENDATA ("0.13.20211111",["github","--config=cabal.haskell-ci","lattices.cabal"])
+# REGENDATA ("0.14.3",["github","--config=cabal.haskell-ci","lattices.cabal"])
 #
 name: Haskell-CI
 on:
@@ -95,7 +95,7 @@ jobs:
           apt-get install -y --no-install-recommends gnupg ca-certificates dirmngr curl git software-properties-common libtinfo5
           if [ "${{ matrix.setup-method }}" = ghcup ]; then
             mkdir -p "$HOME/.ghcup/bin"
-            curl -sL https://downloads.haskell.org/ghcup/0.1.17.3/x86_64-linux-ghcup-0.1.17.3 > "$HOME/.ghcup/bin/ghcup"
+            curl -sL https://downloads.haskell.org/ghcup/0.1.17.5/x86_64-linux-ghcup-0.1.17.5 > "$HOME/.ghcup/bin/ghcup"
             chmod a+x "$HOME/.ghcup/bin/ghcup"
             "$HOME/.ghcup/bin/ghcup" install ghc "$HCVER"
             "$HOME/.ghcup/bin/ghcup" install cabal 3.6.2.0
@@ -104,7 +104,7 @@ jobs:
             apt-get update
             apt-get install -y "$HCNAME"
             mkdir -p "$HOME/.ghcup/bin"
-            curl -sL https://downloads.haskell.org/ghcup/0.1.17.3/x86_64-linux-ghcup-0.1.17.3 > "$HOME/.ghcup/bin/ghcup"
+            curl -sL https://downloads.haskell.org/ghcup/0.1.17.5/x86_64-linux-ghcup-0.1.17.5 > "$HOME/.ghcup/bin/ghcup"
             chmod a+x "$HOME/.ghcup/bin/ghcup"
             "$HOME/.ghcup/bin/ghcup" install cabal 3.6.2.0
           fi
@@ -182,7 +182,7 @@ jobs:
       - name: cache (tools)
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-${{ matrix.compiler }}-tools-a12dda74
+          key: ${{ runner.os }}-${{ matrix.compiler }}-tools-5487a2e0
           path: ~/.haskell-ci-tools
       - name: install cabal-plan
         run: |
@@ -196,15 +196,15 @@ jobs:
       - name: install cabal-docspec
         run: |
           mkdir -p $HOME/.cabal/bin
-          curl -sL https://github.com/phadej/cabal-extras/releases/download/cabal-docspec-0.0.0.20210111/cabal-docspec-0.0.0.20210111.xz > cabal-docspec.xz
-          echo '0829bd034fba901cbcfe491d98ed8b28fd54f9cb5c91fa8e1ac62dc4413c9562  cabal-docspec.xz' | sha256sum -c -
+          curl -sL https://github.com/phadej/cabal-extras/releases/download/cabal-docspec-0.0.0.20211114/cabal-docspec-0.0.0.20211114.xz > cabal-docspec.xz
+          echo 'e224700d9e8c9ec7ec6bc3f542ba433cd9925a5d356676c62a9bd1f2c8be8f8a  cabal-docspec.xz' | sha256sum -c -
           xz -d < cabal-docspec.xz > $HOME/.cabal/bin/cabal-docspec
           rm -f cabal-docspec.xz
           chmod a+x $HOME/.cabal/bin/cabal-docspec
           cabal-docspec --version
       - name: install doctest
         run: |
-          if [ $((HCNUMVER >= 80000 && HCNUMVER < 90000)) -ne 0 ] ; then $CABAL --store-dir=$HOME/.haskell-ci-tools/store v2-install $ARG_COMPILER --ignore-project -j2 doctest --constraint='doctest ^>=0.17' ; fi
+          if [ $((HCNUMVER >= 80000 && HCNUMVER < 90000)) -ne 0 ] ; then $CABAL --store-dir=$HOME/.haskell-ci-tools/store v2-install $ARG_COMPILER --ignore-project -j2 doctest --constraint='doctest ^>=0.20' ; fi
           if [ $((HCNUMVER >= 80000 && HCNUMVER < 90000)) -ne 0 ] ; then doctest --version ; fi
       - name: checkout
         uses: actions/checkout@v2
@@ -264,7 +264,7 @@ jobs:
       - name: doctest
         run: |
           if [ $((HCNUMVER >= 80000 && HCNUMVER < 90000)) -ne 0 ] ; then cd ${PKGDIR_lattices} || false ; fi
-          if [ $((HCNUMVER >= 80000 && HCNUMVER < 90000)) -ne 0 ] ; then doctest  src ; fi
+          if [ $((HCNUMVER >= 80000 && HCNUMVER < 90000)) -ne 0 ] ; then doctest  -XHaskell2010 src ; fi
       - name: docspec
         run: |
           $CABAL v2-build $ARG_COMPILER $ARG_TESTS $ARG_BENCH all
@@ -280,3 +280,10 @@ jobs:
         run: |
           rm -f cabal.project.local
           $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks all
+      - name: prepare for constraint sets
+        run: |
+          rm -f cabal.project.local
+      - name: constraint set transformers-0.6
+        run: |
+          $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='transformers ^>=0.6' --dependencies-only -j2 all
+          $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='transformers ^>=0.6' all

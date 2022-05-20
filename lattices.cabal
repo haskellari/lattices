@@ -1,7 +1,7 @@
 cabal-version:      1.18
 name:               lattices
 version:            2.0.3
-x-revision:         2
+x-revision:         3
 category:           Math
 license:            BSD3
 license-file:       LICENSE
@@ -92,7 +92,7 @@ library
     , QuickCheck                  >=2.12.6.1 && <2.15
     , semigroupoids               >=5.3.2    && <5.4
     , tagged                      >=0.8.6    && <0.9
-    , transformers                >=0.3.0.0  && <0.6
+    , transformers                >=0.3.0.0  && <0.7
     , universe-base               >=1.1      && <1.2
     , universe-reverse-instances  >=1.1      && <1.2
     , unordered-containers        >=0.2.8.0  && <0.3
