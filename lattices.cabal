@@ -1,7 +1,7 @@
 cabal-version:      1.18
 name:               lattices
 version:            2.0.3
-x-revision:         3
+x-revision:         4
 category:           Math
 license:            BSD3
 license-file:       LICENSE
@@ -32,8 +32,9 @@ tested-with:
    || ==8.6.5
    || ==8.8.3
    || ==8.10.4
-   || ==9.0.1
-   || ==9.2.1
+   || ==9.0.2
+   || ==9.2.4
+   || ==9.4.1
 
 synopsis:
   Fine-grained library for constructing and manipulating lattices
@@ -83,7 +84,7 @@ library
     Algebra.PartialOrd.Instances
 
   build-depends:
-      base                        >=4.6      && <4.17
+      base                        >=4.6      && <4.18
     , base-compat                 >=0.10.5   && <0.13
     , containers                  >=0.5.0.0  && <0.7
     , deepseq                     >=1.3.0.0  && <1.5
