@@ -148,17 +148,19 @@ instance (PartialOrd a, PartialOrd b) => PartialOrd (a, b) where
     -- ordering is incompatible with the transitivity axiom we require for the derived partial order
     (x1, y1) `leq` (x2, y2) = x1 `leq` x2 && y1 `leq` y2
 
-    comparable (x1, y1) (x2, y2) = comparable x1 x2 && comparable y1 y2
-
--- | @since 2.0.1
+-- | Ordinal sum.
+--
+-- @since 2.1
 instance (PartialOrd a, PartialOrd b) => PartialOrd (Either a b) where
-    Left x  `leq` Left y  = leq x y
-    Right x `leq` Right y = leq x y
-    leq _ _ = False
+    leq (Right x) (Right y) = leq x y
+    leq (Right _) _         = False
+    leq _         (Right _) = True
+    leq (Left x)  (Left y)  = leq x y
 
-    comparable (Left x)  (Left y)  = comparable x y
     comparable (Right x) (Right y) = comparable x y
-    comparable _ _ = False
+    comparable (Right _) _         = True
+    comparable _         (Right _) = True
+    comparable (Left x)  (Left y)  = comparable x y
 
 -- | Least point of a partially ordered monotone function. Checks that the function is monotone.
 lfpFrom :: PartialOrd a => a -> (a -> a) -> a
