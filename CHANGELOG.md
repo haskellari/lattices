@@ -1,6 +1,10 @@
 # 2.1 (2022-12-27)
 
 - Fix `comprable` for `PartialOrd (a,b)` instance
+- Remove `Stacked`, use `Either` instead for ordinal sum.
+  There is no type for disjoint union / parallel composition.
+  Open an issue if you need one.
+  Terminology is from https://en.wikipedia.org/wiki/Partially_ordered_set#Sums_of_partially_ordered_sets
 
 # 2.0.3 (2021-10-30)
 

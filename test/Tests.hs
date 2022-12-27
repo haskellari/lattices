@@ -44,7 +44,6 @@ import qualified Algebra.Lattice.Lexicographic as LO
 import qualified Algebra.Lattice.Lifted        as U
 import qualified Algebra.Lattice.Op            as Op
 import qualified Algebra.Lattice.Ordered       as O
-import qualified Algebra.Lattice.Stacked       as S
 import qualified Algebra.Lattice.Wide          as W
 
 import Data.HashMap.Lazy (HashMap)
@@ -90,12 +89,13 @@ tests = testGroup "Tests"
     , allLatticeLaws (LBounded Partial Modular)          (Proxy :: Proxy (W.Wide Int))
     , allLatticeLaws (LBounded Partial NonModular)       (Proxy :: Proxy (LO.Lexicographic (Set Bool) (Set Bool)))
     , allLatticeLaws (LBounded Partial NonModular)       (Proxy :: Proxy (LO.Lexicographic M2 M2)) -- non distributive!
-    , allLatticeLaws (LBounded Partial Distributive)     (Proxy :: Proxy (S.Stacked M2 M2))
-    , allLatticeLaws (LBounded Partial NonModular)       (Proxy :: Proxy (S.Stacked M3 N5)) -- non modular, though it takes QC time to find
+
 
     , allLatticeLaws LNotLattice                         (Proxy :: Proxy String)
 
     , allLatticeLaws (LBounded Partial Modular)          (Proxy :: Proxy (M2, M2))
+    , allLatticeLaws (LBounded Partial Distributive)     (Proxy :: Proxy (Either M2 M2))
+    , allLatticeLaws (LBounded Partial NonModular)       (Proxy :: Proxy (Either M3 N5)) -- non modular, though it takes QC time to find
 
     , allLatticeLaws (LHeyting Total   IsBoolean)        (Proxy :: Proxy All)
     , allLatticeLaws (LHeyting Total   IsBoolean)        (Proxy :: Proxy Any)
@@ -124,7 +124,6 @@ tests = testGroup "Tests"
     , monadLaws "Op" (Proxy1 :: Proxy1 Op.Op)
     , monadLaws "Ordered" (Proxy1 :: Proxy1 O.Ordered)
     , monadLaws "Wide" (Proxy1 :: Proxy1 W.Wide)
-    , monadLaws "Stacked" (Proxy1 :: Proxy1 (S.Stacked N5))
     , monadLaws "Heyting.Free" (Proxy1 :: Proxy1 HF.Free)
 
     , finiteLaws (Proxy :: Proxy M2)
@@ -139,7 +138,6 @@ tests = testGroup "Tests"
     , finiteLaws (Proxy :: Proxy (L.Levitated OInt8))
     , finiteLaws (Proxy :: Proxy (U.Lifted OInt8))
     , finiteLaws (Proxy :: Proxy (LO.Lexicographic OInt8 OInt8))
-    , finiteLaws (Proxy :: Proxy (S.Stacked OInt8 OInt8))
     ]
 
 type OInt8 = O.Ordered Int8

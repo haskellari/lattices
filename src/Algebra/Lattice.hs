@@ -311,6 +311,32 @@ instance (BoundedMeetSemiLattice a, BoundedMeetSemiLattice b) => BoundedMeetSemi
     top = (top, top)
 
 --
+-- Either
+--
+
+-- | Ordinal sum.
+--
+-- @since 2.1
+instance (Lattice a, Lattice b) => Lattice (Either a b) where
+    Right x     \/ Right y     = Right (x \/ y)
+    u@(Right _) \/ _           = u
+    _           \/ u@(Right _) = u
+    Left x      \/ Left y      = Left (x \/ y)
+
+    Left x      /\ Left y     = Left (x /\ y)
+    l@(Left _)  /\ _          = l
+    _           /\ l@(Left _) = l
+    Right x     /\ Right y    = Right (x /\ y)
+
+-- | @since 2.1
+instance (BoundedJoinSemiLattice a, Lattice b) => BoundedJoinSemiLattice (Either a b) where
+    bottom = Left bottom
+
+-- | @since 2.1
+instance (Lattice a, BoundedMeetSemiLattice b) => BoundedMeetSemiLattice (Either a b) where
+    top = Right top
+
+--
 -- Bools
 --
 
