@@ -1,3 +1,7 @@
+# 2.1 (2022-12-27)
+
+- Fix `comprable` for `PartialOrd (a,b)` instance
+
 # 2.0.3 (2021-10-30)
 
 - Add instances for `Solo`

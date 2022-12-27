@@ -148,8 +148,6 @@ instance (PartialOrd a, PartialOrd b) => PartialOrd (a, b) where
     -- ordering is incompatible with the transitivity axiom we require for the derived partial order
     (x1, y1) `leq` (x2, y2) = x1 `leq` x2 && y1 `leq` y2
 
-    comparable (x1, y1) (x2, y2) = comparable x1 x2 && comparable y1 y2
-
 -- | @since 2.0.1
 instance (PartialOrd a, PartialOrd b) => PartialOrd (Either a b) where
     Left x  `leq` Left y  = leq x y

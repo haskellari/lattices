@@ -95,6 +95,8 @@ tests = testGroup "Tests"
 
     , allLatticeLaws LNotLattice                         (Proxy :: Proxy String)
 
+    , allLatticeLaws (LBounded Partial Modular)          (Proxy :: Proxy (M2, M2))
+
     , allLatticeLaws (LHeyting Total   IsBoolean)        (Proxy :: Proxy All)
     , allLatticeLaws (LHeyting Total   IsBoolean)        (Proxy :: Proxy Any)
     , allLatticeLaws (LHeyting Partial IsBoolean)        (Proxy :: Proxy (Endo Bool)) -- note: it's partial!
