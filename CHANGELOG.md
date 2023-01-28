@@ -1,3 +1,8 @@
+# 2.2 (2022-03-15)
+
+- Drop `semigroupoids` dependency in favour of `foldable1-classes-compat`.
+  Be careful with which `Foldable1` class you end up using.
+
 # 2.1 (2022-12-27)
 
 - Fix `comprable` for `PartialOrd (a,b)` instance
