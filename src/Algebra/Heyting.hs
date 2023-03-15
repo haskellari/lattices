@@ -27,12 +27,16 @@ import Data.Universe.Class   (Finite (..))
 import qualified Data.HashSet as HS
 import qualified Data.Set     as Set
 
-#if MIN_VERSION_base(4,16,0)
-import Data.Tuple (Solo (..))
+#if MIN_VERSION_base(4,18,0)
+import Data.Tuple (Solo (MkSolo))
+#elif MIN_VERSION_base(4,16,0)
+import Data.Tuple (Solo (Solo))
+#define MkSolo Solo
 #elif MIN_VERSION_base(4,15,0)
-import GHC.Tuple (Solo (..))
+import GHC.Tuple (Solo (Solo))
+#define MkSolo Solo
 #else
-import Data.Tuple.Solo (Solo (..))
+import Data.Tuple.Solo (Solo (MkSolo))
 #endif
 
 -- | A Heyting algebra is a bounded lattice equipped with a
@@ -135,9 +139,9 @@ instance Heyting a => Heyting (Const a b) where
 
 -- | @since 2.0.3
 instance Heyting a => Heyting (Solo a) where
-    Solo a ==> Solo b = Solo (a ==> b)
-    neg (Solo a)      = Solo (neg a)
-    Solo a <=> Solo b = Solo (a <=> b)
+    MkSolo a ==> MkSolo b = MkSolo (a ==> b)
+    neg (MkSolo a)      = MkSolo (neg a)
+    MkSolo a <=> MkSolo b = MkSolo (a <=> b)
 
 -------------------------------------------------------------------------------
 -- Sets

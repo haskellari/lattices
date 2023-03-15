@@ -45,18 +45,18 @@ import Prelude.Compat
 
 import qualified Algebra.PartialOrd as PO
 
-import Control.Applicative     (Const (..))
-import Control.Monad.Zip       (MonadZip (..))
-import Data.Data               (Data, Typeable)
-import Data.Functor.Identity   (Identity (..))
-import Data.Hashable           (Hashable (..))
-import Data.Proxy              (Proxy (..))
-import Data.Semigroup          (All (..), Any (..), Endo (..), Semigroup (..))
-import Data.Semigroup.Foldable (Foldable1 (..))
-import Data.Tagged             (Tagged (..))
-import Data.Universe.Class     (Finite (..), Universe (..))
-import Data.Void               (Void)
-import GHC.Generics            (Generic)
+import Control.Applicative   (Const (..))
+import Control.Monad.Zip     (MonadZip (..))
+import Data.Data             (Data, Typeable)
+import Data.Foldable1        (Foldable1 (..))
+import Data.Functor.Identity (Identity (..))
+import Data.Hashable         (Hashable (..))
+import Data.Proxy            (Proxy (..))
+import Data.Semigroup        (All (..), Any (..), Endo (..), Semigroup (..))
+import Data.Tagged           (Tagged (..))
+import Data.Universe.Class   (Finite (..), Universe (..))
+import Data.Void             (Void)
+import GHC.Generics          (Generic)
 
 import qualified Data.HashMap.Lazy as HM
 import qualified Data.HashSet      as HS
@@ -66,12 +66,16 @@ import qualified Data.Map          as Map
 import qualified Data.Set          as Set
 import qualified Test.QuickCheck   as QC
 
-#if MIN_VERSION_base(4,16,0)
-import Data.Tuple (Solo (..))
+#if MIN_VERSION_base(4,18,0)
+import Data.Tuple (Solo (MkSolo))
+#elif MIN_VERSION_base(4,16,0)
+import Data.Tuple (Solo (Solo))
+#define MkSolo Solo
 #elif MIN_VERSION_base(4,15,0)
-import GHC.Tuple (Solo (..))
+import GHC.Tuple (Solo (Solo))
+#define MkSolo Solo
 #else
-import Data.Tuple.Solo (Solo (..))
+import Data.Tuple.Solo (Solo (MkSolo))
 #endif
 
 infixr 6 /\ -- This comment needed because of CPP
@@ -529,16 +533,16 @@ instance BoundedMeetSemiLattice QC.Property where top = QC.property True
 
 -- | @since 2.0.3
 instance Lattice a => Lattice (Solo a) where
-  Solo a \/ Solo b = Solo (a \/ b)
-  Solo a /\ Solo b = Solo (a /\ b)
+  MkSolo a \/ MkSolo b = MkSolo (a \/ b)
+  MkSolo a /\ MkSolo b = MkSolo (a /\ b)
 
 -- | @since 2.0.3
 instance BoundedMeetSemiLattice a => BoundedMeetSemiLattice (Solo a) where
-  top = Solo top
+  top = MkSolo top
 
 -- | @since 2.0.3
 instance BoundedJoinSemiLattice a => BoundedJoinSemiLattice (Solo a) where
-  bottom = Solo bottom
+  bottom = MkSolo bottom
 
 -------------------------------------------------------------------------------
 -- Theorems
