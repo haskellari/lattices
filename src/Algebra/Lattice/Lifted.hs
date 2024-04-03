@@ -25,6 +25,7 @@ module Algebra.Lattice.Lifted (
 import Prelude ()
 import Prelude.Compat
 
+import Algebra.Heyting
 import Algebra.Lattice
 import Algebra.PartialOrd
 
@@ -87,6 +88,11 @@ instance Lattice a => BoundedJoinSemiLattice (Lifted a) where
 
 instance BoundedMeetSemiLattice a => BoundedMeetSemiLattice (Lifted a) where
     top = Lift top
+
+instance Heyting a => Heyting (Lifted a) where
+    (Lift a) ==> (Lift b) = Lift (a ==> b)
+    Bottom   ==> _        = Lift top
+    _        ==> Bottom   = Bottom
 
 -- | Interpret @'Lifted' a@ using the 'BoundedJoinSemiLattice' of @a@.
 retractLifted :: BoundedJoinSemiLattice a => Lifted a -> a

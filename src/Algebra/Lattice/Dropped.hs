@@ -25,6 +25,7 @@ module Algebra.Lattice.Dropped (
 import Prelude ()
 import Prelude.Compat
 
+import Algebra.Heyting
 import Algebra.Lattice
 import Algebra.PartialOrd
 
@@ -87,6 +88,12 @@ instance BoundedJoinSemiLattice a => BoundedJoinSemiLattice (Dropped a) where
 
 instance Lattice a => BoundedMeetSemiLattice (Dropped a) where
     top = Top
+
+instance (Eq a, Heyting a) => Heyting (Dropped a) where
+    (Drop a) ==> (Drop b) | Meet a `leq` Meet b = Top
+                          | otherwise           = Drop (a ==> b)
+    Top      ==> a        = a
+    _        ==> Top      = Top
 
 -- | Interpret @'Dropped' a@ using the 'BoundedMeetSemiLattice' of @a@.
 retractDropped :: BoundedMeetSemiLattice a => Dropped a -> a
