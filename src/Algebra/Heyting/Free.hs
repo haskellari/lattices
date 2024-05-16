@@ -14,9 +14,6 @@ module Algebra.Heyting.Free (
     toExpr,
     ) where
 
-import Prelude ()
-import Prelude.Compat
-
 import Algebra.Heyting
 import Algebra.Lattice
 import Algebra.PartialOrd

@@ -20,9 +20,6 @@ module Algebra.Lattice.Ordered (
     Ordered(..)
   ) where
 
-import Prelude ()
-import Prelude.Compat
-
 import Algebra.Heyting
 import Algebra.Lattice
 import Algebra.PartialOrd

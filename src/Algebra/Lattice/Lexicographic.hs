@@ -20,9 +20,6 @@ module Algebra.Lattice.Lexicographic (
     Lexicographic(..)
   ) where
 
-import Prelude ()
-import Prelude.Compat
-
 import Algebra.Lattice
 import Algebra.PartialOrd
 

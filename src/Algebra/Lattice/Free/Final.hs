@@ -24,9 +24,6 @@ module Algebra.Lattice.Free.Final (
     retractFBoundedLattice,
     ) where
 
-import Prelude ()
-import Prelude.Compat
-
 import Algebra.Lattice
 
 import Data.Universe.Class (Finite (..), Universe (..))

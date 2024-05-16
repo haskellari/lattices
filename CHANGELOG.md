@@ -1,3 +1,7 @@
+# 2.2.1 (2024-05-16)
+
+- Support GHC-8.6.5..GHC-9.10.1
+
 # 2.2 (2022-03-15)
 
 - Drop `semigroupoids` dependency in favour of `foldable1-classes-compat`.
