@@ -14,9 +14,6 @@ module Algebra.Lattice.M3 (
     M3 (..),
     ) where
 
-import Prelude ()
-import Prelude.Compat
-
 import Control.DeepSeq     (NFData (..))
 import Data.Data           (Data, Typeable)
 import Data.Hashable       (Hashable (..))

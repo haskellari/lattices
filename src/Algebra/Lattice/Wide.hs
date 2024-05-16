@@ -19,9 +19,6 @@ module Algebra.Lattice.Wide (
     Wide(..)
   ) where
 
-import Prelude ()
-import Prelude.Compat
-
 import Algebra.Lattice
 import Algebra.PartialOrd
 

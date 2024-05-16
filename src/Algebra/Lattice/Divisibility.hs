@@ -20,9 +20,6 @@ module Algebra.Lattice.Divisibility (
     Divisibility(..)
   ) where
 
-import Prelude ()
-import Prelude.Compat
-
 import Algebra.Lattice
 import Algebra.PartialOrd
 

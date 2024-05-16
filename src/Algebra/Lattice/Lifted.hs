@@ -22,9 +22,6 @@ module Algebra.Lattice.Lifted (
   , foldLifted
   ) where
 
-import Prelude ()
-import Prelude.Compat
-
 import Algebra.Lattice
 import Algebra.PartialOrd
 

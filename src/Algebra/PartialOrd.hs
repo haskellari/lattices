@@ -24,7 +24,7 @@ import qualified Data.HashMap.Lazy as HM
 import qualified Data.HashSet      as HS
 import qualified Data.IntMap       as IM
 import qualified Data.IntSet       as IS
-import qualified Data.List.Compat  as L
+import qualified Data.List         as L
 import qualified Data.Map          as Map
 import           Data.Monoid       (All (..), Any (..))
 import qualified Data.Set          as Set

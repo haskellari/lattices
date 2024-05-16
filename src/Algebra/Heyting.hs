@@ -12,9 +12,6 @@
 ----------------------------------------------------------------------------
 module Algebra.Heyting where
 
-import Prelude ()
-import Prelude.Compat
-
 import Algebra.Lattice
 import Control.Applicative   (Const (..))
 import Data.Functor.Identity (Identity (..))

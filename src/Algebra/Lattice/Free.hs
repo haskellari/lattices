@@ -14,9 +14,6 @@ module Algebra.Lattice.Free (
     toExpr,
     ) where
 
-import Prelude ()
-import Prelude.Compat
-
 import Algebra.Lattice
 import Algebra.PartialOrd
 
