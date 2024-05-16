@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP                 #-}
 {-# LANGUAGE ConstraintKinds     #-}
 {-# LANGUAGE DeriveDataTypeable  #-}
 {-# LANGUAGE FlexibleContexts    #-}
@@ -6,9 +5,6 @@
 {-# LANGUAGE KindSignatures      #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Main (main) where
-
-import Prelude ()
-import Prelude.Compat
 
 import Control.Monad            (ap, guard)
 import Data.Int                 (Int8)
@@ -147,9 +143,6 @@ type OInt8 = O.Ordered Int8
 -------------------------------------------------------------------------------
 
 monadLaws :: forall (m :: * -> *). ( Monad m
-#if !MIN_VERSION_base(4, 8, 0)
-                                   , Applicative m
-#endif
                                    , Arbitrary (m Int)
                                    , Eq (m Int)
                                    , Show (m Int)

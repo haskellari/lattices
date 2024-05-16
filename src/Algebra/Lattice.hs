@@ -40,9 +40,6 @@ module Algebra.Lattice (
     gfp, gfpFrom, unsafeGfp,
   ) where
 
-import Prelude ()
-import Prelude.Compat
-
 import qualified Algebra.PartialOrd as PO
 
 import Control.Applicative   (Const (..))

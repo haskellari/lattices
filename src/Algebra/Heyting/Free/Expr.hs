@@ -10,9 +10,6 @@ module Algebra.Heyting.Free.Expr (
     proofSearch,
     ) where
 
-import Prelude ()
-import Prelude.Compat
-
 import Control.Monad             (ap)
 import Control.Monad.Trans.State (State, evalState, get, put)
 import Data.Data                 (Data, Typeable)

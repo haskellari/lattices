@@ -1,2 +1,6 @@
 packages: .
 tests: true
+
+allow-newer: quickcheck-instances-0.3.30:base
+allow-newer: quickcheck-instances-0.3.30:containers
+allow-newer: these-1.2:base
