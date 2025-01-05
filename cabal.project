@@ -1,5 +1,2 @@
 packages: .
 tests: true
-
-allow-newer: quickcheck-instances-0.3.32:base
-allow-newer: these-1.2.1:base
