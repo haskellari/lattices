@@ -1,7 +1,7 @@
 cabal-version:      1.18
 name:               lattices
 version:            2.2.1
-x-revision:         2
+x-revision:         3
 category:           Math
 license:            BSD3
 license-file:       LICENSE
@@ -86,7 +86,7 @@ library
     , deepseq                     >=1.3.0.0  && <1.6
     , hashable                    >=1.2.7.0  && <1.6
     , integer-logarithms          >=1.0.3    && <1.1
-    , QuickCheck                  >=2.12.6.1 && <2.16
+    , QuickCheck                  >=2.12.6.1 && <2.17
     , tagged                      >=0.8.6    && <0.9
     , transformers                >=0.3.0.0  && <0.7
     , universe-base               >=1.1      && <1.2
@@ -115,7 +115,7 @@ test-suite test
     , QuickCheck
     , quickcheck-instances        >=0.3.19 && <0.4
     , tasty                       >=1.2.1  && <1.6
-    , tasty-quickcheck            >=0.10   && <0.11
+    , tasty-quickcheck            >=0.10   && <0.12
     , transformers
     , universe-base
     , universe-reverse-instances
