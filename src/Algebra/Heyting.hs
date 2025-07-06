@@ -91,6 +91,11 @@ instance Heyting a => Heyting (b -> a) where
     f <=> g = \x -> f x <=> g x
     neg f   = neg . f
 
+instance (Heyting a, Heyting b) => Heyting (a, b) where
+    (a1, b1) ==> (a2, b2) = (a1 ==> a2, b1 ==> b2)
+    neg (a, b)            = (neg a, neg b)
+    (a1, b1) <=> (a2, b2) = (a1 <=> a2, b1 <=> b2)
+
 -------------------------------------------------------------------------------
 -- All, Any, Endo
 -------------------------------------------------------------------------------
