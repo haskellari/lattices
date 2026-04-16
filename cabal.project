@@ -1,2 +1,4 @@
 packages: .
 tests: true
+
+allow-newer: these-1.2.1:base
